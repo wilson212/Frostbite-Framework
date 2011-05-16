@@ -52,10 +52,9 @@ Class Registry
 	
     protected function _get($key)
     {
-		//$test = self::$objects
-        if(isset($this->objects[$key]))
+        if(isset($this::$objects[$key]))
         {
-            return $this->objects[$key];
+            return $this::$objects[$key];
         }
         return NULL;
     }
@@ -74,7 +73,7 @@ Class Registry
 
     protected function _set($key,$val)
     {
-        $this->objects[$key] = $val;
+        $this::$objects[$key] = $val;
     }
 
 /*
