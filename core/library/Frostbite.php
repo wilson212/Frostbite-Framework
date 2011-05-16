@@ -12,42 +12,71 @@
 |
 | * USE THIS FILE AS THE BOOTSTRAP *
 |
+| We will use this very class, as the Super Object!
+|
 */
 
-define('ENGINE', 'Frostbite');
-define('ENGINE_VERSION', '0.1');
-
-// Get our current url, which is passed on by the htaccess file
-$url = (isset($_GET['url']) ? $_GET['url'] : '');
-
-// Include our 4 main required files
-require_once (CORE_PATH . DS . 'library' . DS . 'Registry.php');
-require_once (CORE_PATH . DS . 'library' . DS . 'Common.php');
-require_once (CORE_PATH . DS . 'library' . DS . 'Router.php');
-require_once (APP_PATH . DS . 'config' . DS . 'routes.php');
-
-// Setup the config class, the autoloader will auto include the class file
-$Config = load('Config');
-
-// Fill in the config with the proper directory info if the directory info is wrong
-define('SITE_DIR', dirname( $_SERVER['PHP_SELF'] ).'/');
-define('SITE_HREF', stripslashes(str_replace('//', '/', SITE_DIR)));
-define('SITE_BASE_HREF', 'http://'.$_SERVER["HTTP_HOST"]. SITE_HREF);
-
-// If the site href doesnt match whats in the config, we need to set it
-if($Config->get('site_base_href') != SITE_BASE_HREF)
+class Frostbite
 {
-	$Config->set('site_base_href', SITE_BASE_HREF);
-	$Config->set('site_href', SITE_HREF);
-	$Config->Save();
-}	
+	function __construct()
+	{
+		// Setup the config class, the autoloader will auto include the class file
+		$this->Config = new Config();
 
-// Setup the cache system	
-$Cache = load('Cache');
-
-// Start the engine and get this thing rolling!
-$Router = load('Router');
-$Router->Init_Engine();
+		// Initialize the router
+		$this->Router = new Router();
+	}
+	
+/*
+| ---------------------------------------------------------------
+| Method: Init()
+| ---------------------------------------------------------------
+|
+| This is the function that runs the whole show!
+|
+*/
+	function Init()
+	{
+		// Tell the router to process the URL for us
+		$this->Router->routeUrl();
+		
+		// Initialize some important routing variables
+		$controller = $this->Router->getController();
+		$action = $this->Router->getAction();
+		$queryString = $this->Router->getQueryString();
+		
+		// Let init a Controller Name
+		$controllerName = $controller;
+	
+		// -------------------------------------------------------------
+		// Here we init the actual controller / action into a variable.|
+		// -------------------------------------------------------------
+		$dispatch = new $controllerName($controller, $action);
+		
+		// After loading the controller, make sure it loaded correctly or spit an error
+		if((int)method_exists($controllerName, $action)) 
+		{
+			// Check to see if there is a "beforeAction" method, if so call it!
+			if((int)method_exists($controllerName, "beforeAction")) 
+			{
+				call_user_func_array(array($dispatch,"beforeAction"), $queryString);
+			}
+			
+			// HERE is where the magic begins... call the Main APP Controller
+			call_user_func_array(array($dispatch,$action), $queryString);
+			
+			// Check to see if there is a "afterAction" method, if so call it!
+			if((int)method_exists($controllerName, "afterAction")) 
+			{
+				call_user_func_array(array($dispatch,"afterAction"), $queryString);
+			}
+		} 
+		else 
+		{
+			show_error(3, 'Engine failed to initialize Controller: "'. $controllerName .'", Using action: "'. $action .'"', __FILE__, __LINE__);
+		}
+	}
+}
 
 // Please use EOF comments instead of closing php tags. For reason / more 
 // info: http://codeigniter.com/user_guide/general/styleguide.html#php_closing_tag

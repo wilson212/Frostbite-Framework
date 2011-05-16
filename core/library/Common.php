@@ -41,6 +41,23 @@ function __autoload($className)
 	}
 }
 
+/*
+| ---------------------------------------------------------------
+| Function: show_error()
+| ---------------------------------------------------------------
+|
+| @Param: $lvl - Level of the error
+| @Param: $message - Error message
+| @Param: $file - The file reporting the error
+| @Param: $line - Error line number
+| @Param: $errno - Error number
+|
+*/	
+	function show_error($lvl, $message = 'Not Specified', $file = "none", $line = 0, $errno = 0)
+	{
+		return Core::trigger_error($lvl, $message = 'Not Specified', $file = "none", $line = 0, $errno = 0);
+	}
+
 /* 
 | Register this file to process errors with the custom_error_handler method
 | We use this right after autoload so we can get these errors as quick as possible

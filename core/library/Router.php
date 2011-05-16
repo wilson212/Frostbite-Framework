@@ -27,14 +27,15 @@ class Router
 	
 	/*
 	| ---------------------------------------------------------------
-	| Method: Init_Engine()
+	| Method: routeUrl()
 	| ---------------------------------------------------------------
 	|
-	| Main Calling Funtion. This Method Runs The Whole Show!
+	| This method analyzes the url to determine the controller / action
+	| and query string
 	|
 	*/
 	
-	function Init_Engine() 
+	function routeUrl() 
 	{
 		global $url;
 		global $routes;
@@ -86,40 +87,56 @@ class Router
 			// If custom_controller doesnt exist, then we have a 404
 			if(!$this->controller_exists($controller))
 			{
-				Core::trigger_error(404);
+				show_error(404);
 			}
 		}
 		
-		// Let init a Controller Name
-		$controllerName = $controller;
+		// Set static Variables
+		$this->_controller = $controller;
+		$this->_action = $action;
+		$this->_queryString = $queryString;
+	}
 	
-		// -------------------------------------------------------------
-		// Here we init the actual controller / action into a variable.|
-		// -------------------------------------------------------------
-		$dispatch = new $controllerName($controller, $action);
-		
-		// After loading the controller, make sure it loaded correctly or spit an error
-		if((int)method_exists($controllerName, $action)) 
-		{
-			// Check to see if there is a "beforeAction" method, if so call it!
-			if((int)method_exists($controllerName, "beforeAction")) 
-			{
-				call_user_func_array(array($dispatch,"beforeAction"), $queryString);
-			}
-			
-			// HERE is where the magic begins... call the Main APP Controller
-			call_user_func_array(array($dispatch,$action), $queryString);
-			
-			// Check to see if there is a "afterAction" method, if so call it!
-			if((int)method_exists($controllerName, "afterAction")) 
-			{
-				call_user_func_array(array($dispatch,"afterAction"), $queryString);
-			}
-		} 
-		else 
-		{
-			Core::trigger_error(3, 'Engine failed to initialize Controller: "'. $controllerName .'", Using action: "'. $action .'"', __FILE__, __LINE__);
-		}
+	/*
+	| ---------------------------------------------------------------
+	| Method: getController()
+	| ---------------------------------------------------------------
+	|
+	| Returns the controller name from the routeUrl method.
+	|
+	*/
+	
+	function getController()
+	{		
+		return $this->_controller;
+	}
+	
+	/*
+	| ---------------------------------------------------------------
+	| Method: getAction()
+	| ---------------------------------------------------------------
+	|
+	| Returns the action name from the routeUrl method.
+	|
+	*/
+	
+	function getAction()
+	{		
+		return $this->_action;
+	}
+	
+	/*
+	| ---------------------------------------------------------------
+	| Method: getQueryString()
+	| ---------------------------------------------------------------
+	|
+	| Returns the query string name from the routeUrl method.
+	|
+	*/
+	
+	function getQueryString()
+	{		
+		return $this->_queryString;
 	}
 	
 	/*
