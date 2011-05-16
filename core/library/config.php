@@ -1,5 +1,14 @@
 <?php
-// Config Handling class
+/*
+| ---------------------------------------------------------------
+| Class: Config()
+| ---------------------------------------------------------------
+|
+| Main Config class. used to load, set, and save variables used
+| in the config file.
+|
+*/
+
 class Config
 {	
 	var $data = array();
@@ -11,9 +20,14 @@ class Config
 		$this->Load();
 	}
 	
-//	************************************************************
-//	Loads the config files.
-
+/*
+| ---------------------------------------------------------------
+| Method: Load()
+| ---------------------------------------------------------------
+|
+| Gets the defined variables in the config file
+|
+*/
 	function Load() 
 	{
 		if(file_exists($this->configFile)) 
@@ -22,10 +36,8 @@ class Config
 			$vars = get_defined_vars();
 			foreach( $vars as $key => $val ) 
 			{
-				if($key != 'this' && $key != 'data') 
-				{
-					$this->data[$key] = $val;
-				}
+
+				$this->data[$key] = $val;
 			}
 			return true;
 		} 
@@ -35,9 +47,16 @@ class Config
 		}
 	}
 	
-//	************************************************************
-// Returns the config variable requested
-
+/*
+| ---------------------------------------------------------------
+| Method: get()
+| ---------------------------------------------------------------
+|
+| Returns the variable ($key) value in the config file.
+|
+| @Param: $key - variable name. Value is returned
+|
+*/
 	function get($key) 
 	{
 		if(isset($this->data[$key])) 
@@ -46,26 +65,48 @@ class Config
 		}
 	}
 	
-//	************************************************************
-// Returns the requested DB key from the DB config file
-
+/*
+| ---------------------------------------------------------------
+| Method: getDbInfo()
+| ---------------------------------------------------------------
+|
+| Returns the variable ($key) value in the database config file.
+|
+| @Param: $key - variable name. Value is returned
+|
+*/
 	function getDbInfo($key) 
 	{
 		include($this->path_protectedconf);
 		return $db[$key];
 	}
 	
-//	************************************************************
-// Sets a variable
-
+/*
+| ---------------------------------------------------------------
+| Method: set()
+| ---------------------------------------------------------------
+|
+| Sets the variable ($key) value. If not saved, default value
+| will be returned as soon as page is re-loaded / changed.
+|
+| @Param: $key - variable name to be set
+| @Param: $value - new value of the variable
+|
+*/
 	function set($key, $val) 
 	{
 		$this->data[$key] = $val;
 	}
 
-//	************************************************************
-// Saves all set config variables to the config file, and makes a backup of the current config file
-
+/*
+| ---------------------------------------------------------------
+| Method: getDbInfo()
+| ---------------------------------------------------------------
+|
+| Saves all set config variables to the config file, and makes 
+| a backup of the current config file
+|
+*/
 	function Save() 
 	{
 		$cfg  = "<?php\n";
@@ -85,31 +126,14 @@ class Config
 		// Copy the current config file, and make a new config file for backup.
 		// Put the current config contents in the backup config file
 		@copy($this->configFile, $this->configFile.'.bak');
-		
-		if(phpversion() < 5) # If php version is less than 5
+
+		if(@file_put_contents( $this->configFile, $cfg )) 
 		{
-			$file = @fopen($this->configFile, 'w');
-			if($file === false) 
-			{
-				return false;
-			} 
-			else 
-			{
-				@fwrite($file, $cfg);
-				@fclose($file);
-				return true;
-			}
+			return true;
 		} 
 		else 
 		{
-			if(@file_put_contents( $this->configFile, $cfg )) 
-			{
-				return true;
-			} 
-			else 
-			{
-				return false;
-			}
+			return false;
 		}
 	}
 }
