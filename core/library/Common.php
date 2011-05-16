@@ -9,11 +9,11 @@
 */
 
 function __autoload($className) 
-{
+{	
 	// Check for needed classes from the library folder
-	if(file_exists(CORE_PATH . DS .  'library' . DS . ucfirst(strtolower($className)) . '.php')) 
+	if(file_exists(CORE_PATH . DS .  'library' . DS . $className . '.php')) 
 	{
-		require_once(CORE_PATH . DS .  'library' . DS . ucfirst(strtolower($className)) . '.php');
+		require_once(CORE_PATH . DS .  'library' . DS . $className . '.php');
 	}
 	
 	// Check application controllers
