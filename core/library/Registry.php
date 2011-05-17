@@ -113,6 +113,7 @@ Class Registry
 
 }
 
+
 /*
 | *********** END OF REGISTRY CLASS *********** |
 */
@@ -132,7 +133,7 @@ Class Registry
 |
 */
 
-function load($class, $args = '')
+function load_class($class, $args = '')
 {
     $Obj = Registry::singleton();
     

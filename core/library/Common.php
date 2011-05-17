@@ -72,9 +72,9 @@ set_error_handler( array( 'Core', 'custom_error_handler' ), E_ALL );
 | Gateway to adding an outside class or file into the base controller
 |
 */	
-	function &get_instance()
+	function get_instance()
 	{
-		return Controller::get_instance();
+		return Frostbite::get_instance();
 	}
 
 /*

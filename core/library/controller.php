@@ -8,13 +8,12 @@
 | whole system
 |
 */
-class Controller 
+class Controller
 {
 	
 	protected $_controller;
 	protected $_action;
 	protected $_template;
-	private static $instance;
 
 	public $doNotRenderHeader;
 	public $render;
@@ -34,15 +33,15 @@ class Controller
 */
 	function __construct($controller, $action) 
 	{
-		// Important for the gateway
-		self::$instance =& $this;
+		// Initiate the loader
+		$this->load = load_class('Loader');
+		
+		// Setup the config class
+		$this->Config = load_class('Config');
 		
 		// Lets variablize the controller and action globaly
 		$this->_controller = ucfirst($controller);
 		$this->_action = $action;
-		
-		// Load the Loader class, probably will move to bootstrap
-		$this->load = new Loader;
 		
 		// Default template init.
 		$this->doNotRenderHeader = 0;
@@ -51,18 +50,6 @@ class Controller
 
 	}
 	
-/*
-| ---------------------------------------------------------------
-| Function: &get_instance()
-| ---------------------------------------------------------------
-|
-| Gateway to adding this controller class to an outside file
-|
-*/	
-	public static function &get_instance()
-	{
-		return self::$instance;
-	}
 /*
 | ---------------------------------------------------------------
 | Function: set()

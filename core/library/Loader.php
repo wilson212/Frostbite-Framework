@@ -39,7 +39,7 @@ class Loader
 		}
 		
 		$name = ucfirst($name);
-		$FB =& get_instance();
+		$FB = get_instance();
 		$FB->$name = new $name();
 	}
 

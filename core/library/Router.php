@@ -106,7 +106,7 @@ class Router
 	|
 	*/
 	
-	function getController()
+	function get_class()
 	{		
 		return $this->_controller;
 	}
@@ -120,7 +120,7 @@ class Router
 	|
 	*/
 	
-	function getAction()
+	function get_method()
 	{		
 		return $this->_action;
 	}
@@ -134,7 +134,7 @@ class Router
 	|
 	*/
 	
-	function getQueryString()
+	function get_queryString()
 	{		
 		return $this->_queryString;
 	}
