@@ -12,8 +12,6 @@
 |
 | * USE THIS FILE AS THE BOOTSTRAP *
 |
-| We will use this very class, as the Super Object!
-|
 */
 
 class Frostbite

@@ -24,7 +24,7 @@ define('BASE_URL', 'http://'.$_SERVER["HTTP_HOST"]. SITE_HREF);
 // Get our current url, which is passed on by the htaccess file
 $url = (isset($_GET['url']) ? $_GET['url'] : '');
 
-// Include our 4 main required files, including the bootstrap
+// Include our 4 main required files, and routes config file.
 require (APP_PATH . DS . 'config' . DS . 'routes.php');
 require (CORE_PATH . DS . 'library' . DS . 'Registry.php');
 require (CORE_PATH . DS . 'library' . DS . 'Common.php');

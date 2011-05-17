@@ -120,7 +120,7 @@ Class Registry
 
 /*
 | ---------------------------------------------------------------
-| Function: load()
+| Function: load_class()
 | ---------------------------------------------------------------
 |
 | This function is used to load and store core classes statically 
@@ -133,7 +133,7 @@ Class Registry
 |
 */
 
-function load_class($class, $args = '')
+function load_class($class, $args = NULL)
 {
     $Obj = Registry::singleton();
     
@@ -147,10 +147,16 @@ function load_class($class, $args = '')
         return $Obj->load($Class);        
     }
 
-	// Check for needed classes from the library folder
+	// Check for needed classes from the Core library folder
 	if(file_exists(CORE_PATH . DS .  'library' . DS . $className . '.php')) 
 	{
 		require_once(CORE_PATH . DS .  'library' . DS . $className . '.php');
+	}
+	
+	// Check for needed classes from the Application library folder
+	elseif(@file_exists(APP_PATH . DS .  'library' . DS . $className . '.php')) 
+	{
+		require_once(APP_PATH . DS .  'library' . DS . $className . '.php');
 	}
 	else
 	{
@@ -158,7 +164,14 @@ function load_class($class, $args = '')
 	}
     
     // Initiate the new class
-	$dispatch = new $className();
+	if($args !== NULL) 
+	{
+		$dispatch = new $className($args);
+	}
+	else
+	{
+		$dispatch = new $className();
+	}
 	
 	// Store this new object in the registery
     $Obj->store($Class, $dispatch); 

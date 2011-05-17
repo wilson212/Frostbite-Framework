@@ -1,6 +1,24 @@
 <?php
 /*
 | ---------------------------------------------------------------
+| Function: show_error()
+| ---------------------------------------------------------------
+|
+| @Param: $lvl - Level of the error
+| @Param: $message - Error message
+| @Param: $file - The file reporting the error
+| @Param: $line - Error line number
+| @Param: $errno - Error number
+|
+*/	
+	function show_error($lvl, $message = 'Not Specified', $file = "none", $line = 0, $errno = 0)
+	{
+		$Core = new Core();
+		return $Core->trigger_error($lvl, $message = 'Not Specified', $file = "none", $line = 0, $errno = 0);
+	}
+	
+/*
+| ---------------------------------------------------------------
 | Method: __autoload()
 | ---------------------------------------------------------------
 |
@@ -10,10 +28,16 @@
 
 function __autoload($className) 
 {	
-	// Check for needed classes from the library folder
+	// Check the core library folder
 	if(file_exists(CORE_PATH . DS .  'library' . DS . $className . '.php')) 
 	{
 		require_once(CORE_PATH . DS .  'library' . DS . $className . '.php');
+	}
+	
+	// Check the application library folder
+	elseif(@file_exists(APP_PATH . DS .  'library' . DS . $className . '.php')) 
+	{
+		require_once(APP_PATH . DS .  'library' . DS . $className . '.php');
 	}
 	
 	// Check application controllers
@@ -37,27 +61,9 @@ function __autoload($className)
 	// We have an error as there is no classname
 	else 
 	{
-		Core::trigger_error(1, 'Autoload failed to load class: '. $className, __FILE__, __LINE__);
+		show_error(3, 'Autoload failed to load class: '. $className, __FILE__, __LINE__);
 	}
 }
-
-/*
-| ---------------------------------------------------------------
-| Function: show_error()
-| ---------------------------------------------------------------
-|
-| @Param: $lvl - Level of the error
-| @Param: $message - Error message
-| @Param: $file - The file reporting the error
-| @Param: $line - Error line number
-| @Param: $errno - Error number
-|
-*/	
-	function show_error($lvl, $message = 'Not Specified', $file = "none", $line = 0, $errno = 0)
-	{
-		$Core = new Core();
-		return $Core->trigger_error($lvl, $message = 'Not Specified', $file = "none", $line = 0, $errno = 0);
-	}
 
 /* 
 | Register this file to process errors with the custom_error_handler method
