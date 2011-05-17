@@ -55,7 +55,8 @@ function __autoload($className)
 */	
 	function show_error($lvl, $message = 'Not Specified', $file = "none", $line = 0, $errno = 0)
 	{
-		return Core::trigger_error($lvl, $message = 'Not Specified', $file = "none", $line = 0, $errno = 0);
+		$Core = new Core();
+		return $Core->trigger_error($lvl, $message = 'Not Specified', $file = "none", $line = 0, $errno = 0);
 	}
 
 /* 
@@ -74,7 +75,7 @@ set_error_handler( array( 'Core', 'custom_error_handler' ), E_ALL );
 */	
 	function get_instance()
 	{
-		return Frostbite::get_instance();
+		return Controller::get_instance();
 	}
 
 /*

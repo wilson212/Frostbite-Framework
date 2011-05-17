@@ -74,7 +74,13 @@ class Router
 			$queryString = $urlArray;
 		}
 		
-		// DO a controller check
+		// Make sure the first character of the controller is not an _ !
+		if( strncmp($controller, '_', 1) == 0 || strncmp($action, '_', 1) == 0 )
+		{
+			show_error(404);
+		}
+		
+		// DO a controller check, make sure it exists. If not, then load a custom controller
 		if(!$this->controller_exists($controller))
 		{
 			$controller = $routes['custom_controller'];

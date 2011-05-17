@@ -25,11 +25,11 @@ define('BASE_URL', 'http://'.$_SERVER["HTTP_HOST"]. SITE_HREF);
 $url = (isset($_GET['url']) ? $_GET['url'] : '');
 
 // Include our 4 main required files, including the bootstrap
-require_once (CORE_PATH . DS . 'library' . DS . 'Registry.php');
-require_once (APP_PATH . DS . 'config' . DS . 'routes.php');
-require_once (CORE_PATH . DS . 'library' . DS . 'Common.php');
-require_once (CORE_PATH . DS . 'library' . DS . 'Router.php');
-require_once (CORE_PATH . DS . 'library' . DS . 'Frostbite.php');
+require (APP_PATH . DS . 'config' . DS . 'routes.php');
+require (CORE_PATH . DS . 'library' . DS . 'Registry.php');
+require (CORE_PATH . DS . 'library' . DS . 'Common.php');
+require (CORE_PATH . DS . 'library' . DS . 'Router.php');
+require (CORE_PATH . DS . 'library' . DS . 'Frostbite.php');
 
 // Initiate Registry
 $Registry = new Registry();

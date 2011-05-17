@@ -14,6 +14,7 @@ class Controller
 	protected $_controller;
 	protected $_action;
 	protected $_template;
+	private static $instance;
 
 	public $doNotRenderHeader;
 	public $render;
@@ -47,7 +48,22 @@ class Controller
 		$this->doNotRenderHeader = 0;
 		$this->render = 1;
 		$this->_template = new Template($controller, $action);
-
+		
+		// Set the instance here
+		self::$instance = $this;
+	}
+	
+/*
+| ---------------------------------------------------------------
+| Function: get_instance()
+| ---------------------------------------------------------------
+|
+| Gateway to adding this controller class to an outside file
+|
+*/	
+	public static function get_instance()
+	{
+		return self::$instance;
 	}
 	
 /*

@@ -18,38 +18,12 @@
 
 class Frostbite
 {
-	// Set the instance
-	private static $instance;
-	public $load;
-	public $Config;
 	public $Router;
 	
 	function __construct()
 	{
-		// Load the Loader class, probably will move to bootstrap
-		$this->load = load_class('Loader');
-		
-		// Setup the config class, the autoloader will auto include the class file
-		$this->Config = load_class('Config');
-
 		// Initialize the router
 		$this->Router = load_class('Router');
-		
-		// Set the instance here
-		self::$instance = $this;
-	}
-	
-/*
-| ---------------------------------------------------------------
-| Function: get_instance()
-| ---------------------------------------------------------------
-|
-| Gateway to adding this controller class to an outside file
-|
-*/	
-	public static function get_instance()
-	{
-		return self::$instance;
 	}
 	
 /*
