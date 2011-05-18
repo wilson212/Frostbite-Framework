@@ -1,3 +1,3 @@
 <div>
-	<h2><center>No Contents in the body</center></h2>
+	<h2><center><?php echo $test_var; ?></center></h2>
 </div>

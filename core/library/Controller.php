@@ -109,9 +109,9 @@ class Controller
 | or in the engine.
 |
 */	
-	function output() 
+	function output($data = array()) 
 	{
-		$this->template->render();
+		$this->template->render($data);
 	}	
 }
 // EOF

@@ -77,15 +77,29 @@ class Template
 |
 */
 	
-    function render($doNotRenderHeader = 0) 
+    function render($data = array()) 
 	{
-		extract($this->variables);
+		// Add the passed variables to the template variables list
+		if(count($data) > 0)
+		{
+			foreach($data as $key => $value)
+			{
+				$this->variables[$key] = $value;
+			}
+		}
+		
+		// Extract the variables so $this->variables[ $var ]
+		// becomes just " $var "
+		@extract($this->variables);
+		
+		// Just fo testing purposes
+		$render = 1;
 		
 		// Start output bffering
 		ob_start();
 		
 		// Load the header
-		if($doNotRenderHeader == 0) 
+		if($render == 1) 
 		{			
 			if(file_exists(ROOT . DS . 'templates' . DS . $this->template_name . DS . 'header.php')) 
 			{
@@ -104,7 +118,7 @@ class Template
 		}
 			
 		// Load the footer
-		if ($doNotRenderHeader == 0) 
+		if($render == 1) 
 		{
 			if(file_exists(ROOT . DS . 'templates' . DS . $this->template_name . DS . 'footer.php')) 
 			{

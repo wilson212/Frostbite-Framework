@@ -19,14 +19,23 @@ class Welcome extends Controller
 	
 	function index() 
 	{	
+		// Load a Welcome Model
 		$this->load->model('Welcome_Model');
+		
+		/*
+		| We will use this newly loaded model to return an array.
+		| This array is the "No Contents In Body...." message you see 
+		| when you load this page in the browser.
+		*/
+		$data = $this->Welcome_Model->return_default_array();
+		$this->output($data);
 	}
 
 	function _afterAction() 
 	{
 		// If you have a custom afterAction, you need
 		// to do $this->output(); !
-		$this->output();
+		// $this->output();
 	}
 }
 // EOF

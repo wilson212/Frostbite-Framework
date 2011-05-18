@@ -37,7 +37,7 @@ class Core
 				die();
 		}
 		
-		if($lvl <= $Config->get('debug_lvl'))
+		if($lvl <= 0) // $Config->get('debug_lvl'))
 		{
 			if($file != "none")
 			{
@@ -53,7 +53,7 @@ class Core
 		}
 		
 		// If error, then display the error page!
-		if($lvl >= $Config->get('error_display_level'))
+		if($lvl >= 0) //$Config->get('error_display_level'))
 		{
 			// Empty out the buffers so we dont see what have processed
 			@ob_end_clean();
@@ -94,16 +94,24 @@ class Core
 				Core::trigger_error(1, $errstr, $errfile, $errline);
 				break;
 				
-			case E_WARNING:
-				Core::trigger_error(1, $errstr, $errfile, $errline);
-				break;
-
 			case E_USER_NOTICE:
 				Core::trigger_error(0, $errstr, $errfile, $errline);
+				break;
+			
+			case E_ERROR:
+				Core::trigger_error(3, $errstr, $errfile, $errline);
+				break;
+				
+			case E_WARNING:
+				Core::trigger_error(1, $errstr, $errfile, $errline);
 				break;
 				
 			case E_NOTICE:
 				Core::trigger_error(0, $errstr, $errfile, $errline);
+				break;
+				
+			case E_STRICT:
+				Core::trigger_error(1, $errstr, $errfile, $errline);
 				break;
 
 			default:

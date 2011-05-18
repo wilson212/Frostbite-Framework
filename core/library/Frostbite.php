@@ -17,6 +17,7 @@
 class Frostbite
 {
 	public $Router;
+	protected $dispatch;
 	
 	function __construct()
 	{
@@ -48,7 +49,7 @@ class Frostbite
 		// -------------------------------------------------------------
 		// Here we init the actual controller / action into a variable.|
 		// -------------------------------------------------------------
-		$dispatch = new $controllerName($controller, $action);
+		$this->dispatch = new $controllerName($controller, $action);
 		
 		// After loading the controller, make sure it loaded correctly or spit an error
 		if((int)method_exists($controllerName, $action)) 
@@ -58,24 +59,40 @@ class Frostbite
 			// -------------------------------------------------------------------------
 		
 			// Call the beforeAction method in the controller.
-			if(method_exists($controllerName, "_beforeAction")) 
-			{
-				call_user_func_array(array($dispatch,"_beforeAction"), $queryString);
-			}
+			$this->performAction($controllerName, "_beforeAction", $queryString);
 			
 			// HERE is where the magic begins... call the Main APP Controller and method
-			call_user_func_array(array($dispatch,$action), $queryString);
+			$this->performAction($controllerName, $action, $queryString);
 			
 			// Call the afterAction method in the controller.
-			if(method_exists($controllerName, "_afterAction")) 
-			{
-				call_user_func_array(array($dispatch,"_afterAction"), $queryString);
-			}
+			$this->performAction($controllerName, "_afterAction", $queryString);
+
 		} 
 		else 
 		{
 			show_error(3, 'Engine failed to initialize Controller: "'. $controllerName .'", Using action: "'. $action .'"', __FILE__, __LINE__);
 		}
+	}
+	
+	/*
+	| ---------------------------------------------------------------
+	| Method: performAction()
+	| ---------------------------------------------------------------
+	|
+	| @Param: $controller - Name of the controller being used
+	| @Param: $action - Action method being used in the controller
+	| @Param: $queryString - The query string, basically params for the Action
+	| @Param: $render - Whether to render the page and close, or just return the contents
+	|
+	*/
+	
+	function performAction($controller, $action, $queryString = null) 
+	{	
+		if(method_exists($controller, $action)) 
+		{
+			return call_user_func_array( array($this->dispatch, $action), $queryString );
+		}
+		return FALSE;
 	}
 }
 
