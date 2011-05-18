@@ -9,7 +9,12 @@ class Welcome extends Controller
 	
 	function beforeAction() 
 	{
-
+		/*
+		| You can call before and after actions, sorta like mini hooks
+		| They arent nessesary, but convenient not having to make a full hook
+		| Since they are loaded in the main controller, you dont need to 
+		| include these functions at all in your controller.
+		*/
 	}
 	
 	function index() 
@@ -19,6 +24,8 @@ class Welcome extends Controller
 
 	function afterAction() 
 	{
+		// If you have a custom afterAction, you need
+		// to do $this->output(); !
 		$this->output();
 	}
 }

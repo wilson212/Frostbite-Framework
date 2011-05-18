@@ -28,7 +28,6 @@ $url = (isset($_GET['url']) ? $_GET['url'] : '');
 require (APP_PATH . DS . 'config' . DS . 'routes.php');
 require (CORE_PATH . DS . 'library' . DS . 'Registry.php');
 require (CORE_PATH . DS . 'library' . DS . 'Common.php');
-require (CORE_PATH . DS . 'library' . DS . 'Router.php');
 require (CORE_PATH . DS . 'library' . DS . 'Frostbite.php');
 
 // Initiate Registry
