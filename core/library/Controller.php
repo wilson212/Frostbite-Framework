@@ -63,23 +63,23 @@ class Controller
 
 /*
 | ---------------------------------------------------------------
-| Function: beforeAction()
+| Function: _beforeAction()
 | ---------------------------------------------------------------
 |
 | Mini hook of code to be called right before the action
 |
 */	
-	function beforeAction() {}
+	function _beforeAction() {}
 
 /*
 | ---------------------------------------------------------------
-| Function: afterAction()
+| Function: _afterAction()
 | ---------------------------------------------------------------
 |
 | Mini hook of code to be called right after the action
 |
 */	
-	function afterAction() 
+	function _afterAction() 
 	{
 		$this->output();
 	}

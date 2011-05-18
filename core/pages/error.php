@@ -4,7 +4,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 	<title><?php echo $Config->get('site_title'); ?> :: <?php echo str_replace(": ", "", ucfirst(strtolower($lvl_txt))); ?></title>
-	<link rel="stylesheet" href="core/pages/main.css" type="text/css"/>
+	<link rel="stylesheet" href="<?php echo BASE_URL; ?>core/pages/main.css" type="text/css"/>
 </head>
 
 <body>

@@ -7,7 +7,7 @@ class Welcome extends Controller
 		parent::__construct($c, $a);
 	}
 	
-	function beforeAction() 
+	function _beforeAction() 
 	{
 		/*
 		| You can call before and after actions, sorta like mini hooks
@@ -22,7 +22,7 @@ class Welcome extends Controller
 		$this->load->model('Welcome_Model');
 	}
 
-	function afterAction() 
+	function _afterAction() 
 	{
 		// If you have a custom afterAction, you need
 		// to do $this->output(); !

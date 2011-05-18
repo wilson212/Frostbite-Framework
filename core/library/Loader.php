@@ -11,9 +11,12 @@
 
 class Loader
 {	
+	// List of loaded DB connections
+	protected static $DB = FALSE;
+	
 	function Loader()
 	{
-		$this->RDB = FALSE;
+		// $this->RDB = FALSE;
 	}
 	
 /*
@@ -93,39 +96,34 @@ class Loader
 |	$args = array( $host, $port, $DB Username, $DB Password, $DB Name);
 |
 */	
-	function database($args = 'R')
+	function database($args = NULL)
 	{
-		$Config = new Config();
+		$Config = load_class('Config');
 		
 		// If is an array, then its a new DB connection
 		if(is_array($args))
 		{
-			$db_host = @func_get_arg(0);
-			$db_port = @func_get_arg(1);
-			$db_user = @func_get_arg(2);
-			$db_pass = @func_get_arg(3);
-			$db_name = @func_get_arg(4);
+			// Init. seperate vars for DB connection.
+			$db_host = $args[0];
+			$db_port = $args[1];
+			$db_user = $args[2];
+			$db_pass = $args[3];
+			$db_name = $args[4];
+			
+			// Connect up to the DB
 			$DB = new Database($db_host, $db_port, $db_user, $db_pass, $db_name);
 			return $DB;
 		}
 		else
 		{
-			switch($args)
-			{
-				case 'R':
-					if(!$this->RDB)
-					{
-						$this->RDB = new Database(
-							$Config->getDbInfo('db_host'),
-							$Config->getDbInfo('db_port'),
-							$Config->getDbInfo('db_username'),
-							$Config->getDbInfo('db_password'),
-							$Config->getDbInfo('db_name')
-						);
-					}
-					return $this->RDB;
-				break;
-			}
+			$DB = new Database(
+				$Config->getDbInfo('db_host'),
+				$Config->getDbInfo('db_port'),
+				$Config->getDbInfo('db_username'),
+				$Config->getDbInfo('db_password'),
+				$Config->getDbInfo('db_name')
+			);
+			return $DB;
 		}
 	}
 }

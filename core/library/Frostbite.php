@@ -53,19 +53,23 @@ class Frostbite
 		// After loading the controller, make sure it loaded correctly or spit an error
 		if((int)method_exists($controllerName, $action)) 
 		{
-			// Check to see if there is a "beforeAction" method, if so call it!
-			if((int)method_exists($controllerName, "beforeAction")) 
+			// -------------------------------------------------------------------------
+			// Here we call the contoller's before, requested, and after action methods.|
+			// -------------------------------------------------------------------------
+		
+			// Call the beforeAction method in the controller.
+			if(method_exists($controllerName, "_beforeAction")) 
 			{
-				call_user_func_array(array($dispatch,"beforeAction"), $queryString);
+				call_user_func_array(array($dispatch,"_beforeAction"), $queryString);
 			}
 			
-			// HERE is where the magic begins... call the Main APP Controller
+			// HERE is where the magic begins... call the Main APP Controller and method
 			call_user_func_array(array($dispatch,$action), $queryString);
 			
-			// Check to see if there is a "afterAction" method, if so call it!
-			if((int)method_exists($controllerName, "afterAction")) 
+			// Call the afterAction method in the controller.
+			if(method_exists($controllerName, "_afterAction")) 
 			{
-				call_user_func_array(array($dispatch,"afterAction"), $queryString);
+				call_user_func_array(array($dispatch,"_afterAction"), $queryString);
 			}
 		} 
 		else 
