@@ -47,9 +47,9 @@ function __autoload($className)
 	}
 	
 	// Check Module controllers
-	elseif(@file_exists(APP_PATH . DS . 'modules' . DS . strtolower($className) . '.php')) 
+	elseif(@file_exists(APP_PATH . DS . 'modules' . DS . strtolower($className) . DS . 'controller.php')) 
 	{
-		require_once(APP_PATH . DS . 'modules' . DS . strtolower($className) . '.php');
+		require_once(APP_PATH . DS . 'modules' . DS . strtolower($className) . DS . 'controller.php');
 	}
 	
 	// Check application models

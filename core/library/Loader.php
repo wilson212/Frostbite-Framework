@@ -32,18 +32,23 @@ class Loader
 */
 	function model($name, $folder = '')
 	{
+		$class = ucfirst($name);
+		
 		if($folder != '')
 		{
 			require(ROOT . DS . $folder . DS . $name .'.php');
+		}
+		elseif($GLOBALS['is_module'] == TRUE)
+		{
+			require(APP_PATH . DS .'modules'. DS . $GLOBALS['controller'] . DS .'models'. DS . strtolower($name) .'.php');
 		}
 		else
 		{
 			require(APP_PATH . DS . 'models' . DS . $name .'.php');
 		}
 		
-		$name = ucfirst($name);
 		$FB = get_instance();
-		$FB->$name = new $name();
+		$FB->$class = new $class();
 	}
 	
 /*

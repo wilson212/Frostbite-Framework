@@ -17,11 +17,4 @@
 $routes['default_controller'] = 'welcome';
 $routes['default_action'] = 'index';
 
-/* 
-| custom_controller: Controller to load for DB saved, custom pages
-| custom_action: Default method to load in the custom controller
-*/
-$routes['custom_controller'] = 'page';
-$routes['custom_action'] = 'index';
-
 // EOF

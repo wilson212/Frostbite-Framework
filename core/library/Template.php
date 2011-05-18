@@ -12,11 +12,12 @@ class Template
 {	
 	protected $variables = array();
 	
-	function __construct($args) 
+	function __construct() 
 	{
 		$this->template_name = 'default';
-		$this->_controller = $args[0];
-		$this->_action = $args[1];
+		$this->_controller = $GLOBALS['controller'];
+		$this->_action = $GLOBALS['action'];
+		$this->_is_module = $GLOBALS['is_module'];
 	}
 
 /*
@@ -101,32 +102,42 @@ class Template
 		// Load the header
 		if($render == 1) 
 		{			
-			if(file_exists(ROOT . DS . 'templates' . DS . $this->template_name . DS . 'header.php')) 
+			if(file_exists(APP_PATH . DS . 'templates' . DS . $this->template_name . DS . 'header.php')) 
 			{
-				include(ROOT . DS . 'templates' . DS . $this->template_name . DS . 'header.php');
+				include(APP_PATH . DS . 'templates' . DS . $this->template_name . DS . 'header.php');
 			} 
 			else 
 			{
-				include(ROOT . DS . 'application' . DS . 'views' . DS . 'header.php');
+				include(APP_PATH . DS . 'views' . DS . 'header.php');
 			}
 		}
 
 		// Load the view (Temp... Will actually be alittle more dynamic then this)
-		if(file_exists(ROOT . DS . 'application' . DS . 'views' . DS . $this->_controller . DS . $this->_action . '.php')) 
+		if($this->_is_module == TRUE)
 		{
-			include(ROOT . DS . 'application' . DS . 'views' . DS . $this->_controller . DS . $this->_action . '.php');		 
+			if(file_exists(APP_PATH . DS . 'modules' . DS . $this->_controller . DS . 'views' . DS . $this->_action . '.php')) 
+			{
+				include(APP_PATH . DS . 'modules' . DS . $this->_controller . DS . 'views' . DS . $this->_action . '.php');		 
+			}
+		}
+		else
+		{
+			if(file_exists(APP_PATH . DS . 'views' . DS . $this->_controller . DS . $this->_action . '.php')) 
+			{
+				include(APP_PATH . DS . 'views' . DS . $this->_controller . DS . $this->_action . '.php');		 
+			}
 		}
 			
 		// Load the footer
 		if($render == 1) 
 		{
-			if(file_exists(ROOT . DS . 'templates' . DS . $this->template_name . DS . 'footer.php')) 
+			if(file_exists(APP_PATH . DS . 'templates' . DS . $this->template_name . DS . 'footer.php')) 
 			{
-				include(ROOT . DS . 'templates' . DS . $this->template_name . DS . 'footer.php');
+				include(APP_PATH . DS . 'templates' . DS . $this->template_name . DS . 'footer.php');
 			}
 			else 
 			{
-				include(ROOT . DS . 'application' . DS . 'views' . DS . 'footer.php');
+				include(APP_PATH . DS . 'views' . DS . 'footer.php');
 			}
 		}
 		

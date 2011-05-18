@@ -29,7 +29,7 @@ class Controller
 | @Param: $action - Method to be used in the controller
 |
 */
-	function __construct($controller, $action) 
+	function __construct() 
 	{
 		// Set the instance here
 		self::$instance = $this;
@@ -41,11 +41,11 @@ class Controller
 		$this->load->library('Config');
 		
 		// Lets variablize the controller and action globaly
-		$this->_controller = ucfirst($controller);
-		$this->_action = $action;
+		$this->_controller = ucfirst($GLOBALS['controller']);
+		$this->_action = $GLOBALS['action'];
 		
 		// Default template init.
-		$this->load->library('Template', array($controller, $action));
+		$this->load->library('Template');
 	}
 	
 /*

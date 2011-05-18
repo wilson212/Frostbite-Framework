@@ -39,9 +39,10 @@ class Frostbite
 		$this->Router->routeUrl();
 		
 		// Initialize some important routing variables
-		$controller = $this->Router->get_class();
-		$action = $this->Router->get_method();
-		$queryString = $this->Router->get_queryString();
+		$controller  = $GLOBALS['controller']  = $this->Router->get_class();
+		$action      = $GLOBALS['action']      = $this->Router->get_method();
+		$queryString = $GLOBALS['queryString'] = $this->Router->get_queryString();
+		$is_module	 = $GLOBALS['is_module']   = $this->Router->get_type();
 		
 		// Let init a Controller Name
 		$controllerName = $controller;
@@ -49,10 +50,10 @@ class Frostbite
 		// -------------------------------------------------------------
 		// Here we init the actual controller / action into a variable.|
 		// -------------------------------------------------------------
-		$this->dispatch = new $controllerName($controller, $action);
+		$this->dispatch = new $controllerName();
 		
-		// After loading the controller, make sure it loaded correctly or spit an error
-		if((int)method_exists($controllerName, $action)) 
+		// After loading the controller, make sure the method exists, or we have a 404
+		if(method_exists($controllerName, $action)) 
 		{
 			// -------------------------------------------------------------------------
 			// Here we call the contoller's before, requested, and after action methods.|
@@ -70,7 +71,8 @@ class Frostbite
 		} 
 		else 
 		{
-			show_error(3, 'Engine failed to initialize Controller: "'. $controllerName .'", Using action: "'. $action .'"', __FILE__, __LINE__);
+			// If the method didnt exist, then we have a 404
+			show_error(404);
 		}
 	}
 	

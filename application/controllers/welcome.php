@@ -2,9 +2,9 @@
 
 class Welcome extends Controller 
 {
-	function Welcome($c, $a)
+	function Welcome()
 	{
-		parent::__construct($c, $a);
+		parent::__construct();
 	}
 	
 	function _beforeAction() 

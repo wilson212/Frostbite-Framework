@@ -4,6 +4,7 @@ class Router
 	var $_controler = FALSE;
 	var $_action = FALSE;
 	var $_queryString = FALSE;
+	var $_is_module = FALSE;
 	
 	/*
 	| ---------------------------------------------------------------
@@ -60,21 +61,10 @@ class Router
 			show_error(404);
 		}
 		
-		// DO a controller check, make sure it exists. If not, then load a custom controller
+		// DO a controller check, make sure it exists. If not, then we have a 404
 		if(!$this->controller_exists($controller))
 		{
-			$controller = $routes['custom_controller'];
-			$action = $routes['custom_action'];
-			if(count($queryString) == 0)
-			{
-				$queryString = array(0 => 'home');
-			}
-			
-			// If custom_controller doesnt exist, then we have a 404
-			if(!$this->controller_exists($controller))
-			{
-				show_error(404);
-			}
+			show_error(404);
 		}
 		
 		// Set static Variables
@@ -85,7 +75,7 @@ class Router
 	
 	/*
 	| ---------------------------------------------------------------
-	| Method: getController()
+	| Method: get_class()
 	| ---------------------------------------------------------------
 	|
 	| Returns the controller name from the routeUrl method.
@@ -99,7 +89,7 @@ class Router
 	
 	/*
 	| ---------------------------------------------------------------
-	| Method: getAction()
+	| Method: get_method()
 	| ---------------------------------------------------------------
 	|
 	| Returns the action name from the routeUrl method.
@@ -113,7 +103,7 @@ class Router
 	
 	/*
 	| ---------------------------------------------------------------
-	| Method: getQueryString()
+	| Method: ge_queryString()
 	| ---------------------------------------------------------------
 	|
 	| Returns the query string name from the routeUrl method.
@@ -123,6 +113,20 @@ class Router
 	function get_queryString()
 	{		
 		return $this->_queryString;
+	}
+	
+	/*
+	| ---------------------------------------------------------------
+	| Method: get_type()
+	| ---------------------------------------------------------------
+	|
+	| Returns TRUE of the controller belongs to a module
+	|
+	*/
+	
+	function get_type()
+	{		
+		return $this->_is_module;
 	}
 	
 	/*
@@ -143,8 +147,9 @@ class Router
 		{
 			return TRUE;
 		}
-		elseif(@file_exists(APP_PATH . DS . 'modules' . DS . strtolower($name) . '.php'))
+		elseif(@file_exists(APP_PATH . DS . 'modules' . DS . strtolower($name) . DS . 'controller.php'))
 		{
+			$this->_is_module = TRUE;
 			return TRUE;
 		}
 		
