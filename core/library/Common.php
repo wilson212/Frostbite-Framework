@@ -82,7 +82,7 @@ set_error_handler( array( 'Core', 'custom_error_handler' ), E_ALL );
 	function get_instance()
 	{
 		return Controller::get_instance();
-	}
+	}	
 
 /*
 | ---------------------------------------------------------------

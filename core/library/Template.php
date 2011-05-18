@@ -141,8 +141,14 @@ class Template
 			}
 		}
 		
-		// End output buffering, spit out the page.
-		ob_end_flush();
+		// End output buffering
+		$page = ob_get_contents();
+		@ob_end_clean();
+		
+		// Replace some Global values
+		$page = str_replace('{PAGE_LOAD_TIME}', Benchmark::showTimer('system'), $page);
+		$page = str_replace('{MEMORY_USAGE}', Benchmark::memory_usage(), $page);
+		echo $page;
     }
 }
 // EOF

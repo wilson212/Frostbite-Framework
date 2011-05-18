@@ -26,9 +26,13 @@ $url = (isset($_GET['url']) ? $_GET['url'] : '');
 
 // Include our 4 main required files, and routes config file.
 require (APP_PATH . DS . 'config' . DS . 'routes.php');
+require (CORE_PATH . DS . 'library' . DS . 'Benchmark.php');
 require (CORE_PATH . DS . 'library' . DS . 'Registry.php');
 require (CORE_PATH . DS . 'library' . DS . 'Common.php');
 require (CORE_PATH . DS . 'library' . DS . 'Frostbite.php');
+
+// Initiate the system start time
+Benchmark::startTimer('system');
 
 // Initiate Registry
 $Registry = new Registry();
@@ -36,5 +40,4 @@ $Registry = new Registry();
 // Initiate the framework and let it do the rest ;)
 $Frostbite = new Frostbite();
 $Frostbite->Init();
-
 ?>

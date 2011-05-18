@@ -39,10 +39,10 @@ class Frostbite
 		$this->Router->routeUrl();
 		
 		// Initialize some important routing variables
-		$controller  = $GLOBALS['controller']  = $this->Router->get_class();
-		$action      = $GLOBALS['action']      = $this->Router->get_method();
-		$queryString = $GLOBALS['queryString'] = $this->Router->get_queryString();
-		$is_module	 = $GLOBALS['is_module']   = $this->Router->get_type();
+		$controller   = $GLOBALS['controller']   = $this->Router->get_class();
+		$action       = $GLOBALS['action']       = $this->Router->get_method();
+		$queryString  = $GLOBALS['queryString']  = $this->Router->get_queryString();
+		$is_module    = $GLOBALS['is_module']    = $this->Router->get_type();
 		
 		// Let init a Controller Name
 		$controllerName = $controller;
