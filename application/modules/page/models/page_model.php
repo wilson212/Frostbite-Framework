@@ -2,28 +2,24 @@
 
 class Page_Model extends Model 
 {
+	var $RDB = FALSE;
+	
 	function __construct()
 	{
 		parent::__construct();
 	}
 	
-	function get_page_contents($uri)
+	function get_page_contents()
 	{
-		$uri = func_get_args();
-		$uri = implode(",", $uri);
-		//$this->RDB = $this->load->database('R');
+		$this->RDB = $this->load->database();
 		
-		/*
-			$content = $this->RDB->selectRow("SELECT * FROM `table_name` WHERE `page_url`='". $uri ."'");
-			if(!content)
-			{
-				Core::trigger_error(404);
-			}
-			else
-			{
-				return $content;
-			}
-		*/
+		$this->RDB
+			->select("*")
+			->from("categories")
+			->where("id", "1")
+			->query();
+		$contents = $this->RDB->result();
+		print_r( $contents );
 		return TRUE;
 	}
 }

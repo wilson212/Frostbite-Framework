@@ -14,7 +14,7 @@
 	function show_error($lvl, $message = 'Not Specified', $file = "none", $line = 0, $errno = 0)
 	{
 		$Core = new Core();
-		return $Core->trigger_error($lvl, $message = 'Not Specified', $file = "none", $line = 0, $errno = 0);
+		return $Core->trigger_error($lvl, $message, $file, $line, $errno);
 	}
 	
 /*

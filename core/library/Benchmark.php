@@ -3,7 +3,7 @@
 class Benchmark
 {
 	// Start and stop timers
-    public static $start = array(); 
+	public static $start = array(); 
 	public static $stop = array();
 
 /*
@@ -18,8 +18,8 @@ class Benchmark
 */
     public static function startTimer($key)
 	{
-        self::$start[$key] = microtime(1);
-    }
+		self::$start[$key] = microtime(1);
+	}
 
 /*
 | ---------------------------------------------------------------
@@ -33,8 +33,8 @@ class Benchmark
 */
     private static function stopTimer($key)
 	{
-        self::$stop[$key] = microtime(1);
-    }
+		self::$stop[$key] = microtime(1);
+	}
 
 /*
 | ---------------------------------------------------------------
@@ -46,19 +46,19 @@ class Benchmark
 */
     public static function showTimer($key, $round = 3)
 	{
-        if(count(self::$start[$key]) == 0)
+		if(count(self::$start[$key]) == 0)
 		{
-            show_error(1, 'Before displaying a timer, You need to start it first!');
+			show_error(1, 'Before displaying a timer, You need to start it first!');
 		}
-        else
+		else
 		{
-            if(!isset(self::$stop[$key]))
+			if(!isset(self::$stop[$key]))
 			{
 				self::$stop[$key] = microtime(1);
 			}
 			return round( (self::$stop[$key] - self::$start[$key]), $round);
 		}
-    }
+	}
     
 /*
 | ---------------------------------------------------------------
@@ -87,6 +87,5 @@ class Benchmark
 		}	
 		return $usage;
 	}
-
 }
 // EOF 
