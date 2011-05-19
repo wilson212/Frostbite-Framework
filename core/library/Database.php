@@ -12,13 +12,6 @@ class Database
 	public $queryType;
 	public $result;
 	protected $sql;
-	protected $query;
-	protected $table;
-	protected $where;
-	protected $groupBy;
-	protected $having;
-	protected $orderBy;
-	protected $limit;
 	protected $columns = array(); 
 	protected $values  = array();
 
@@ -62,24 +55,15 @@ class Database
     {
 		if(empty($this->sql))
 		{
-			$this->build();
+			show_error(2, "Query was empty. Please build a query before calling the 'query' method!");
 		}
+		
+		// Add semi colon
+		$this->finish();
 		
 		switch($this->queryType)
 		{
 			case "SELECT":
-				$this->result = $this->fetch($this->sql);
-				break;
-				
-			case "SELECT MAX":
-				$this->result = $this->fetch($this->sql);
-				break;
-				
-			case "SELECT MIN":
-				$this->result = $this->fetch($this->sql);
-				break;
-				
-			case "SELECT AVG":
 				$this->result = $this->fetch($this->sql);
 				break;
 			
@@ -281,7 +265,6 @@ class Database
 */
 
 
-
 /*
 | ---------------------------------------------------------------
 | Function: select()
@@ -295,68 +278,89 @@ class Database
 	public function select($data) 
 	{
 		$this->queryType = "SELECT";
-		if(count($data) > 1)
+		if(is_array($data))
 		{
-			foreach($data as $key)
+			if(count($data) > 1)
 			{
-				$this->columns[] = $key;
+				$this->sql = "SELECT ". implode(',', $data);
+			}
+			else
+			{
+				$this->sql = "SELECT ". $data[0];
 			}
 		}
 		else
 		{
-			$this->columns[] = $data;
+			$this->sql = "SELECT ". $data;
 		}
 		return $this;
 	}
 	
 /*
 | ---------------------------------------------------------------
-| Function: selectMax()
+| Function: select_max()
 | ---------------------------------------------------------------
 |
-| selectMax is used to initiate a SELECT MAX($col) query
+| select_max is used to initiate a SELECT MAX($col) query
 |
-| @Param: $data - the columns being selected
+| @Param: $col - the columns being selected
 |
 */
-	public function selectMax($col) 
+	public function select_max($col) 
 	{
-		$this->queryType = "SELECT MAX";
-		$this->columns[] = $col;
+		$this->queryType = "SELECT";
+		$this->sql = "SELECT MAX(". $col .")";
 		return $this;
 	}
 	
 /*
 | ---------------------------------------------------------------
-| Function: selectMin()
+| Function: select_min()
 | ---------------------------------------------------------------
 |
-| selectMin is used to initiate a SELECT MIN($col) query
+| select_min is used to initiate a SELECT MIN($col) query
 |
-| @Param: $data - the columns being selected
+| @Param: $col - the columns being selected
 |
 */
-	public function selectMin($col) 
+	public function select_min($col) 
 	{
-		$this->queryType = "SELECT MIN";
-		$this->columns[] = $col;
+		$this->queryType = "SELECT";
+		$this->sql = "SELECT MIN(". $col .")";
 		return $this;
 	}
 	
 /*
 | ---------------------------------------------------------------
-| Function: selectAvg()
+| Function: select_avg()
 | ---------------------------------------------------------------
 |
-| selectAvg is used to initiate a SELECT AVG($col) query
+| select_avg is used to initiate a SELECT AVG($col) query
 |
-| @Param: $data - the columns being selected
+| @Param: $col - the columns being selected
 |
 */
-	public function selectAvg($col) 
+	public function select_avg($col) 
 	{
-		$this->queryType = "SELECT AVG";
-		$this->columns[] = $col;
+		$this->queryType = "SELECT";
+		$this->sql = "SELECT AVG(". $col .")";
+		return $this;
+	}
+	
+/*
+| ---------------------------------------------------------------
+| Function: select_sum()
+| ---------------------------------------------------------------
+|
+| select_sum is used to initiate a SELECT SUM($col) query
+|
+| @Param: $col - the columns being selected
+|
+*/
+	public function select_avg($col) 
+	{
+		$this->queryType = "SELECT";
+		$this->sql = "SELECT SUM(". $col .")";
 		return $this;
 	}
 
@@ -379,14 +383,25 @@ class Database
 		{
 			foreach($data as $key => $value)
 			{
-				$this->columns[] = $key;
-				$this->values[] = mysql_real_escape_string($value);
+				if(!is_numeric($key))
+				{
+					$this->columns[] = $key;
+				}
+				$this->values[] = "'". mysql_real_escape_string($value) ."'";
+			}
+			if(count($this->columns) >=1)
+			{
+				$this->sql = "INSERT INTO ". $table ." (". implode(',', $this->columns) .") VALUES (". implode(',', $this->values) .")";
+			}
+			else
+			{
+				$this->sql = "INSERT INTO ". $table ." VALUES (". implode(',', $this->values) .")";
 			}
 		}
 		else
 		{
-			$this->columns[] = key($data);
-			$this->values[] = mysql_real_escape_string($data[0]);
+			$value = mysql_real_escape_string($data[0]);
+			$this->sql = "INSERT INTO ". $table ." (". key($data) .") VALUES (". $value.")";
 		}
 		return $this;
 	}
@@ -419,6 +434,18 @@ class Database
 			$this->columns[] = key($data[0]);
 			$this->values[] = mysql_real_escape_string($data[0]);
 		}
+		
+		$this->sql = "UPDATE ". $this->table ." SET ";
+	
+		$count = count($this->columns);
+		for($i = 0; $i < $count; $i++) 
+		{
+			$this->sql .= $this->columns[$i] ." = ". $this->values[$i];
+			if($i < ($count - 1)) 
+			{
+				$this->sql.= ", ";
+			}
+		}
 		return $this;
 	}
 
@@ -436,9 +463,10 @@ class Database
 	{
 		$this->queryType = "DELETE";
 		$this->table = $table;
+		$this->sql = "DELETE FROM ". $this->table;
 		return $this;
 	}
-		
+	
 /*
 | ---------------------------------------------------------------
 | Function: where()
@@ -452,7 +480,59 @@ class Database
 */
 	public function where($col, $val) 
 	{
-		$this->where = $col ." = ". mysql_real_escape_string($val);	
+		$val = mysql_real_escape_string($val);
+		
+		if(!is_numeric($val))
+		{
+			$val = "'". $val ."'";
+		}
+		$this->sql .= " WHERE ". $col ." = ". $val;	
+		return $this;
+	}
+	
+/*
+| ---------------------------------------------------------------
+| Function: and_where()
+| ---------------------------------------------------------------
+|
+| Querybuilder: Adds "AND WHERE $col = $val" to the query being built
+|
+| @Param: $col - the column
+| @Param: $val - value of the column
+|
+*/
+	public function and_where($col, $val) 
+	{
+		$val = mysql_real_escape_string($val);
+		
+		if(!is_numeric($val))
+		{
+			$val = "'". $val ."'";
+		}
+		$this->sql .= " AND WHERE ". $col ." = ". $val;	
+		return $this;
+	}
+	
+/*
+| ---------------------------------------------------------------
+| Function: or_where()
+| ---------------------------------------------------------------
+|
+| Querybuilder: Adds "OR WHERE $col = $val" to the query being built
+|
+| @Param: $col - the column
+| @Param: $val - value of the column
+|
+*/
+	public function or_where($col, $val) 
+	{
+		$val = mysql_real_escape_string($val);
+		
+		if(!is_numeric($val))
+		{
+			$val = "'". $val ."'";
+		}
+		$this->sql .= " OR WHERE ". $col ." = ". $val;	
 		return $this;
 	}
 
@@ -469,9 +549,74 @@ class Database
 	public function from($table) 
 	{
 		$this->table = $table;
+		$this->sql .= " FROM ". $table;
 		return $this;		
 	}
-
+	
+/*
+| ---------------------------------------------------------------
+| Function: like()
+| ---------------------------------------------------------------
+|
+| Querybuilder: Adds "LIKE $like" to the query being built
+|
+| @Param: $like - what we are comparing to
+|
+*/	
+	public function like($like) 
+	{
+		$this->sql .= " LIKE ". $like;
+		return $this;
+	}
+	
+/*
+| ---------------------------------------------------------------
+| Function: not_like()
+| ---------------------------------------------------------------
+|
+| Querybuilder: Adds "NOT LIKE $like" to the query being built
+|
+| @Param: $like - what we are comparing to
+|
+*/	
+	public function not_like($like) 
+	{
+		$this->sql .= " NOT LIKE ". $like;
+		return $this;
+	}
+	
+/*
+| ---------------------------------------------------------------
+| Function: and_like()
+| ---------------------------------------------------------------
+|
+| Querybuilder: Adds "AND $sub LIKE $like" to the query being built
+|
+| @Param: $like - what we are comparing to
+|
+*/	
+	public function and_like($sub, $like) 
+	{
+		$this->sql .= " AND ". $sub ." LIKE ".$like;
+		return $this;
+	}
+	
+/*
+| ---------------------------------------------------------------
+| Function: and_not_like()
+| ---------------------------------------------------------------
+|
+| Querybuilder: Adds "AND $sub NOT LIKE $like" to the query being built
+|
+| @Param: $like - what we are comparing to
+|
+*/	
+	public function and_not_like($sub, $like) 
+	{
+		$this->sql .= " AND ". $sub ." NOT LIKE ".$like;
+		return $this;
+	}
+	
 /*
 | ---------------------------------------------------------------
 | Function: groupBy()
@@ -484,7 +629,7 @@ class Database
 */	
 	public function groupBy($groupBy) 
 	{
-		$this->groupBy = $groupBy;
+		$this->sql .= " GROUP BY ". $groupBy;
 		return $this;
 	}
 
@@ -500,7 +645,7 @@ class Database
 */	
 	public function having($having) 
 	{
-		$this->having = $having;
+		$this->sql .= " HAVING ". $having;
 		return $this;
 	}
 
@@ -516,7 +661,7 @@ class Database
 */	
 	public function orderBy($orderBy) 
 	{
-		$this->orderBy = $orderBy;
+		$this->sql .= " ORDER BY ". $orderBy;
 		return $this;
 	}
 
@@ -530,115 +675,30 @@ class Database
 | @Param: $limit - sets our limit of how many results are returned
 |
 */
-	public function limit($limit) 
+	public function limit($min, $max) 
 	{
-		$this->limit = $limit;
+		$this->sql .= " LIMIT ". $min .",". $max;
 		return $this;
 	}
 	
 /*
 | ---------------------------------------------------------------
-| Function: build()
+| Function: finish()
 | ---------------------------------------------------------------
 |
-| This method builds all of our query builder parts into a querystring
-| This method isnt required as the 'query' method will build it for
-| us if we choose not to.
+| This methodfinished the sql statement and cona return the query.
 |
 | @Param: $return - Set to true if you want the sql query returned
 |
 */
-	public function build($return = FALSE) 
+	public function finish($return = FALSE) 
 	{
 		if(empty($this->table))
 		{
 			show_error(2, "No table selected");
 		}
 		
-		$this->sql = "";
-		switch ($this->queryType) 
-		{
-			case "SELECT":
-				$this->sql .= "SELECT ";
-				$this->sql .= implode(", ", $this->columns);
-				$this->sql .= " FROM ".$this->table;
-				
-				// Add aditional parts if they are set
-				if($this->where)   $this->sql .= " WHERE ". $this->where;
-				if($this->groupBy) $this->sql .= " GROUP BY ". $this->groupBy;
-				if($this->having)  $this->sql .= " HAVING " .$this->having;
-				if($this->orderBy) $this->sql .= " ORDER BY ". $this->orderBy;
-				if($this->limit)   $this->sql .= " LIMIT ". $this->limit;				
-				break;
-				
-			case "SELECT MAX":
-				$this->sql .= "SELECT MAX(";
-				$this->sql .= implode(", ", $this->columns);
-				$this->sql .= ") FROM ".$this->table;
-				
-				// Add aditional parts if they are set
-				if($this->where)   $this->sql .= " WHERE ". $this->where;				
-				break;
-				
-			case "SELECT MIN":
-				$this->sql .= "SELECT MIN(";
-				$this->sql .= implode(", ", $this->columns);
-				$this->sql .= ") FROM ".$this->table;
-				
-				// Add aditional parts if they are set
-				if($this->where)   $this->sql .= " WHERE ". $this->where;				
-				break;
-				
-			case "SELECT AVG":
-				$this->sql .= "SELECT AVG(";
-				$this->sql .= implode(", ", $this->columns);
-				$this->sql .= ") FROM ".$this->table;
-				
-				// Add aditional parts if they are set
-				if($this->where)   $this->sql .= " WHERE ". $this->where;				
-				break;
-				
-			case "INSERT":
-				$this->sql .= "INSERT INTO ". $this->table;
-				
-				$this->sql .= " (";
-				$this->sql .= implode(", ", $this->columns);
-				$this->sql .= ") ";
-				
-				$this->sql .= "VALUES";
-				
-				$this->sql .= " (";
-				$this->sql .= implode(", ", $this->values);
-				$this->sql .= ")";
-				break;
-				
-			case "UPDATE":
-				$this->sql .= "UPDATE ". $this->table ." SET ";
-				
-				$count = count($this->columns);
-				for($i = 0; $i < $count; $i++) 
-				{
-					$this->sql .= $this->columns[$i] ." = ". $this->values[$i];
-					if($i < ($count - 1)) 
-					{
-						$this->sql.= ", ";
-					}
-				}
-				
-				// Add aditional parts if they are set
-				if($this->where) $this->sql .= " WHERE ". $this->where;
-				if($this->limit) $this->sql .= " LIMIT ". $this->limit;				
-				break;
-				
-			case "DELETE":
-				$this->sql .= "DELETE FROM ". $this->table;
-				
-				// Add aditional parts if they are set
-				if ($this->where) $this->sql .= " WHERE ". $this->where;
-				break;
-				
-		}
-		
+		// Add semi colon
 		$this->sql .= ";";
 		
 		if($return == TRUE)
@@ -647,4 +707,4 @@ class Database
 		}
 	}
 }
-?>
+// EOF
