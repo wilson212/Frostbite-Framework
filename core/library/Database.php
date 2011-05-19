@@ -11,7 +11,7 @@ class Database
     private $mysql;
 	public $queryType;
 	public $result;
-	protected $sql;
+	protected $sql = '';
 	protected $columns = array(); 
 	protected $values  = array();
 
@@ -59,7 +59,7 @@ class Database
 		}
 		
 		// Add semi colon
-		$this->finish();
+		$this->end_sql();
 		
 		switch($this->queryType)
 		{
@@ -67,6 +67,10 @@ class Database
 				$this->result = $this->fetch($this->sql);
 				break;
 			
+			case "COUNT":
+				$this->result = $this->fetch($this->sql);
+				break;
+				
 			default:
 				$this->result = @mysql_query($this->sql, $this->mysql) or $this->trigger_error($query);
 				$this->_statistics['count']++;
@@ -102,9 +106,18 @@ class Database
         $sql = @mysql_query($query, $this->mysql) or $this->trigger_error($query);
 		$this->_statistics['count']++;
 		$i = 1;
+		
+		// No rows mean a false to be returned!
 		if(mysql_num_rows($sql) == 0)
 		{
 			$result = FALSE;
+		}
+		
+		// Lets process the return
+		if($this->queryType == 'COUNT')
+		{
+			$row = mysql_fetch_array($sql);
+			return $row['0'];
 		}
 		elseif(mysql_num_rows($sql) > 1)
 		{
@@ -127,73 +140,15 @@ class Database
 
 /*
 | ---------------------------------------------------------------
-| Function: fetchRow(query)
+| Function: count_results()
 | ---------------------------------------------------------------
 |
-| fetchRow is perfect for getting 1 row of data. Technically can 
-| be used for multiple rows though select function is better 
-| for more then 1 row
-|
-| @Param: $query - the query
+| Counts the number of results
 |
 */
-	public function fetchRow($query)
+	public function count_results()
     {
-        $sql = @mysql_query($query,$this->mysql) or $this->trigger_error($query);
-		$this->_statistics['count']++;
-		if(mysql_num_rows($sql) == 0)
-		{
-			return FALSE;
-		}
-		else
-		{
-			$row = mysql_fetch_array($sql);
-			return $row;
-		}
-    }
-
-/*
-| ---------------------------------------------------------------
-| Function: fetchCell(query)
-| ---------------------------------------------------------------
-|
-| fetchCell returns 1 cell of data, Not recomended unless you 
-| want data from a specific cell in a table
-|
-| @Param: $query - the query
-|
-*/
-	public function fetchCell($query)
-    {
-        $sql = @mysql_query($query,$this->mysql) or $this->trigger_error($query);
-		$this->_statistics['count']++;
-		if(mysql_num_rows($sql) == 0)
-		{
-			return FALSE;
-		}
-		else
-		{
-			$row = mysql_fetch_array($sql);
-			return $row['0'];
-		}
-    }
-
-/*
-| ---------------------------------------------------------------
-| Function: count(query)
-| ---------------------------------------------------------------
-|
-| count is a perfect function for counting the num of rows, or results in a table 
-| returns the direct count, for ex: 5
-|
-| @Param: $query - the query
-|
-*/
-	public function count($query)
-    {
-        $sql = @mysql_query($query, $this->mysql) or $this->trigger_error($query);
-		$this->_statistics['count']++;
-		return mysql_result($sql, 0);
+		return count( $this->result() );
     }
 
 /*
@@ -276,22 +231,22 @@ class Database
 |
 */
 	public function select($data) 
-	{
+	{	
 		$this->queryType = "SELECT";
 		if(is_array($data))
 		{
 			if(count($data) > 1)
 			{
-				$this->sql = "SELECT ". implode(',', $data);
+				$this->sql = "SELECT ". mysql_real_escape_string( implode(',', $data) );
 			}
 			else
 			{
-				$this->sql = "SELECT ". $data[0];
+				$this->sql = "SELECT ". mysql_real_escape_string($data[0]);
 			}
 		}
 		else
 		{
-			$this->sql = "SELECT ". $data;
+			$this->sql = "SELECT ". mysql_real_escape_string($data);
 		}
 		return $this;
 	}
@@ -308,6 +263,8 @@ class Database
 */
 	public function select_max($col) 
 	{
+		$col = mysql_real_escape_string($col);
+		
 		$this->queryType = "SELECT";
 		$this->sql = "SELECT MAX(". $col .")";
 		return $this;
@@ -325,6 +282,8 @@ class Database
 */
 	public function select_min($col) 
 	{
+		$col = mysql_real_escape_string($col);
+		
 		$this->queryType = "SELECT";
 		$this->sql = "SELECT MIN(". $col .")";
 		return $this;
@@ -342,6 +301,8 @@ class Database
 */
 	public function select_avg($col) 
 	{
+		$col = mysql_real_escape_string($col);
+		
 		$this->queryType = "SELECT";
 		$this->sql = "SELECT AVG(". $col .")";
 		return $this;
@@ -357,10 +318,31 @@ class Database
 | @Param: $col - the columns being selected
 |
 */
-	public function select_avg($col) 
+	public function select_sum($col) 
 	{
+		$col = mysql_real_escape_string($col);
+		
 		$this->queryType = "SELECT";
 		$this->sql = "SELECT SUM(". $col .")";
+		return $this;
+	}
+	
+/*
+| ---------------------------------------------------------------
+| Function: select_count()
+| ---------------------------------------------------------------
+|
+| select_sum is used to initiate a SELECT COUNT($col) query
+|
+| @Param: $col - the columns being selected
+|
+*/
+	public function select_count($col) 
+	{
+		$col = mysql_real_escape_string($col);
+		
+		$this->queryType = "COUNT";
+		$this->sql = "SELECT COUNT(". $col .")";
 		return $this;
 	}
 
@@ -378,18 +360,26 @@ class Database
 	public function insert($table, $data) 
 	{
 		$this->queryType = "INSERT";
-		$this->table = $table;
+		$this->table = mysql_real_escape_string($table);
 		if(count($data) > 1)
 		{
 			foreach($data as $key => $value)
 			{
 				if(!is_numeric($key))
 				{
-					$this->columns[] = $key;
+					$this->columns[] = mysql_real_escape_string($key);
 				}
-				$this->values[] = "'". mysql_real_escape_string($value) ."'";
+				
+				if(!is_numeric($key))
+				{
+					$this->values[] = "'". mysql_real_escape_string($value) ."'";
+				}
+				else
+				{
+					$this->values[] = mysql_real_escape_string($value);
+				}
 			}
-			if(count($this->columns) >=1)
+			if(count($this->columns) >= 1)
 			{
 				$this->sql = "INSERT INTO ". $table ." (". implode(',', $this->columns) .") VALUES (". implode(',', $this->values) .")";
 			}
@@ -400,8 +390,9 @@ class Database
 		}
 		else
 		{
+			$key = mysql_real_escape_string( key($data) );
 			$value = mysql_real_escape_string($data[0]);
-			$this->sql = "INSERT INTO ". $table ." (". key($data) .") VALUES (". $value.")";
+			$this->sql = "INSERT INTO ". $table ." (". $key .") VALUES (". $value.")";
 		}
 		return $this;
 	}
@@ -425,13 +416,13 @@ class Database
 		{
 			foreach($data as $key => $value)
 			{
-				$this->columns[] = $key;
+				$this->columns[] = mysql_real_escape_string($key);
 				$this->values[] = mysql_real_escape_string($value);
 			}
 		}
 		else
 		{
-			$this->columns[] = key($data[0]);
+			$this->columns[] = mysql_real_escape_string( key($data[0]) );
 			$this->values[] = mysql_real_escape_string($data[0]);
 		}
 		
@@ -462,7 +453,7 @@ class Database
 	public function delete($table) 
 	{
 		$this->queryType = "DELETE";
-		$this->table = $table;
+		$this->table = mysql_real_escape_string($table);
 		$this->sql = "DELETE FROM ". $this->table;
 		return $this;
 	}
@@ -480,6 +471,7 @@ class Database
 */
 	public function where($col, $val) 
 	{
+		$col = mysql_real_escape_string($col);
 		$val = mysql_real_escape_string($val);
 		
 		if(!is_numeric($val))
@@ -503,6 +495,7 @@ class Database
 */
 	public function and_where($col, $val) 
 	{
+		$col = mysql_real_escape_string($col);
 		$val = mysql_real_escape_string($val);
 		
 		if(!is_numeric($val))
@@ -526,6 +519,7 @@ class Database
 */
 	public function or_where($col, $val) 
 	{
+		$col = mysql_real_escape_string($col);
 		$val = mysql_real_escape_string($val);
 		
 		if(!is_numeric($val))
@@ -548,8 +542,8 @@ class Database
 */	
 	public function from($table) 
 	{
-		$this->table = $table;
-		$this->sql .= " FROM ". $table;
+		$this->table = mysql_real_escape_string($table);
+		$this->sql .= " FROM ". $this->table;
 		return $this;		
 	}
 	
@@ -565,7 +559,7 @@ class Database
 */	
 	public function like($like) 
 	{
-		$this->sql .= " LIKE ". $like;
+		$this->sql .= " LIKE ". mysql_real_escape_string($like);
 		return $this;
 	}
 	
@@ -581,7 +575,7 @@ class Database
 */	
 	public function not_like($like) 
 	{
-		$this->sql .= " NOT LIKE ". $like;
+		$this->sql .= " NOT LIKE ". mysql_real_escape_string($like);
 		return $this;
 	}
 	
@@ -597,7 +591,10 @@ class Database
 */	
 	public function and_like($sub, $like) 
 	{
-		$this->sql .= " AND ". $sub ." LIKE ".$like;
+		$sub = mysql_real_escape_string($sub);
+		$like = mysql_real_escape_string($like);
+		
+		$this->sql .= " AND ". $sub ." LIKE ". $like;
 		return $this;
 	}
 	
@@ -613,7 +610,10 @@ class Database
 */	
 	public function and_not_like($sub, $like) 
 	{
-		$this->sql .= " AND ". $sub ." NOT LIKE ".$like;
+		$sub = mysql_real_escape_string($sub);
+		$like = mysql_real_escape_string($like);
+		
+		$this->sql .= " AND ". $sub ." NOT LIKE ". $like;
 		return $this;
 	}
 	
@@ -629,7 +629,7 @@ class Database
 */	
 	public function groupBy($groupBy) 
 	{
-		$this->sql .= " GROUP BY ". $groupBy;
+		$this->sql .= " GROUP BY ". mysql_real_escape_string($groupBy);
 		return $this;
 	}
 
@@ -645,7 +645,7 @@ class Database
 */	
 	public function having($having) 
 	{
-		$this->sql .= " HAVING ". $having;
+		$this->sql .= " HAVING ". mysql_real_escape_string($having);
 		return $this;
 	}
 
@@ -661,7 +661,7 @@ class Database
 */	
 	public function orderBy($orderBy) 
 	{
-		$this->sql .= " ORDER BY ". $orderBy;
+		$this->sql .= " ORDER BY ". mysql_real_escape_string($orderBy);
 		return $this;
 	}
 
@@ -672,26 +672,30 @@ class Database
 |
 | Querybuilder: Adds "LIMIT $limit" to the query being built
 |
-| @Param: $limit - sets our limit of how many results are returned
+| @Param: $start - start position of the query results
+| @Param: $end - end position of the query results
 |
 */
-	public function limit($min, $max) 
+	public function limit($start, $end) 
 	{
-		$this->sql .= " LIMIT ". $min .",". $max;
+		$start = mysql_real_escape_string($start);
+		$end = mysql_real_escape_string($end);
+		
+		$this->sql .= " LIMIT ". $start .",". $end;
 		return $this;
 	}
 	
 /*
 | ---------------------------------------------------------------
-| Function: finish()
+| Function: end_sql()
 | ---------------------------------------------------------------
 |
-| This methodfinished the sql statement and cona return the query.
+| This method finishes the sql statement and can return the query.
 |
 | @Param: $return - Set to true if you want the sql query returned
 |
 */
-	public function finish($return = FALSE) 
+	public function end_sql($return = FALSE) 
 	{
 		if(empty($this->table))
 		{
