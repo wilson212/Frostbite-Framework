@@ -25,24 +25,14 @@ class Controller
 | controller as a base for outside files, or.. as codeignitor
 | puts it, a "superobject"
 |
-| @Param: $controller - The controller passed from the router
-| @Param: $action - Method to be used in the controller
-|
 */
 	function __construct() 
-	{
+	{		
 		// Set the instance here
 		self::$instance = $this;
 		
 		// Initiate the loader
 		$this->load = load_class('Loader');
-		
-		// Setup the config class
-		$this->load->library('Config');
-		
-		// Lets variablize the controller and action globaly
-		$this->_controller = ucfirst($GLOBALS['controller']);
-		$this->_action = $GLOBALS['action'];
 		
 		// Default template init.
 		$this->load->library('Template');

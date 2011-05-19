@@ -101,34 +101,38 @@ class Loader
 |	$args = array( $host, $port, $DB Username, $DB Password, $DB Name);
 |
 */	
-	function database($args = NULL)
+	function database($args = 0, $instance = FALSE)
 	{
-		$Config = load_class('Config');
+		global $Config;
 		
-		// If is an array, then its a new DB connection
-		if(is_array($args))
+		/*
+		$Obj = Registry::singleton();
+		if($Obj->load("DBC_".$args) != NULL)
 		{
-			// Init. seperate vars for DB connection.
-			$db_host = $args[0];
-			$db_port = $args[1];
-			$db_user = $args[2];
-			$db_pass = $args[3];
-			$db_name = $args[4];
-			
-			// Connect up to the DB
-			$DB = new Database($db_host, $db_port, $db_user, $db_pass, $db_name);
-			return $DB;
+			return $Obj->load("DBC_".$args);
 		}
-		else
+		*/
+		
+		$DB = new Database(
+			$Config->getDbInfo($args, 'host'),
+			$Config->getDbInfo($args, 'port'),
+			$Config->getDbInfo($args, 'username'),
+			$Config->getDbInfo($args, 'password'),
+			$Config->getDbInfo($args, 'database')
+		);
+		
+		// If user wants to instance this, then we do that
+		if($instance != FALSE && $instance != 0)
 		{
-			$DB = new Database(
-				$Config->getDbInfo('db_host'),
-				$Config->getDbInfo('db_port'),
-				$Config->getDbInfo('db_username'),
-				$Config->getDbInfo('db_password'),
-				$Config->getDbInfo('db_name')
-			);
-			return $DB;
+			if($instance === TRUE || is_numeric($instance))
+			{
+				$instnace = $args;
+			}
+			$FB = get_instance();
+			$FB->$as = $DB;
 		}
+		
+		// $Obj->store("DBC_".$args, $DB);
+		return $DB;
 	}
 }

@@ -11,7 +11,13 @@ class Page_Model extends Model
 	
 	function get_page_contents()
 	{
-		$this->RDB = $this->load->database();
+		/* 
+			Tell the loader to load the DB config, and instance 
+			this as DDB in the  contoller. But, since we dont have
+			access to controller variables, we have to define our own
+			(RDB).
+		*/
+		$this->RDB = $this->load->database('DB', 'DDB');
 		
 		$this->RDB
 			->select("*")

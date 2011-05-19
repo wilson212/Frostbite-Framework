@@ -34,8 +34,8 @@ require (CORE_PATH . DS . 'library' . DS . 'Frostbite.php');
 // Initiate the system start time
 Benchmark::startTimer('system');
 
-// Initiate Registry
-$Registry = new Registry();
+// Init the config
+$Config = new Config();
 
 // Initiate the framework and let it do the rest ;)
 $Frostbite = new Frostbite();

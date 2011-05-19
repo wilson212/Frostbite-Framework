@@ -12,11 +12,14 @@
 class Config
 {	
 	var $data = array();
+	protected $DB_configs;
+	protected $Core_configs;
 	
-	function Config() 
+	public function Config() 
 	{
 		$this->configFile = APP_PATH . DS . 'config' . DS . 'config.php';
-		$this->path_protectedconf = APP_PATH . DS . 'config' . DS . 'database.config.php';
+		$this->Core_configFile = APP_PATH . DS . 'config' . DS . 'core.config.php';
+		$this->DB_configFile = APP_PATH . DS . 'config' . DS . 'database.config.php';
 		$this->Load();
 	}
 	
@@ -25,26 +28,48 @@ class Config
 | Method: Load()
 | ---------------------------------------------------------------
 |
-| Gets the defined variables in the config file
+| Gets the defined variables in the config files
 |
 */
-	function Load() 
+	protected function Load() 
 	{
+		// Load the APP config.php and add the defined
+		// vars to $this->data
 		if(file_exists($this->configFile)) 
 		{
 			include( $this->configFile );
 			$vars = get_defined_vars();
 			foreach( $vars as $key => $val ) 
 			{
-
-				$this->data[$key] = $val;
+				if($key != 'this' && $key != 'data') 
+				{
+					$this->data[$key] = $val;
+				}
 			}
-			return true;
-		} 
-		else 
-		{
-			return FALSE;
 		}
+		
+		// Load the core.config.php and add the defined
+		// vars to $this->Core_configs
+		if(file_exists($this->Core_configFile)) 
+		{
+			include( $this->Core_configFile );
+			foreach( $config as $key => $val ) 
+			{
+				$this->Core_configs[$key] = $val;
+			}
+		}
+		
+		// Load the database.config.php and add the defined
+		// vars to $this->DB_configs
+		if(file_exists($this->DB_configFile)) 
+		{
+			include( $this->DB_configFile );
+			foreach( $DB_configs as $key => $val ) 
+			{
+				$this->DB_configs[$key] = $val;
+			}
+		}
+		
 	}
 	
 /*
@@ -57,11 +82,23 @@ class Config
 | @Param: $key - variable name. Value is returned
 |
 */
-	function get($key) 
+	function get($key, $type = 'App') 
 	{
-		if(isset($this->data[$key])) 
+		switch($type)
 		{
-			return $this->data[$key];
+			case 'App':
+				if(isset($this->data[$key])) 
+				{
+					return $this->data[$key];
+				}
+				break;
+				
+			case 'Core':
+				if(isset($this->DB_configs[$key])) 
+				{
+					return $this->DB_configs[$key];
+				}
+				break;
 		}
 	}
 	
@@ -75,10 +112,13 @@ class Config
 | @Param: $key - variable name. Value is returned
 |
 */
-	function getDbInfo($key) 
+	function getDbInfo($key, $value = NULL) 
 	{
-		include($this->path_protectedconf);
-		return $db[$key];
+		if($value == NULL)
+		{
+			return $this->DB_configs[$key];
+		}
+		return $this->DB_configs[$key][$value];
 	}
 	
 /*

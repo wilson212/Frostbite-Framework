@@ -82,7 +82,126 @@ set_error_handler( array( 'Core', 'custom_error_handler' ), E_ALL );
 	function get_instance()
 	{
 		return Controller::get_instance();
-	}	
+	}
+
+/*
+| ---------------------------------------------------------------
+| Function: load_class()
+| ---------------------------------------------------------------
+|
+| This function is used to load and store core classes statically 
+| that need to be loaded for use, but not reset next time the class
+| is called.
+|
+| @Param: $class - Class needed to be loaded / returned
+| @Param: $args - Suppossed to be the args passed to the class method
+|	experementatl!
+|
+*/
+
+function load_class($class, $args = NULL)
+{
+    $Obj = Registry::singleton();
+    
+	// lowercase classname
+    $Class = strtolower($class);
+	$className = ucfirst($Class);
+    
+    //if class already stored, then just return the class  
+    if ($Obj->load($Class) !== NULL)
+    { 
+        return $Obj->load($Class);        
+    }
+
+	// Check for needed classes from the Core library folder
+	if(file_exists(CORE_PATH . DS .  'library' . DS . $className . '.php')) 
+	{
+		require_once(CORE_PATH . DS .  'library' . DS . $className . '.php');
+	}
+	
+	// Check for needed classes from the Application library folder
+	elseif(@file_exists(APP_PATH . DS .  'library' . DS . $className . '.php')) 
+	{
+		require_once(APP_PATH . DS .  'library' . DS . $className . '.php');
+	}
+	else
+	{
+		return FALSE;
+	}
+    
+    // Initiate the new class
+	if($args !== NULL) 
+	{
+		$dispatch = new $className($args);
+	}
+	else
+	{
+		$dispatch = new $className();
+	}
+	
+	// Store this new object in the registery
+    $Obj->store($Class, $dispatch); 
+    
+    //return singleton object.
+    $Object = $Obj->load($Class);
+
+    if(is_object($Object))
+	{
+		return $Object;
+	}
+}
+
+/*
+| ---------------------------------------------------------------
+| Method: config()
+| ---------------------------------------------------------------
+|
+| @Param: $item - The config item we are looking for
+| @Param: $type - Either App, DB, or Core. Loads the respective
+|		config file
+|
+*/
+
+function config($item, $type = 'App')
+{
+	global $Config;
+	
+	switch($type)
+	{
+		case "App":
+			return $Config->get($item, $type);
+			break;
+		
+		case "Core":
+			return $Config->get($item, $type);
+			break;
+			
+		case "DB":
+			return $Config->getDbInfo($item);
+			break;
+			
+		default:
+			show_error(1, "Unknown config type: \"". $type ."\"");
+			break;
+	}
+}
+
+/*
+| ---------------------------------------------------------------
+| Method: config_set()
+| ---------------------------------------------------------------
+|
+| @Param: $item - The config item we are setting a value for
+| @Param: $value - the value of $item
+|
+*/
+
+function config_set($item, $value)
+{
+	global $Config;
+	
+	$Config->set($item, $value);
+}	
 
 /*
 | ---------------------------------------------------------------
