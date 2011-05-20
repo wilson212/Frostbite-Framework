@@ -34,7 +34,35 @@ class Controller
 		// Initiate the loader
 		$this->load = load_class('Loader');
 		
-		// Default template init.
+		// Autoload the config autoload_helpers
+		$libs = config('autoload_helpers', 'Core');
+		if(count($libs) > 1)
+		{
+			foreach($libs as $lib)
+			{
+				$this->load->helper($lib);
+			}
+		}
+		elseif(count($libs) == 1)
+		{
+			$this->load->helper($libs[0]);
+		}
+		
+		// Autoload the config autoload_libraries
+		$libs = config('autoload_libraries', 'Core');
+		if(count($libs) > 1)
+		{
+			foreach($libs as $lib)
+			{
+				$this->load->library($lib);
+			}
+		}
+		elseif(count($libs) == 1)
+		{
+			$this->load->library($libs[0]);
+		}
+		
+		// Default Template Init.
 		$this->load->library('Template');
 	}
 	
@@ -69,34 +97,15 @@ class Controller
 | Mini hook of code to be called right after the action
 |
 */	
-	function _afterAction() 
-	{
-		$this->output();
-	}
+	function _afterAction() {}
 	
-/*
-| ---------------------------------------------------------------
-| Function: set()
-| ---------------------------------------------------------------
-|
-| This method sets variables to be replace in the template system
-|
-| @Param: $name - Name of the variable to be set
-| @Param: $value - The value of the variable
-|
-*/	
-	function set($name, $value) 
-	{
-		$this->template->set($name, $value);
-	}
 
 /*
 | ---------------------------------------------------------------
 | Function: output()
 | ---------------------------------------------------------------
 |
-| Will be removed! This will be set somewhere in the bootstrap file,
-| or in the engine.
+| A convenient way to output the screen.
 |
 */	
 	function output($data = array()) 

@@ -25,8 +25,7 @@ class Page_Model extends Model
 			->where("id", "1")
 			->query();
 		$contents = $this->RDB->result();
-		print_r( $contents );
-		return TRUE;
+		return $contents;
 	}
 }
 // EOF

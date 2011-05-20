@@ -136,4 +136,30 @@ class Loader
 		// $Obj->store("DBC_".$args, $DB);
 		return $DB;
 	}
+	
+/*
+| ---------------------------------------------------------------
+| Method: helper()
+| ---------------------------------------------------------------
+|
+| This method is used to call in a helper file from either the 
+| application/helpers, or the core/helpers folders.
+|
+| @Param: $name - The name of the helper file
+|
+*/
+	function helper($name)
+	{		
+		// Check the application/helpers folder
+		if(file_exists(APP_PATH . DS .  'helpers' . DS . $name . '.php')) 
+		{
+			require_once(APP_PATH . DS .  'helpers' . DS . $name . '.php');
+		}
+		
+		// Check the core/helpers folder
+		elseif(file_exists(CORE_PATH . DS .  'helpers' . DS . $name . '.php')) 
+		{
+			require_once(CORE_PATH . DS .  'helpers' . DS . $name . '.php');
+		}
+	}
 }

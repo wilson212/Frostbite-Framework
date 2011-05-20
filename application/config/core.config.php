@@ -23,7 +23,7 @@ $config['subclass_prefix'] = 'MY_';
 
 /*
 | ---------------------------------------------------------------
-| Parse Pages
+| Instance
 | ---------------------------------------------------------------
 |
 | If you would like to change the SuperObject class to a custom
@@ -31,6 +31,37 @@ $config['subclass_prefix'] = 'MY_';
 |
 */
 $config['instance'] = 'Controller';
+
+/*
+| ---------------------------------------------------------------
+| Auto load Libraries
+| ---------------------------------------------------------------
+|
+| These are the classes located in the core/libraries folder
+| or in your application/libraries folder. Use the format below
+| to define which librarys are loaded. Donot prefix the classes
+| as the prefixed classes will load automatically
+|
+| Format: array('Session', 'Database', 'Parser');
+|
+*/
+
+$config['autoload_libraries'] = array();
+
+
+/*
+| ---------------------------------------------------------------
+| Helpers
+| ---------------------------------------------------------------
+|
+| These are the helper files located in the core/helpers folder
+| or in your application/helpers folder.
+|
+| Format: array('helper_file', 'helper_file');
+|
+*/
+
+$config['autoload_helpers'] = array();
 
 /*
 | ---------------------------------------------------------------
