@@ -73,19 +73,6 @@ set_error_handler( array( 'Core', 'custom_error_handler' ), E_ALL );
 
 /*
 | ---------------------------------------------------------------
-| Function: &get_instance()
-| ---------------------------------------------------------------
-|
-| Gateway to adding an outside class or file into the base controller
-|
-*/	
-	function get_instance()
-	{
-		return Controller::get_instance();
-	}
-	
-/*
-| ---------------------------------------------------------------
 | Method: config()
 | ---------------------------------------------------------------
 |
@@ -118,6 +105,21 @@ function config($item, $type = 'App')
 			break;
 	}
 }
+
+/*
+| ---------------------------------------------------------------
+| Function: &get_instance()
+| ---------------------------------------------------------------
+|
+| Gateway to adding an outside class or file into the base controller
+|
+*/	
+	function get_instance()
+	{
+		$class = config('instance', 'Core');
+		$class = ucfirst($class);
+		return $class::get_instance();
+	}
 
 /*
 | ---------------------------------------------------------------

@@ -67,6 +67,10 @@ class Loader
 */
 	function library($name, $args = NULL, $instance = 1)
 	{
+		// Get the class prefix
+		$prefix = config('subclass_prefix', 'Core');
+		
+		// Check args to be passed, and load the class
 		if($args !== NULL && !empty($args))
 		{
 			$class = load_class($name, $args);
@@ -76,7 +80,8 @@ class Loader
 			$class = load_class($name);
 		}
 		
-		if($instance == 1)
+		// Do we instance this class?
+		if($instance == 1 && ( class_exists('Controller') || class_exists($prefix . 'Controller') ))
 		{
 			$name = strtolower($name);
 			$FB = get_instance();

@@ -26,6 +26,17 @@ $config['subclass_prefix'] = 'MY_';
 | Parse Pages
 | ---------------------------------------------------------------
 |
+| If you would like to change the SuperObject class to a custom
+| controller class, specify the controller name here.
+|
+*/
+$config['instance'] = 'Controller';
+
+/*
+| ---------------------------------------------------------------
+| Parse Pages
+| ---------------------------------------------------------------
+|
 | If you would like files to be parsed in the template parser,
 | Set this value to TRUE (boolean), or FALSE otherwise.
 |
