@@ -94,9 +94,9 @@ class Config
 				break;
 				
 			case 'Core':
-				if(isset($this->DB_configs[$key])) 
+				if(isset($this->Core_configs[$key])) 
 				{
-					return $this->DB_configs[$key];
+					return $this->Core_configs[$key];
 				}
 				break;
 		}

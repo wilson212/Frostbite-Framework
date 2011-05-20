@@ -38,6 +38,6 @@ Benchmark::startTimer('system');
 $Config = new Config();
 
 // Initiate the framework and let it do the rest ;)
-$Frostbite = new Frostbite();
+$Frostbite = load_class('Frostbite');
 $Frostbite->Init();
 ?>

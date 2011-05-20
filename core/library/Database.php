@@ -51,14 +51,23 @@ class Database
 | Query function is best used for INSERT and UPDATE functions
 |
 */
-    public function query()
+    public function query($query = FALSE)
     {
 		if(empty($this->sql))
 		{
-			show_error(2, "Query was empty. Please build a query before calling the 'query' method!");
+			// Check for a custom query
+			if($query != FALSE)
+			{
+				$this->result = @mysql_query($query, $this->mysql) or $this->trigger_error($query);
+				$this->_statistics['count']++;
+			}
+			else
+			{
+				show_error(2, "Query was empty. Please build a query before calling the 'query' method!");
+			}
 		}
 		
-		// Add semi colon
+		// Add semi colon to end of query
 		$this->end_sql();
 		
 		switch($this->queryType)
@@ -136,6 +145,20 @@ class Database
 			$row = mysql_fetch_array($sql);
 			return $row;
 		}
+    }
+	
+/*
+| ---------------------------------------------------------------
+| Function: clear_query()
+| ---------------------------------------------------------------
+|
+| clears out the query. Not really needed to be honest as a new
+| query would clean out the old anyways.
+|
+*/
+    public function clear_query()
+    {
+		$this->sql = '';
     }
 
 /*

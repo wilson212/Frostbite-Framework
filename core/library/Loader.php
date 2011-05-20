@@ -65,7 +65,7 @@ class Loader
 |	instead of adding it to the super class.
 |
 */
-	function library($name, $args = NULL, $return = 0)
+	function library($name, $args = NULL, $instance = 1)
 	{
 		if($args !== NULL && !empty($args))
 		{
@@ -76,17 +76,13 @@ class Loader
 			$class = load_class($name);
 		}
 		
-		if($return == 0)
+		if($instance == 1)
 		{
 			$name = strtolower($name);
 			$FB = get_instance();
 			$FB->$name = $class;
-			return;
 		}
-		else
-		{
-			return $class;
-		}
+		return $class;
 	}
 
 /*
