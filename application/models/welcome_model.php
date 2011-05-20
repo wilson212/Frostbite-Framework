@@ -9,7 +9,7 @@ class Welcome_Model extends Model
 	
 	function return_default_array()
 	{
-		return array('test_var' => 'No Contents In The Body! This is a test variable btw ;)');
+		return array('test_var' => 'This is a dynamically loaded page using the Frostbite MVC Framework!');
 	}
 }
 // EOF
