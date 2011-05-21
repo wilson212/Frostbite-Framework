@@ -62,6 +62,16 @@ class Controller
 			$this->load->library($libs[0]);
 		}
 		
+		/*
+			load module config file if there is one
+			config values will be merged with the site config
+			and accessed as config(' $item ');
+		*/
+		if($GLOBALS['is_module'] == TRUE)
+		{
+			load_module_config($GLOBALS['controller']);
+		}
+		
 		// Default Template Init.
 		$this->load->library('Template');
 	}

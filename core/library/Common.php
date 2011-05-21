@@ -108,6 +108,77 @@ function config($item, $type = 'App')
 
 /*
 | ---------------------------------------------------------------
+| Method: config_set()
+| ---------------------------------------------------------------
+|
+| @Param: $item - The config item we are setting a value for
+| @Param: $value - the value of $item
+|
+*/
+
+function config_set($item, $value)
+{
+	global $Config;
+	
+	$Config->set($item, $value);
+}
+
+/*
+| ---------------------------------------------------------------
+| Method: get_config_vars()
+| ---------------------------------------------------------------
+|
+| @Param: $file - full path to the config file being loaded
+|
+*/
+
+function get_config_vars($file)
+{	
+	$data = array();
+	$vars = array();
+	
+	// Include file
+	include( $file );
+	$vars = @get_defined_vars();
+	if(count($vars) > 1)
+	{
+		foreach( $vars as $key => $val ) 
+		{
+			$data[$key] = $val;
+		}
+	}
+	return $data;
+}	
+
+/*
+| ---------------------------------------------------------------
+| Method: load_module_config()
+| ---------------------------------------------------------------
+|
+| @Param: $module - Name of the module
+| @Param: $filename - name of the file if not 'config.php'
+|
+*/
+
+function load_module_config($module, $filename = 'config.php')
+{	
+	$file = ''. APP_PATH . DS .'modules' . DS . $module . DS . 'config' . DS . $filename;
+	if(file_exists($file))
+	{
+		$MC = get_config_vars($file);
+		if(count($MC) > 1)
+		{
+			foreach($MC as $key => $value)
+			{
+				config_set($key, $value);
+			}
+		}
+	}
+	return TRUE;
+}	
+
+/*
+| ---------------------------------------------------------------
 | Function: &get_instance()
 | ---------------------------------------------------------------
 |
@@ -200,42 +271,31 @@ function load_class($class, $args = NULL)
 
 /*
 | ---------------------------------------------------------------
-| Method: config_set()
-| ---------------------------------------------------------------
-|
-| @Param: $item - The config item we are setting a value for
-| @Param: $value - the value of $item
-|
-*/
-
-function config_set($item, $value)
-{
-	global $Config;
-	
-	$Config->set($item, $value);
-}	
-
-/*
-| ---------------------------------------------------------------
 | Method: redirect()
 | ---------------------------------------------------------------
 |
-| @Param: $linkto - Where were going
-| @Param: $type - 1 - direct header, 0 - meta refresh
-| @Param: $wait - Only if $type = 0, then how many sec's we wait
+| @Param: $url - Where were going
+| @Param: $type - 0 - direct header, 1 - meta refresh
+| @Param: $wait - Only if $type = 1, then how many sec's we wait
 |
 */
 
-function redirect($linkto, $type = 0, $wait = 0)
+function redirect($url, $type = 0, $wait = 0)
 {
-	// preg_match('|^http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i', $url);
-	if($type == 0)
+	// Check for a valid URL. If not then add our current BASE_URL to it.
+	if(!preg_match('|^http(s)?://|i', $url) || !preg_match('|^ftp://|i', $url))
 	{
-		echo '<meta http-equiv=refresh content="'.$wait_sec.';url='.$linkto.'">';
+		$url = BASE_URL . $url;
+	}
+	
+	// Check for refresh or straight redirect
+	if($type == 1)
+	{
+		header("Refresh:". $wait .";url=". $url);
 	}
 	else
 	{
-		header("Location: ".$linkto);
+		header("Location: ".$url);
 	}
 }
 // EOF
