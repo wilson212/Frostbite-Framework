@@ -34,7 +34,9 @@ class Controller
 		// Initiate the loader
 		$this->load = load_class('Loader');
 		
-		// Autoload the config autoload_helpers
+		// --------------------------------------
+		// Autoload the config autoload_helpers |
+		// --------------------------------------
 		$libs = config('autoload_helpers', 'Core');
 		if(count($libs) > 1)
 		{
@@ -48,7 +50,9 @@ class Controller
 			$this->load->helper($libs[0]);
 		}
 		
-		// Autoload the config autoload_libraries
+		//-----------------------------------------
+		// Autoload the config autoload_libraries |
+		//-----------------------------------------
 		$libs = config('autoload_libraries', 'Core');
 		if(count($libs) > 1)
 		{

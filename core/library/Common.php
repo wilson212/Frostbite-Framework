@@ -4,6 +4,8 @@
 | Function: show_error()
 | ---------------------------------------------------------------
 |
+| This function is used to simplify the showing of errors
+|
 | @Param: $lvl - Level of the error
 | @Param: $message - Error message
 | @Param: $file - The file reporting the error
@@ -21,6 +23,9 @@
 | ---------------------------------------------------------------
 | Method: __autoload()
 | ---------------------------------------------------------------
+|
+| This function is used to autoload files of delcared classes
+| that have not been included yet
 |
 | @Param: $className - Class name to autoload ofc silly
 |
@@ -76,6 +81,9 @@ set_error_handler( array( 'Core', 'custom_error_handler' ), E_ALL );
 | Method: config()
 | ---------------------------------------------------------------
 |
+| This function is used to return a config value from a config
+| file.
+|
 | @Param: $item - The config item we are looking for
 | @Param: $type - Either App, DB, or Core. Loads the respective
 |		config file
@@ -111,6 +119,9 @@ function config($item, $type = 'App')
 | Method: config_set()
 | ---------------------------------------------------------------
 |
+| This function is used to set site config values. This does not
+| set core, or database values.
+|
 | @Param: $item - The config item we are setting a value for
 | @Param: $value - the value of $item
 |
@@ -127,6 +138,9 @@ function config_set($item, $value)
 | ---------------------------------------------------------------
 | Method: get_config_vars()
 | ---------------------------------------------------------------
+|
+| This function is used to get all defined variables from a config
+| file.
 |
 | @Param: $file - full path to the config file being loaded
 |
@@ -154,6 +168,9 @@ function get_config_vars($file)
 | ---------------------------------------------------------------
 | Method: load_module_config()
 | ---------------------------------------------------------------
+|
+| This function is used to load a modules config file, and add
+| those config values to the site config.
 |
 | @Param: $module - Name of the module
 | @Param: $filename - name of the file if not 'config.php'
@@ -273,6 +290,8 @@ function load_class($class, $args = NULL)
 | ---------------------------------------------------------------
 | Method: redirect()
 | ---------------------------------------------------------------
+|
+| This function is used to easily redirect and refresh pages
 |
 | @Param: $url - Where were going
 | @Param: $type - 0 - direct header, 1 - meta refresh
