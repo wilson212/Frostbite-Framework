@@ -10,7 +10,7 @@ class Page extends Controller
 	function index() 
 	{	
 		$this->load->model('Page_Model');
-		$contents = $this->Page_Model->get_page_contents();
+		$contents = $this->page_model->get_page_contents();
 		$this->output($contents);
 	}
 }

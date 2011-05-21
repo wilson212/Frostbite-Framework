@@ -11,13 +11,7 @@
 
 class Loader
 {	
-	// List of loaded DB connections
-	protected static $DB = FALSE;
-	
-	function Loader()
-	{
-		// $this->RDB = FALSE;
-	}
+
 	
 /*
 | ---------------------------------------------------------------
@@ -27,28 +21,35 @@ class Loader
 | This method is used to call in a model
 |
 | @Param: $name - The name of the model
-| @Param: $folder - Location (if not default) of the model
+| @Param: $instance_as - How you want to access it as in the 
+|	controller (IE: $instance_as = test; In controller: $this->test)
 |
 */
-	function model($name, $folder = '')
+	function model($name, $instance_as = NULL)
 	{
 		$class = ucfirst($name);
+		$name = strtolower($name);
 		
-		if($folder != '')
+		if($GLOBALS['is_module'] == TRUE)
 		{
-			require(ROOT . DS . $folder . DS . $name .'.php');
-		}
-		elseif($GLOBALS['is_module'] == TRUE)
-		{
-			require(APP_PATH . DS .'modules'. DS . $GLOBALS['controller'] . DS .'models'. DS . strtolower($name) .'.php');
+			require(APP_PATH . DS .'modules'. DS . $GLOBALS['controller'] . DS .'models'. DS . $name .'.php');
 		}
 		else
 		{
 			require(APP_PATH . DS . 'models' . DS . $name .'.php');
 		}
 		
+		// instance it in the controller
 		$FB = get_instance();
-		$FB->$class = new $class();
+		
+		if($instance_as !== NULL)
+		{
+			$FB->$instance_as = new $class();
+		}
+		else
+		{
+			$FB->$name = new $class();
+		}
 	}
 	
 /*
@@ -97,9 +98,10 @@ class Loader
 |
 | This method is used to setup a database connection
 |
-| @Param: $args - Either R (Realm DB), C (Character DB), W (World DB)
-| or and array to connect to a none default Database:
-|	$args = array( $host, $port, $DB Username, $DB Password, $DB Name);
+| @Param: $args - The indentifier of the DB connection in the DB 
+| 	config file.
+| @Param: $instance_as - If you want to instance the connection
+|	in the controller, set to TRUE.
 |
 */	
 	function database($args = 0, $instance = FALSE)
@@ -127,10 +129,10 @@ class Loader
 		{
 			if($instance === TRUE || is_numeric($instance))
 			{
-				$instnace = $args;
+				$instance = $args;
 			}
 			$FB = get_instance();
-			$FB->$as = $DB;
+			$FB->$instance = $DB;
 		}
 		
 		// $Obj->store("DBC_".$args, $DB);
