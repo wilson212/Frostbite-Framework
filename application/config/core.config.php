@@ -65,6 +65,49 @@ $config['autoload_helpers'] = array();
 
 /*
 | ---------------------------------------------------------------
+| Session: Use Database
+| ---------------------------------------------------------------
+|
+| When useing the session class, do we allow session to be saved
+| in the database ( for "Remeber Me's" ). NOTE, you must run
+| the session_table.sql on your DB for this to be enabled!
+|
+| Format: TRUE or FALSE;
+|
+*/
+
+$config['session_use_database'] = TRUE;
+
+/*
+| ---------------------------------------------------------------
+| Session: Database Identifier
+| ---------------------------------------------------------------
+|
+| Which Database is the Session Table located in? NOTE, you must
+| have " $config['session_use_database'] " above Set to TRUE.
+|
+| Format: either numeric ( id in array ), or DB config array Key.
+|
+*/
+
+$config['session_database_id'] = 'DB';
+
+/*
+| ---------------------------------------------------------------
+| Session: Database Identifier
+| ---------------------------------------------------------------
+|
+| Which is the session table name? NOTE, you must 
+| " $config['session_use_database'] " above Set to TRUE.
+|
+| Format: String - Table name
+|
+*/
+
+$config['session_table_name'] = 'session_table';
+
+/*
+| ---------------------------------------------------------------
 | Parse Pages
 | ---------------------------------------------------------------
 |
