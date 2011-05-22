@@ -8,6 +8,11 @@ class Input
 	var $user_agent = FALSE;
 	var $ip_address = FALSE;
 
+/*
+| ---------------------------------------------------------------
+| Constructer
+| ---------------------------------------------------------------
+*/	
 	public function __construct()
 	{
 		// Set Cookie Defaults

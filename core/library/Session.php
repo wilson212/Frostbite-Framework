@@ -7,7 +7,12 @@ class Session
 	private $session_db_id;
 	private $session_table_name;
 	private $DB;
-	
+
+/*
+| ---------------------------------------------------------------
+| Constructer
+| ---------------------------------------------------------------
+*/	
 	function __construct()
 	{
 		$this->DB = FALSE;
@@ -143,7 +148,16 @@ class Session
 			return FALSE;
 		}
 	}
-	
+
+/*
+| ---------------------------------------------------------------
+| Method: save()
+| ---------------------------------------------------------------
+|
+| Saves the current session token in a cookie, and in the DB for
+| things like "Remeber Me" etc etc.
+|
+*/	
 	function save($id = TRUE)
 	{
 		// Combine the ID being set, and the session token

@@ -4,7 +4,8 @@
 | Class: Template
 | ---------------------------------------------------------------
 |
-| Main template parsing / output file. NEEDS ALOT OF WORK!
+| Main template parsing / output file. This file is meant to be
+| extended!
 |
 */
 
@@ -14,7 +15,6 @@ class Template
 	
 	function __construct() 
 	{
-		$this->template_name = 'default';
 		$this->_controller = $GLOBALS['controller'];
 		$this->_action = $GLOBALS['action'];
 		$this->_is_module = $GLOBALS['is_module'];
@@ -36,45 +36,17 @@ class Template
 	{
 		$this->variables[$name] = $value;
 	}
-	
-/*
-| ---------------------------------------------------------------
-| Function: view()
-| ---------------------------------------------------------------
-|
-| Main Output / Template Building Class
-|
-| @Param: $name - Name of the variable to be set
-| @Param: $data - Specific data to be passed to the parser.
-|
-*/
-	function view( $name, $data = null ) 
-	{
-		extract($this->variables);
-		if( is_array($data) ) 
-		{
-			extract($data);
-		}
-		
-		// Start Output buffering to catch the execution of the view file.
-		ob_start();
-		include( APP_PATH . DS .'views'. DS . $this->_controller . DS . $name );
-		$buffer = ob_get_contents();
-		@ob_end_clean();
-		
-		// Parser the Data if enabled!
-		// 
-	}
 
 /*
 | ---------------------------------------------------------------
 | Function: render()
 | ---------------------------------------------------------------
 |
-| This method displays the output. NOTE: this function is temporary
-| until i work on the template class some more.
+| This method displays the page. It loads the header, footer, and
+| view of the page.
 |
-| @Param: $doNotRenderHeader - if 1, the header / footer will not show
+| @Param: $data - An array of variables that are to be passed to 
+| 	the View
 |
 */
 	
@@ -93,24 +65,11 @@ class Template
 		// becomes just " $var "
 		@extract($this->variables);
 		
-		// Just fo testing purposes
-		$render = 1;
-		
 		// Start output bffering
 		ob_start();
 		
-		// Load the header
-		if($render == 1) 
-		{			
-			if(file_exists(APP_PATH . DS . 'templates' . DS . $this->template_name . DS . 'header.php')) 
-			{
-				include(APP_PATH . DS . 'templates' . DS . $this->template_name . DS . 'header.php');
-			} 
-			else 
-			{
-				include(APP_PATH . DS . 'views' . DS . 'header.php');
-			}
-		}
+		// Load the header	
+		include(APP_PATH . DS . 'views' . DS . 'header.php');
 
 		// Load the view (Temp... Will actually be alittle more dynamic then this)
 		if($this->_is_module == TRUE)
@@ -129,17 +88,7 @@ class Template
 		}
 			
 		// Load the footer
-		if($render == 1) 
-		{
-			if(file_exists(APP_PATH . DS . 'templates' . DS . $this->template_name . DS . 'footer.php')) 
-			{
-				include(APP_PATH . DS . 'templates' . DS . $this->template_name . DS . 'footer.php');
-			}
-			else 
-			{
-				include(APP_PATH . DS . 'views' . DS . 'footer.php');
-			}
-		}
+		include(APP_PATH . DS . 'views' . DS . 'footer.php');
 		
 		// End output buffering
 		$page = ob_get_contents();

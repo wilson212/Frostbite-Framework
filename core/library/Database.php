@@ -63,7 +63,7 @@ class Database
 			}
 			else
 			{
-				show_error(2, "Query was empty. Please build a query before calling the 'query' method!");
+				show_error(2, "Query was empty. Please build a query before calling the 'query' method!", __FILE__, __LINE__);
 			}
 		}
 		
@@ -718,7 +718,7 @@ class Database
 | @Param: $return - Set to true if you want the sql query returned
 |
 */
-	public function end_sql($return = FALSE) 
+	protected function end_sql($return = FALSE) 
 	{
 		if(empty($this->table))
 		{

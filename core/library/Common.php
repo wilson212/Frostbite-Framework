@@ -136,6 +136,22 @@ function config_set($item, $value)
 
 /*
 | ---------------------------------------------------------------
+| Method: config_save()
+| ---------------------------------------------------------------
+|
+| This function is used to save site config values to the condig.php. 
+| This does not save core, module, or database values.
+|
+*/
+
+function config_save()
+{
+	global $Config;	
+	$Config->Save();
+}
+
+/*
+| ---------------------------------------------------------------
 | Method: get_config_vars()
 | ---------------------------------------------------------------
 |
