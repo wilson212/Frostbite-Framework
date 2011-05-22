@@ -2,11 +2,19 @@
 class Input
 {
 
+	var $time;
+	var $cookie_path;
+	var $cookie_domain;
 	var $user_agent = FALSE;
 	var $ip_address = FALSE;
 
 	public function __construct()
 	{
+		// Set Cookie Defaults
+		$this->time = ( time() + (60 * 60 * 24 * 365) );
+		$this->cookie_path =  "/";
+		$this->cookie_domain = $_SERVER['HTTP_HOST'];
+		
 		// This is truely not needed!
 		$_GET = array();
 	}
@@ -24,11 +32,11 @@ class Input
 */
 	public function post($var)
 	{
-		if (!isset($_POST[$var]))
+		if(isset($_POST[$var]))
 		{
-			return FALSE;
+			return $_POST[$var];
 		}
-		return trim($_POST[$var]);
+		return FALSE;
 	}
 	
 /*
@@ -43,12 +51,28 @@ class Input
 */
 	public function cookie($name)
 	{
-		if (!isset($_COOKIE[$name]))
+		if(isset($_COOKIE[$name]))
 		{
-			return FALSE;
+			return $_COOKIE[$name];
 		}
-		return trim($_COOKIE[$name]);
-	}
+		return FALSE;
+    }
+	
+/*
+| ---------------------------------------------------------------
+| Method: set_cookie()
+| ---------------------------------------------------------------
+|
+| Sets a cookie
+|
+| @Param: $key - Name of the cookie
+| @Param: $val - Value of the cookie
+|
+*/	
+    function set_cookie($key, $val)
+    {
+        setcookie( $key, $val, $this->time, $this->cookie_path, $this->cookie_domain, false, true);
+    }
 	
 /*
 | ---------------------------------------------------------------
@@ -98,6 +122,5 @@ class Input
 		}
         return $this->ip_address;
 	}
-
 }
 // EOF 

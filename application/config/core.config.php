@@ -94,7 +94,7 @@ $config['session_database_id'] = 'DB';
 
 /*
 | ---------------------------------------------------------------
-| Session: Database Identifier
+| Session: Table Name
 | ---------------------------------------------------------------
 |
 | Which is the session table name? NOTE, you must 

@@ -25,7 +25,6 @@ class Session
 		
 		// load the Input and cookie class
 		$this->load->library('Input');
-		$this->load->library('Cookie');
 		
 		// Check for session data. If there is none, create it.
 		if(!$this->check())
@@ -152,7 +151,7 @@ class Session
 		$ID = serialize( $vars );
 		
 		// Set the cookie
-		$this->cookie->set( 'data', $ID );
+		$this->input->set_cookie( 'data', $ID );
 		
 		// Get instance if we havent got it already
 		if($this->DB == FALSE)
