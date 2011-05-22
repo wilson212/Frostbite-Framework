@@ -231,7 +231,7 @@ class Database
 	{
 		$msg  = mysql_error($this->mysql) . "<br /><br />";
 		$msg .= "<b>MySql Error No:</b> ". mysql_errno($this->mysql) ."<br />";
-		$msg .= '<b>Query String:</b> ' . $this->query;
+		$msg .= '<b>Query String:</b> ' . $this->sql;
 		Core::trigger_error(2, $msg);
 	}
 
@@ -445,8 +445,9 @@ class Database
 		}
 		else
 		{
-			$this->columns[] = mysql_real_escape_string( key($data[0]) );
-			$this->values[] = mysql_real_escape_string($data[0]);
+			$key = key($data);
+			$this->columns[] = mysql_real_escape_string( $key );
+			$this->values[] = mysql_real_escape_string( $data[$key] );
 		}
 		
 		$this->sql = "UPDATE ". $this->table ." SET ";
@@ -465,7 +466,7 @@ class Database
 
 /*
 | ---------------------------------------------------------------
-| Function: delete()
+| Function: delete_from()
 | ---------------------------------------------------------------
 |
 | delete is used to delete from a table
@@ -473,7 +474,7 @@ class Database
 | @Param: $table - the table we are deleting data from
 |
 */	
-	public function delete($table) 
+	public function delete_from($table) 
 	{
 		$this->queryType = "DELETE";
 		$this->table = mysql_real_escape_string($table);

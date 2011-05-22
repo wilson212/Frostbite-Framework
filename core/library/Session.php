@@ -242,7 +242,7 @@ class Session
 			}
 			
 			// Delete data
-			$this->DB->delete( $this->session_table_name )->where('token', $_SESSION['token'])->query();
+			$this->DB->delete_from( $this->session_table_name )->where('token', $_SESSION['token'])->query();
 		}
 		
 		// Start a new session
@@ -307,6 +307,24 @@ class Session
 	function update()
 	{
 		$_SESSION['data']['last_seen'] = time();
+		
+		// Are we storing session data in the database? 
+		// If so then remove update the session last_seen
+		if($this->session_use_db == TRUE)
+		{
+			// Get instance if we havent already
+			if($this->DB == FALSE)
+			{
+				$FB = get_instance();
+				$this->DB = $FB->load->database( $this->session_db_id );
+			}
+			
+			// Update data
+			$this->DB
+				->update($this->session_table_name, array( 'last_seen' => time() ))
+				->where('token', $_SESSION['token'])
+				->query();
+		}
 		return TRUE;
 	}
 }
