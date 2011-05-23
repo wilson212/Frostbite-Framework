@@ -41,7 +41,7 @@ Class Registry
 
 /*
 | ---------------------------------------------------------------
-| Method: _get()
+| Method: get()
 | ---------------------------------------------------------------
 |
 | This method is a privte method used to return a stored object
@@ -50,7 +50,7 @@ Class Registry
 |
 */
 	
-    protected function _get($key)
+    protected function get($key)
     {
         if(isset($this::$objects[$key]))
         {
@@ -71,7 +71,7 @@ Class Registry
 |
 */
 
-    protected function _set($key,$val)
+    protected function set($key,$val)
     {
         $this::$objects[$key] = $val;
     }
@@ -90,12 +90,12 @@ Class Registry
     static function load($key)
     {
 
-        return self::singleton()->_get($key);
+        return self::singleton()->get($key);
     }
 
 /*
 | ---------------------------------------------------------------
-| Method: _set()
+| Method: store()
 | ---------------------------------------------------------------
 |
 | This method is used to store an object locally
@@ -108,7 +108,7 @@ Class Registry
     static function store($key, $instance)
     {
 
-        return self::singleton()->_set($key,$instance);
+        return self::singleton()->set($key,$instance);
     }
 
 }

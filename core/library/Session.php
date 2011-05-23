@@ -197,6 +197,7 @@ class Session
 			show_error(1, 'You need to set some information to be stored in the cookie, before saving a session.', __FILE__, __LINE__);
 		}
 		
+		// If we arent storing session Data in the DB, then we set a cookie only
 		if($this->session_use_db == FALSE)
 		{
 			// Combine the ID being set, and the session token
@@ -213,7 +214,7 @@ class Session
 			$this->input->set_cookie( $this->session_cookie_name, $ID );
 		}
 		
-		// Are we storing session data in the database?
+		// If we are storing session data, then lets do that!
 		else
 		{	
 			// Combine the ID being set, and the session token
@@ -363,7 +364,6 @@ class Session
 		if($this->session_use_db == TRUE)
 		{			
 			// Update data
-			// Combine the ID being set, and the session token
 			$ID = serialize( $this->data );
 			
 			$this->DB
