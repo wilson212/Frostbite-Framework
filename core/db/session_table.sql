@@ -10,5 +10,7 @@ CREATE TABLE `session_table` (
   `user_agent` text,
   `ip_address` varchar(50) DEFAULT NULL,
   `last_seen` varchar(50) DEFAULT NULL,
+  `user_data` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+

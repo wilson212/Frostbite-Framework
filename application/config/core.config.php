@@ -108,6 +108,19 @@ $config['session_table_name'] = 'session_table';
 
 /*
 | ---------------------------------------------------------------
+| Session: Cookie Name
+| ---------------------------------------------------------------
+|
+| Name of the cookie we are storing session information in
+|
+| Format: String - Cookie name
+|
+*/
+
+$config['session_cookie_name'] = 'FB_session';
+
+/*
+| ---------------------------------------------------------------
 | Parse Pages
 | ---------------------------------------------------------------
 |

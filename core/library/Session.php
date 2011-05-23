@@ -3,6 +3,7 @@
 class Session
 {
 	static $started = FALSE;
+	private $data;
 	private $session_use_db;
 	private $session_db_id;
 	private $session_table_name;
@@ -24,12 +25,21 @@ class Session
 		$this->session_use_db = config('session_use_database', 'Core');
 		$this->session_db_id = config('session_database_id', 'Core');
 		$this->session_table_name = config('session_table_name', 'Core');
+		$this->session_cookie_name = config('session_cookie_name', 'Core');
 		
 		// Init the loader class
 		$this->load = load_class('Loader');
 		
 		// load the Input and cookie class
 		$this->input = $this->load->library('Input');
+		
+		// Are we storing session data in the database?
+		// If so then load the DB
+		if($this->session_use_db == TRUE)
+		{
+			$FB = get_instance();
+			$this->DB = $FB->load->database( $this->session_db_id );
+		}
 		
 		// Check for session data. If there is none, create it.
 		if(!$this->check())
@@ -65,10 +75,9 @@ class Session
 */	
 	function create()
 	{
-		$_SESSION['data'] = array();
-		$_SESSION['last_seen'] = time();
-		$str = microtime(1);
-		$_SESSION['token'] = sha1(base64_encode(pack("H*", md5(utf8_encode( $str )))));
+		$time = microtime(1);
+		$this->data['last_seen'] = time();
+		$this->data['token'] = sha1(base64_encode(pack("H*", md5(utf8_encode( $time )))));
 	}
 
 /*
@@ -82,32 +91,21 @@ class Session
 */	
 	function check()
 	{
-		// Here we check for session data
-		if(isset($_SESSION['data']))
+		// Check for a session cookie
+		if($this->input->cookie( $this->session_cookie_name ) == FALSE)
 		{
-			$this->update();
-			return TRUE;
+			return FALSE;
 		}
-		
-		// If no session data, Check for a cookie
-		elseif($this->input->cookie('data') != FALSE)
+		else
 		{
 			// Read cookie
-			$cookie = explode(',', @unserialize( $this->input->cookie('data') ) );
+			$cookie = @unserialize($this->input->cookie( $this->session_cookie_name ));
 			
 			// Are we storing session data in the database?
 			if($this->session_use_db == TRUE)
-			{
-				
-				// Get instance if we havent got it already
-				if($this->DB == FALSE)
-				{
-					$FB = get_instance();
-					$this->DB = $FB->load->database( $this->session_db_id );
-				}
-				
+			{				
 				// Get the database result
-				$this->DB->select('*')->from( $this->session_table_name )->where('token', $cookie[1])->query();
+				$this->DB->select('*')->from( $this->session_table_name )->where('token', $cookie['token'])->query();
 				$Get = $this->DB->result();
 				
 				if($Get !== FALSE)
@@ -127,8 +125,23 @@ class Session
 					// All is good, return the cookie ID
 					else
 					{
-						$_SESSION['token'] = $cookie[1];
-						return $cookie[0];
+						$this->data['token'] = $Get['token'];
+						$Get['user_data'] = @unserialize( $Get['user_data'] );
+						
+						if(count($Get['user_data'] > 1))
+						{
+							foreach($Get['user_data'] as $key => $value)
+							{
+								$this->set($key, $value);
+							}
+						}
+						elseif(count($Get['user_data']) == 1)
+						{
+							$key = key( $Get['user_data'][0] );
+							$this->set( $key, $Get['user_data'][$key] );
+						}
+						
+						return TRUE;
 					}
 				}
 				
@@ -139,17 +152,28 @@ class Session
 				}
 			}
 			
-			// No sessions in database
+			// config says, No sessions in database, Load cookie manually
 			else
 			{
-				return FALSE;
+				// Check user agent
+				if($cookie['user_agent'] != $this->input->user_agent() )
+				{
+					return FALSE;
+				}
+				
+				// check users IP address
+				elseif($cookie['ip_address'] != $this->input->ip_address() )
+				{
+					return FALSE;
+				}
+				
+				// Everything looks good ;)
+				else
+				{
+					$this->data['token'] = $cookie['token'];					
+					return $cooke['id'];
+				}	
 			}
-		}
-		
-		// No cookie :(
-		else
-		{
-			return FALSE;
 		}
 	}
 
@@ -168,42 +192,58 @@ class Session
 	function save($id = NULL)
 	{
 		// Cant have an empty ID
-		if($id === NULL)
+		if($id === NULL && $this->session_use_db == FALSE)
 		{
 			show_error(1, 'You need to set some information to be stored in the cookie, before saving a session.', __FILE__, __LINE__);
 		}
 		
-		// Combine the ID being set, and the session token
-		$var = array($id, $_SESSION['token']);
-		$ID = serialize( implode(',', $var) );
-		
-		// Set the cookie
-		$this->input->set_cookie( 'data', $ID );
+		if($this->session_use_db == FALSE)
+		{
+			// Combine the ID being set, and the session token
+			$stuff = array(
+				'id' => $id, 
+				'token' => $this->data['token'], 
+				'user_agent' => $this->input->user_agent(),
+				'ip_address' => $this->input->ip_address(),
+				'last_seen' => time()
+			);
+			$ID = serialize( $stuff );
+			
+			// Set the cookie
+			$this->input->set_cookie( $this->session_cookie_name, $ID );
+		}
 		
 		// Are we storing session data in the database?
-		if($this->session_use_db == TRUE)
-		{
-			// Get instance if we havent got it already
-			if($this->DB == FALSE)
-			{
-				$FB = get_instance();
-				$this->DB = $FB->load->database( $this->session_db_id );
-			}
+		else
+		{	
+			// Combine the ID being set, and the session token
+			$ID = serialize( $this->data );
 			
+			// Set the cookie
+			$this->input->set_cookie( $this->session_cookie_name, $ID );
+		
 			// check to see if we already have this session token saved
-			$this->DB->select('*')->from( $this->session_table_name )->where('token', $_SESSION['token'])->query();
+			$this->DB->select('*')->from( $this->session_table_name )->where('token', $this->data['token'])->query();
 			$Get = $this->DB->result();
 			
+			// No session exists, insert new data
 			if($Get == FALSE)
 			{		
 				// Add session data to the DB only if it doesnt exists
 				$data = array( 
-					'token' => $_SESSION['token'], 
+					'token' => $this->data['token'], 
 					'user_agent' => $this->input->user_agent(), 
 					'ip_address' => $this->input->ip_address(),
-					'last_seen' => $_SESSION['data']['last_seen']
+					'last_seen' => time(),
+					'user_data' => $ID
 				);
 				$this->DB->insert( $this->session_table_name, $data )->query();
+			}
+			
+			// Session data does exists for this token, so update.
+			else
+			{
+				$this->update();
 			}
 			
 			// Check out insert
@@ -225,25 +265,18 @@ class Session
 |
 */	
 	function destroy()
-	{
-		// Remove session variables and cookeis
-		unset($_SESSION['data']);
-		session_destroy();
-		
+	{		
 		// Are we storing session data in the database? 
 		// If so then remove the session from the DB
 		if($this->session_use_db == TRUE)
-		{
-			// Get instance if we havent already
-			if($this->DB == FALSE)
-			{
-				$FB = get_instance();
-				$this->DB = $FB->load->database( $this->session_db_id );
-			}
-			
+		{			
 			// Delete data
-			$this->DB->delete_from( $this->session_table_name )->where('token', $_SESSION['token'])->query();
+			$this->DB->delete_from( $this->session_table_name )->where('token', $this->data['token'])->query();
 		}
+		
+		// Remove session variables and cookeis
+		unset($this->data['token']);
+		session_destroy();
 		
 		// Start a new session
 		$this->start_session();
@@ -262,7 +295,7 @@ class Session
 */	
 	function get($name)
 	{
-        return $_SESSION['data'][$name]; 
+        return $this->data[$name]; 
 	}
 	
 /*
@@ -270,16 +303,29 @@ class Session
 | Method: set()
 | ---------------------------------------------------------------
 |
-| Sets a $_SESSION variable
+| Sets a $_SESSION variable.
 |
-| @Param: $name - variable name to be set
-| @Param: $value - value of the variable
+| @Param: $name - variable name to be set, OR an array of $names => $values
+| @Param: $value - value of the variable, or NULL if $name is array.
 |
 */
-	function set($name, $value)
-	{		
-        $_SESSION['data'][$name] = $value;       
-        return true; 
+	function set($name, $value = NULL)
+	{
+		if(is_array($name))
+		{
+			foreach($name as $key => $value)
+			{
+				$this->data[$key] = $value;
+			}
+		}
+		else
+		{
+			$this->data[$name] = $value;
+		}
+		
+		// Update the DB, or cookie;
+		$this->update();
+        return TRUE; 
 	}
 
 /*
@@ -291,9 +337,13 @@ class Session
 |
 */	
 	function delete($name)
-	{		
-        unset($_SESSION['data'][$name]);       
-        return true; 
+	{
+		// unset $name
+        unset($this->data[$name]);
+		
+		// Update the DB, or cookie;
+		$this->update();		
+        return TRUE; 
 	}
 
 /*
@@ -306,23 +356,19 @@ class Session
 */
 	function update()
 	{
-		$_SESSION['data']['last_seen'] = time();
+		$this->data['last_seen'] = time();
 		
 		// Are we storing session data in the database? 
 		// If so then remove update the session last_seen
 		if($this->session_use_db == TRUE)
-		{
-			// Get instance if we havent already
-			if($this->DB == FALSE)
-			{
-				$FB = get_instance();
-				$this->DB = $FB->load->database( $this->session_db_id );
-			}
-			
+		{			
 			// Update data
+			// Combine the ID being set, and the session token
+			$ID = serialize( $this->data );
+			
 			$this->DB
-				->update($this->session_table_name, array( 'last_seen' => time() ))
-				->where('token', $_SESSION['token'])
+				->update($this->session_table_name, array( 'last_seen' => time(), 'user_data' => $ID ))
+				->where('token', $this->data['token'])
 				->query();
 		}
 		return TRUE;

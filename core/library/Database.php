@@ -435,6 +435,8 @@ class Database
 	{
 		$this->queryType = "UPDATE";
 		$this->table = $table;
+		
+		// Add the column and values to 2 seperate arrays
 		if(count($data) > 1)
 		{
 			foreach($data as $key => $value)
@@ -450,12 +452,24 @@ class Database
 			$this->values[] = mysql_real_escape_string( $data[$key] );
 		}
 		
+		// Init the SQL statement
 		$this->sql = "UPDATE ". $this->table ." SET ";
 	
+		// Start the loop of $keys = $values
 		$count = count($this->columns);
 		for($i = 0; $i < $count; $i++) 
 		{
-			$this->sql .= $this->columns[$i] ." = ". $this->values[$i];
+			// If the number is numeric, we do not add single quotes to the value
+			if(is_numeric($this->values[$i]))
+			{
+				$this->sql .= "`".$this->columns[$i] ."` = ". $this->values[$i];
+			}
+			else
+			{
+				$this->sql .= "`".$this->columns[$i] ."` = '". $this->values[$i] ."'";
+			}
+			
+			// If we have more to go, add a ","
 			if($i < ($count - 1)) 
 			{
 				$this->sql.= ", ";
