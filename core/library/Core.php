@@ -22,38 +22,42 @@ class Core
 		{
 			case 0:
 				$lvl_txt = 'NOTICE: ';
+				$config_level = 3;
 				break;
 			case 1:
 				$lvl_txt = 'WARNING: ';
+				$config_level = 3;
 				break;
 			case 2:
 				$lvl_txt = 'MySQL ERROR: ';
+				$config_level = 2;
 				break;
 			case 3:
 				$lvl_txt = 'ERROR: ';
+				$config_level = 1;
 				break;
 			case 404:
 				include(CORE_PATH . DS . 'pages' . DS .'404.php');
 				die();
 		}
 		
-		if($lvl <= 0) // $Config->get('debug_lvl'))
+		if( config('log_errors', 'Core') == 1 )
 		{
 			if($file != "none")
 			{
-				$err_message = date('Y-m-d H:i:s')." -- ".$lvl_txt.$message." - File: ".$file." on Line:".$line."\n";
+				$err_message = date('Y-m-d H:i:s')." -- ".$lvl_txt . $message." - File: ".$file." on Line:".$line."\n";
 			}
 			else
 			{
-				$err_message = date('Y-m-d H:i:s')." -- ".$lvl_txt.$message."\n";
+				$err_message = date('Y-m-d H:i:s')." -- ". $lvl_txt . $message."\n";
 			}
-			$log = @fopen(CORE_PATH . DS . 'tmp' . DS . 'logs' . DS . 'error.log', 'a');
+			$log = @fopen(CORE_PATH . DS . 'logs' . DS . 'error.log', 'a');
 			@fwrite($log, $err_message);
 			@fclose($log);
 		}
 		
-		// If error, then display the error page!
-		if($lvl >= 0) //$Config->get('error_display_level'))
+		// If the error is more severe then the config level, show it
+		if(config('error_reporting_level', 'Core') >= $config_level)
 		{
 			// Empty out the buffers so we dont see what have processed
 			@ob_end_clean();

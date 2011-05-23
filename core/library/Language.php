@@ -2,7 +2,7 @@
 
 class Language
 {
-	public $language = array();
+	public $language_vars = array();
 	public $loaded_files = array();
 
 /*

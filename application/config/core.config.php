@@ -2,18 +2,35 @@
 
 /*
 | ---------------------------------------------------------------
-| enable_hooks
+| Error_display_level
 | ---------------------------------------------------------------
 |
-| If you would like to use the 'hooks' feature you must enable it by
-| setting this variable to TRUE (boolean).
+| This is the error level of which you would like to show when
+| viewing the website. This should be set to 3 (all errors) when
+| doing enviorment testing, and just 1 ( Fetal errors ) or 2 
+| ( Fetal errors and Mysql Errors) for live sites.
 |
+| Levels:
+| 	3 = all errors (including MySQL), warnings, and notices.
+|	2 = All Fetal errors, and Mysql errors
+|	1 = Fetal errors only ( No mysql errors )
 */
-$config['enable_hooks'] = FALSE;
+$config['error_display_level'] = 3;
 
 /*
 | ---------------------------------------------------------------
-| subclass_prefix
+| Log_errors
+| ---------------------------------------------------------------
+|
+| Set to 1 to log errors in the error log. Set to 0 to disable
+| error logging.
+|
+*/
+$config['log_errors'] = 1;
+
+/*
+| ---------------------------------------------------------------
+| Subclass_prefix
 | ---------------------------------------------------------------
 |
 | Allows custom class prefixes for extended librarys
@@ -118,16 +135,5 @@ $config['session_table_name'] = 'session_table';
 */
 
 $config['session_cookie_name'] = 'FB_session';
-
-/*
-| ---------------------------------------------------------------
-| Parse Pages
-| ---------------------------------------------------------------
-|
-| If you would like files to be parsed in the template parser,
-| Set this value to TRUE (boolean), or FALSE otherwise.
-|
-*/
-$config['parse_pages'] = TRUE;
 
 // EOF

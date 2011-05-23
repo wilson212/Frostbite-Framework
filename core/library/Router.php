@@ -6,16 +6,15 @@ class Router
 	var $_queryString = FALSE;
 	var $_is_module = FALSE;
 	
-	/*
-	| ---------------------------------------------------------------
-	| Method: routeUrl()
-	| ---------------------------------------------------------------
-	|
-	| This method analyzes the url to determine the controller / action
-	| and query string
-	|
-	*/
-	
+/*
+| ---------------------------------------------------------------
+| Method: routeUrl()
+| ---------------------------------------------------------------
+|
+| This method analyzes the url to determine the controller / action
+| and query string
+|
+*/	
 	function routeUrl() 
 	{
 		global $url;
@@ -73,74 +72,69 @@ class Router
 		$this->_queryString = $queryString;
 	}
 	
-	/*
-	| ---------------------------------------------------------------
-	| Method: get_class()
-	| ---------------------------------------------------------------
-	|
-	| Returns the controller name from the routeUrl method.
-	|
-	*/
-	
+/*
+| ---------------------------------------------------------------
+| Method: get_class()
+| ---------------------------------------------------------------
+|
+| Returns the controller name from the routeUrl method.
+|
+*/	
 	function get_class()
 	{		
 		return $this->_controller;
 	}
 	
-	/*
-	| ---------------------------------------------------------------
-	| Method: get_method()
-	| ---------------------------------------------------------------
-	|
-	| Returns the action name from the routeUrl method.
-	|
-	*/
-	
+/*
+| ---------------------------------------------------------------
+| Method: get_method()
+| ---------------------------------------------------------------
+|
+| Returns the action name from the routeUrl method.
+|
+*/	
 	function get_method()
 	{		
 		return $this->_action;
 	}
 	
-	/*
-	| ---------------------------------------------------------------
-	| Method: ge_queryString()
-	| ---------------------------------------------------------------
-	|
-	| Returns the query string name from the routeUrl method.
-	|
-	*/
-	
+/*
+| ---------------------------------------------------------------
+| Method: ge_queryString()
+| ---------------------------------------------------------------
+|
+| Returns the query string name from the routeUrl method.
+|
+*/	
 	function get_queryString()
 	{		
 		return $this->_queryString;
 	}
 	
-	/*
-	| ---------------------------------------------------------------
-	| Method: get_type()
-	| ---------------------------------------------------------------
-	|
-	| Returns TRUE of the controller belongs to a module
-	|
-	*/
-	
+/*
+| ---------------------------------------------------------------
+| Method: get_type()
+| ---------------------------------------------------------------
+|
+| Returns TRUE of the controller belongs to a module
+|
+*/	
 	function get_type()
 	{		
 		return $this->_is_module;
 	}
 	
-	/*
-	| ---------------------------------------------------------------
-	| Method: controller_exists()
-	| ---------------------------------------------------------------
-	|
-	| Checks the controller and Module folders for a certain controller
-	| returns TRUE if a controller was found, FALSE otherwise
-	|
-	| @Param: $name - Name of the controller being searched for.
-	|
-	*/
-	
+/*
+| ---------------------------------------------------------------
+| Method: controller_exists()
+| ---------------------------------------------------------------
+|
+| Checks the controller and Module folders for a certain controller
+| returns TRUE if a controller was found, FALSE otherwise
+|
+| @Param: $name - Name of the controller being searched for.
+|
+*/
 	function controller_exists($name)
 	{
 		if(file_exists(APP_PATH . DS . 'controllers' . DS . strtolower($name) . '.php')) 

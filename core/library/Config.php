@@ -14,9 +14,15 @@ class Config
 	var $data = array();
 	protected $DB_configs;
 	protected $Core_configs;
-	
-	public function Config() 
+
+/*
+| ---------------------------------------------------------------
+| Constructer
+| ---------------------------------------------------------------
+*/	
+	public function __construct() 
 	{
+		// Set defaults
 		$this->configFile = APP_PATH . DS . 'config' . DS . 'config.php';
 		$this->Core_configFile = APP_PATH . DS . 'config' . DS . 'core.config.php';
 		$this->DB_configFile = APP_PATH . DS . 'config' . DS . 'database.config.php';
