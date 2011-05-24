@@ -62,9 +62,9 @@ Class Registry
 	
     protected function get($key)
     {
-        if(isset($this::$objects[$key]))
+        if(isset(self::$objects[$key]))
         {
-            return $this::$objects[$key];
+            return self::$objects[$key];
         }
         return NULL;
     }
@@ -83,7 +83,7 @@ Class Registry
 
     protected function set($key,$val)
     {
-        $this::$objects[$key] = $val;
+        self::$objects[$key] = $val;
     }
 
 /*

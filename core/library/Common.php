@@ -215,9 +215,7 @@ function load_module_config($module, $filename = 'config.php')
 */	
 	function get_instance()
 	{
-		$class = config('instance', 'Core');
-		$class = ucfirst($class);
-		return $class::get_instance();
+		return Controller::get_instance();
 	}
 
 /*

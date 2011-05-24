@@ -40,17 +40,6 @@ $config['subclass_prefix'] = 'MY_';
 
 /*
 | ---------------------------------------------------------------
-| Instance
-| ---------------------------------------------------------------
-|
-| If you would like to change the SuperObject class to a custom
-| controller class, specify the controller name here.
-|
-*/
-$config['instance'] = 'Controller';
-
-/*
-| ---------------------------------------------------------------
 | Auto load Libraries
 | ---------------------------------------------------------------
 |
