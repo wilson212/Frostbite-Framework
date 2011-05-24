@@ -72,7 +72,7 @@ class Core
 		}
 		
 		// If the error is more severe then the config level, show it
-		if(config('error_reporting_level', 'Core') >= $config_level)
+		if( config('error_display_level', 'Core') >= $config_level )
 		{
 			// Empty out the buffers so we dont see what have processed
 			@ob_end_clean();

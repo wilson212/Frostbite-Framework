@@ -117,6 +117,12 @@ class Loader
 	{
 		global $Config;
 		
+		// Check to see if our connection Id is numeric
+		if(is_numeric($args))
+		{
+			$args = $this->_get_db_key($args);
+		}
+		
 		// Check our registry to see if we already loaded this connection
 		$Obj = Registry::singleton();
 		if($Obj->load("DBC_".$args) != NULL)
@@ -175,5 +181,21 @@ class Loader
 		{
 			require_once(CORE_PATH . DS .  'helpers' . DS . $name . '.php');
 		}
+	}
+	
+/*
+| ---------------------------------------------------------------
+| Method: _get_db_key()
+| ---------------------------------------------------------------
+|
+| This method returns the correct key identifier for database 0
+|
+*/
+	function _get_db_key()
+	{		
+		include(APP_PATH . DS .  'config' . DS . 'database.config.php');
+		$keys = array_keys($DB_configs);
+
+		return $keys[0];
 	}
 }
