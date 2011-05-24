@@ -1,4 +1,17 @@
 <?php
+/* 
+| --------------------------------------------------------------
+| 
+| Frostbite Framework
+|
+| --------------------------------------------------------------
+|
+| Author: 		Steven Wilson
+| Copyright:	Copyright (c) 2011, Steven Wilson
+| License: 		GNU GPL v3
+|
+*/
+
 class Router
 {
 	var $_controler = FALSE;
@@ -17,9 +30,12 @@ class Router
 */	
 	function routeUrl() 
 	{
-		global $url;
 		global $routes;
-	
+		
+		// Get our current url, which is passed on by the htaccess file
+		$url = (isset($_GET['url']) ? $_GET['url'] : '');
+		
+		// Init our initial querystring array.
 		$queryString = array();
 	
 		// If the URI is empty, then load defaults

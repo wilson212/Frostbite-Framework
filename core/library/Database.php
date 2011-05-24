@@ -1,4 +1,16 @@
 <?php
+/* 
+| --------------------------------------------------------------
+| 
+| Frostbite Framework
+|
+| --------------------------------------------------------------
+|
+| Author: 		Steven Wilson
+| Copyright:	Copyright (c) 2011, Steven Wilson
+| License: 		GNU GPL v3
+|
+*/
 
 class Database
 {
@@ -414,7 +426,7 @@ class Database
 		else
 		{
 			$key = mysql_real_escape_string( key($data) );
-			$value = mysql_real_escape_string($data[0]);
+			$value = mysql_real_escape_string($data[$key]);
 			$this->sql = "INSERT INTO ". $table ." (". $key .") VALUES (". $value.")";
 		}
 		return $this;

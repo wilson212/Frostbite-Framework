@@ -1,4 +1,17 @@
 <?php
+/* 
+| --------------------------------------------------------------
+| 
+| Frostbite Framework
+|
+| --------------------------------------------------------------
+|
+| Author: 		Steven Wilson
+| Copyright:	Copyright (c) 2011, Steven Wilson
+| License: 		GNU GPL v3
+|
+*/
+
 class Input
 {
 
@@ -72,11 +85,16 @@ class Input
 |
 | @Param: $key - Name of the cookie
 | @Param: $val - Value of the cookie
+| @Param: $time - Cookie expire time from now in seconds
 |
 */	
-    function set_cookie($key, $val)
+    function set_cookie($key, $val, $time = NULL)
     {
-        setcookie( $key, $val, $this->time, $this->cookie_path, $this->cookie_domain, false, true);
+		if($time === NULL)
+		{
+			$time = $this->time;
+		}
+        setcookie( $key, $val, $time, $this->cookie_path, $this->cookie_domain, false, true);
     }
 	
 /*

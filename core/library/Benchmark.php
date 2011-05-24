@@ -1,4 +1,16 @@
 <?php
+/* 
+| --------------------------------------------------------------
+| 
+| Frostbite Framework
+|
+| --------------------------------------------------------------
+|
+| Author: 		Steven Wilson
+| Copyright:	Copyright (c) 2011, Steven Wilson
+| License: 		GNU GPL v3
+|
+*/
 
 class Benchmark
 {

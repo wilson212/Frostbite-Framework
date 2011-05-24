@@ -70,11 +70,6 @@ function __autoload($className)
 	}
 }
 
-/* 
-| Register this file to process errors with the custom_error_handler method
-| We use this right after autoload so we can get these errors as quick as possible
-*/
-set_error_handler( array( 'Core', 'custom_error_handler' ), E_ALL );
 
 /*
 | ---------------------------------------------------------------

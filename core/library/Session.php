@@ -1,4 +1,16 @@
 <?php
+/* 
+| --------------------------------------------------------------
+| 
+| Frostbite Framework
+|
+| --------------------------------------------------------------
+|
+| Author: 		Steven Wilson
+| Copyright:	Copyright (c) 2011, Steven Wilson
+| License: 		GNU GPL v3
+|
+*/
 
 class Session
 {
@@ -37,8 +49,7 @@ class Session
 		// If so then load the DB
 		if($this->session_use_db == TRUE)
 		{
-			$FB = get_instance();
-			$this->DB = $FB->load->database( $this->session_db_id );
+			$this->DB = $this->load->database( $this->session_db_id );
 		}
 		
 		// Check for session data. If there is none, create it.
@@ -244,7 +255,7 @@ class Session
 			// Session data does exists for this token, so update.
 			else
 			{
-				$this->update();
+				return $this->update();
 			}
 			
 			// Check out insert

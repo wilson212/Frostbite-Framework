@@ -8,7 +8,7 @@
 |
 | Author: 		Steven Wilson
 | Copyright:	Copyright (c) 2011, Steven Wilson
-| License: 		???
+| License: 		GNU GPL v3
 |
 | * USE THIS FILE AS THE BOOTSTRAP *
 |
