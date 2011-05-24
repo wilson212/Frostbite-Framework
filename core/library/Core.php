@@ -15,7 +15,7 @@ class Core
 | @Param: $errno - Error number
 |
 */
-	function trigger_error($lvl, $message = 'Not Specified', $file = "none", $line = 0, $errno = 0)
+	static function trigger_error($lvl, $message = 'Not Specified', $file = "none", $line = 0, $errno = 0)
 	{
 		$Config = new Config;		
 		switch($lvl) 
@@ -41,6 +41,7 @@ class Core
 				die();
 		}
 		
+		// Do we log the error?
 		if( config('log_errors', 'Core') == 1 )
 		{
 			if($file != "none")

@@ -248,12 +248,14 @@ class Session
 			}
 			
 			// Check out insert
-			if($this->DB->affected_rows() == 1)
+			if($this->DB->result() == TRUE) 
 			{
 				return TRUE;
 			}
 			return FALSE;
 		}
+		
+		return TRUE;
 	}
 
 

@@ -58,7 +58,7 @@ class Database
 			// Check for a custom query
 			if($query != FALSE)
 			{
-				$this->result = @mysql_query($query, $this->mysql) or $this->trigger_error($query);
+				$this->result = mysql_query($query, $this->mysql) or $this->trigger_error($query);
 				$this->_statistics['count']++;
 			}
 			else
@@ -81,7 +81,7 @@ class Database
 				break;
 				
 			default:
-				$this->result = @mysql_query($this->sql, $this->mysql) or $this->trigger_error($query);
+				$this->result = mysql_query($this->sql, $this->mysql) or $this->trigger_error($query);
 				$this->_statistics['count']++;
 				break;
 		}
@@ -112,7 +112,7 @@ class Database
 */
     public function fetch($query)
     {
-        $sql = @mysql_query($query, $this->mysql) or $this->trigger_error($query);
+        $sql = mysql_query($query, $this->mysql) or $this->trigger_error($query);
 		$this->_statistics['count']++;
 		$i = 1;
 		

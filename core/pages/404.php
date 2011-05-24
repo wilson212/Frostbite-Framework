@@ -14,7 +14,7 @@
 			You may have mis-typed the URL, or the page was deleted. Please check your spelling.<br /><br />
 		</div>
 		<div class="links">
-			<a href='<?php echo $Config->get('site_base_href'); ?>'>Return to Index</a> | <a href='javascript: history.go(-1)'>Previous Page</a>
+			<a href='<?php echo BASE_URL; ?>'>Return to Index</a> | <a href='javascript: history.go(-1)'>Previous Page</a>
 		</div>
 	</div>
 </body>

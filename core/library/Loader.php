@@ -107,14 +107,14 @@ class Loader
 	{
 		global $Config;
 		
-		/*
+		// Check our registry to see if we already loaded this connection
 		$Obj = Registry::singleton();
 		if($Obj->load("DBC_".$args) != NULL)
 		{
 			return $Obj->load("DBC_".$args);
 		}
-		*/
 		
+		// Not in the registry, so istablish a new connection
 		$DB = new Database(
 			$Config->getDbInfo($args, 'host'),
 			$Config->getDbInfo($args, 'port'),
@@ -124,7 +124,7 @@ class Loader
 		);
 		
 		// If user wants to instance this, then we do that
-		if($instance != FALSE && $instance != 0)
+		if($instance != FALSE && (!is_numeric($args) || !is_numeric($instance)))
 		{
 			if($instance === TRUE || is_numeric($instance))
 			{
@@ -134,8 +134,11 @@ class Loader
 			$FB->$instance = $DB;
 		}
 		
-		// $Obj->store("DBC_".$args, $DB);
-		return $DB;
+		// Store the connection in the registry
+		$Obj->store("DBC_".$args, $DB);
+		
+		// Return the object!
+		return $Obj->load("DBC_".$args);
 	}
 	
 /*
