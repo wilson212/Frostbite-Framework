@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Loader Class :: Frostbite Framework Documentation</title>
+
+	<style type='text/css' media='all'>@import url('./userguide.css');</style>
+	<link rel='stylesheet' type='text/css' media='all' href='doc_style/userguide.css' />
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<div id="nav"><div id="nav_inner"></div></div>
+<div id="nav2"><a name="top">&nbsp;</a></div>
+<div id="masthead">
+	<table cellpadding="0" cellspacing="0" border="0" style="width:100%">
+		<tr>
+			<td><h1>Frostbite Framework</h1></td>
+			<td id="breadcrumb_right"><a href="index.html">Return To Index</a></td>
+		</tr>
+	</table>
+</div>
+<!-- END NAVIGATION -->
+
+<br clear="all" />
+
+<!-- START CONTENT -->
+<div id="content">
+	<h1>Loader Class</h1>
+
+	<p>
+		The loader class makes it easy to load libraries, modules, helpers, and Database connections and instance them in the Main controller.
+	</p>
+
+	<p class="important"><strong>Note:</strong>&nbsp; This class always loaded before the main controller is initialized, so you will not need to initialize it by default.</p>
+
+	
+	<!-- Library -->
+	<h2>Using the loader file to load a library</h2>	
+	<p>
+		When loading a library, it will always load the custom library file from the Application folder OVER the Core one. If you are merely just wanting to add
+		to a core library, you will need to extend it using <dfn>parent::__contruct()</dfn> in your app library class constructer.
+	</p>	
+	<code>
+		$this->load->library('<var>$class_name</var>');
+	</code>
+	
+	<p>The above example shows the minimum to load a library. There are 2 more arguments that can be passed as shown below, but are not required:</p>
+	<code>
+		$this->load->library('<var>$class_name</var>', '<dfn>$args</dfn>', '<dfn>$instance_as</dfn>');
+	</code>
+	
+	<p>
+		<dfn>$args</dfn>: Default = <font color='blue'><b>NULL</b></font> - Arguments to be passed to the library constructer.<br />
+		<dfn>$instance_as</dfn>: Default = <var>$class_name</var> - How the the class will be called in the controller. (IE: $this->$instance_as->method()).
+	</p>
+	
+	
+	
+	<!-- Database -->
+	<h2>Using the loader to establish a Database Connection</h2>
+	<p>
+		Before you establish a database connection, you need to enter the connection info in the "Application/config/database.config.php" file.
+		Below is an example of how to configure you DB connection:
+	</p>
+	<pre>
+		$DB_configs = array( 
+			'<var>$config_key</var>' => array(
+				'hostname' => 'host IP';
+				'port' => 'mysql port #';
+				'username' => 'database username';
+				'password' => 'database password';
+				'database' => 'name of the database';
+			),
+			'<var>$config_key2</var>' => array(
+				'hostname' => .....
+		);
+	</pre>
+	
+	<p>Now below, this how we load that very connection:
+	<code>
+		$connection = $this->load->database('<var>$config_key</var>', '<dfn>$instance</dfn>');
+	</code>
+	
+	<p>
+		<dfn>$instance</dfn>: Default = <font color="blue"><b>FALSE</b></font> - Do we instance this connection in the controller super object? <kbd>NOTE:</kbd> If <dfn>$instance</dfn>
+		is set to <font color='blue'><b>TRUE</b></font>, then <var>$connection = </var> is NOT needed as it will be instanced as "$this->$config_key" UNLESS you are using it outside the
+		controller.
+	</p>
+	
+	
+	
+	<!-- Model -->
+	<h2>Using the loader to load a Model</h2>
+	<p>
+		When loading a model, its important to know that any and all libraries and DB connections you have loaded will now be available UNLESS you use the <dfn>get_instance();</dfn>
+		function. <br />
+		<var>$name</var> is the name of the model class we are loading.<br />
+	</p>
+	<code>
+		$this->load->model('<var>$name</var>', '<dfn>$instance_as</dfn>');<br />
+		$this-><var>$name</var>->method();
+	</code>
+	
+	<p>
+		<dfn>$instance_as</dfn>: Default = Lowercase <var>$name</var> - Setting this will allow you to access the model using a different name then the class name:
+	</p>
+	<code>
+		$this-><dfn>$instance_as</dfn>->method();
+	</code>
+	
+	<!-- Helper Files -->
+	<h2>Using the loader to load Helper files</h2>
+	<p>Helper files are just files that contain a list of functions for you to use, so all you have to do is load the helper, and the functions are globally available for use.</p>
+	<code>
+		$this->load->helper('<var>$name</var>');
+	</code>
+
+</div>
+<!-- END CONTENT -->
+
+
+<div id="footer">
+	<p>
+		Previous Topic:&nbsp;&nbsp;<a href="#">Previous Class</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+		<a href="#top">Top of Page</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+		<a href="#">User Guide Home</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+		Next Topic:&nbsp;&nbsp;<a href="#">Next Class</a>
+	</p>
+	<p>Original Template Copyright &#169; 2006 - 2011 &nbsp;&middot;&nbsp; <a href="http://ellislab.com/">EllisLab, Inc.</a></p>
+</div>
+
+</body>
+</html>
