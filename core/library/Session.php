@@ -69,10 +69,10 @@ class Session
 */
 	function start_session()
 	{
-		if(!$this::$started)
+		if(!self::$started)
 		{
 			session_start();
-			$this::$started = true;
+			self::$started = true;
 		}
 	}
 

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>Benchamrk Class :: Frostbite Framework Documentation</title>
+	<title>Session Class :: Frostbite Framework Documentation</title>
 
 	<style type='text/css' media='all'>@import url('./userguide.css');</style>
 	<link rel='stylesheet' type='text/css' media='all' href='../doc_style/userguide.css' />
@@ -26,38 +26,13 @@
 
 <!-- START CONTENT -->
 <div id="content">
-	<h1>Becnhmark Class</h1>
+	<h1>Session Class</h1>
 
 	<p>
-		The Benhmark class is used to see how fast certain components are taking to load, as well as how much memory your script is using at any given point.
+		The session class makes it easier to manage users login session information, and is more secure as it does not use the $_SESSION global. All session information is stored in the
+		database for easy and secure reach. If you have the session Database turned off, then custom information can be stored in the cookie instead, which is WAY less secure then storing 
+		info in the database.
 	</p>
-
-	<!-- Start -->
-	<h2>Starting  new Benchmark</h2>
-	<p>To initiate a new start time:</p>
-	<code>
-		Benchmark::startTimer('<var>$name</var>');
-	</code>
-	
-	<p><var>$name</var>: the name of your benchamrk, but remember it, you will need this later ;)</p>
-	
-	<!-- Stop -->
-	<h2>Stoping a Benchmark</h2>
-	<p>To initiate a a stop time to your benchmark:</p>
-	<code>
-		Benchmark::stopTimer('<var>$name</var>');
-	</code>
-	
-	<p><var>$name</var>: the name of your benchamrk</p>
-	
-	<!-- Show -->
-	<h2>displaying a Benchmark time</h2>
-	<p>Please take note, if you do not stop your timer first, <b>It Will Be Stopped</b> after using this function.</p>
-	<code>
-		Benchmark::showTimer('<var>$name</var>');
-	</code>
-	
-	<p><var>$name</var>: the name of your benchamrk</p>
 
 </div>
 <!-- END CONTENT -->
@@ -65,9 +40,10 @@
 
 <div id="footer">
 	<p>
+		Previous Topic:&nbsp;&nbsp;<a href="#">Previous Class</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
 		<a href="#top">Top of Page</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
 		<a href="../index.html">Return to Index</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
-		Next Topic:&nbsp;&nbsp;<a href="config.html">Config Class</a>
+		Next Topic:&nbsp;&nbsp;<a href="#">Next Class</a>
 	</p>
 	<p>Original Template Copyright &#169; 2006 - 2011 &nbsp;&middot;&nbsp; <a href="http://ellislab.com/">EllisLab, Inc.</a></p>
 </div>
