@@ -734,23 +734,16 @@ class Database
 |
 | Querybuilder: Adds "LIMIT $limit" to the query being built
 |
-| @Param: $start - start position of the query results or limit
-| @Param: $end - end position of the query results
+| @Param: $x - the Limit
+| @Param: $y - the result number to start on
 |
 */
-	public function limit($start, $end = FALSE) 
+	public function limit($x, $y = 0) 
 	{
-		$start = mysql_real_escape_string($start);
-		$end = mysql_real_escape_string($end);
-		
-		if($end == FALSE)
-		{
-			$this->sql .= " LIMIT ". $start;
-		}
-		else
-		{		
-			$this->sql .= " LIMIT ". $start .",". $end;
-		}
+		$x = mysql_real_escape_string($x);
+		$y = mysql_real_escape_string($y);
+			
+		$this->sql .= " LIMIT ". $y .",". $x;
 		return $this;
 	}
 	

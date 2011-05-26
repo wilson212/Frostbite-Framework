@@ -315,8 +315,8 @@
 	
 	<!-- LIMIT -->
 	<h3>limit()</h3>
-	<p>adds "LIMIT $start, $end" to the query. <var>$start</var> is what the start of the results OR We set the limit if no <var>$end</var>, and $end is where to stop (If we are not starting from the first result).</p>
-	<code>$this->database->limit('<var>$start</var>', '<dfn>$stop</dfn>');</code>
+	<p>adds "LIMIT $x, $y" to the query. <var>$x</var> is the number if records to display, and $y is our starting point if we are not starting on record number 1.</p>
+	<code>$this->database->limit('<var>$x</var>', '<dfn>$y</dfn>');</code>
 
 
 </div>
