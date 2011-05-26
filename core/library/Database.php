@@ -599,17 +599,21 @@ class Database
 	
 /*
 | ---------------------------------------------------------------
-| Function: like()
+| Function: where_like()
 | ---------------------------------------------------------------
 |
-| Querybuilder: Adds "LIKE $like" to the query being built
+| Querybuilder: Adds "WHERE $col LIKE $like" to the query being built
 |
+| @Param: $col- the column we are selecting
 | @Param: $like - what we are comparing to
 |
 */	
-	public function like($like) 
+	public function where_like($col, $like) 
 	{
-		$this->sql .= " LIKE ". mysql_real_escape_string($like);
+		$like = mysql_real_escape_string($like);
+		$col = mysql_real_escape_string($col);
+		
+		$this->sql .=  " WHERE". $col ." LIKE ". $like;
 		return $this;
 	}
 	
@@ -618,14 +622,18 @@ class Database
 | Function: not_like()
 | ---------------------------------------------------------------
 |
-| Querybuilder: Adds "NOT LIKE $like" to the query being built
+| Querybuilder: Adds "WHERE $col NOT LIKE $like" to the query being built
 |
+| @Param: $col- the column we are selecting
 | @Param: $like - what we are comparing to
 |
 */	
-	public function not_like($like) 
+	public function where_not_like($col, $like) 
 	{
-		$this->sql .= " NOT LIKE ". mysql_real_escape_string($like);
+		$like = mysql_real_escape_string($like);
+		$col = mysql_real_escape_string($col);
+		
+		$this->sql .= "WHERE ". $col ." NOT LIKE ". $like;
 		return $this;
 	}
 	
@@ -677,7 +685,7 @@ class Database
 | @Param: $groupBy - What we are grouping by
 |
 */	
-	public function groupBy($groupBy) 
+	public function groupBy($groupBy, $type) 
 	{
 		$this->sql .= " GROUP BY ". mysql_real_escape_string($groupBy);
 		return $this;
@@ -707,11 +715,15 @@ class Database
 | Querybuilder: Adds "ORDER BY $orderBy" to the query being built
 |
 | @Param: $orderBy - How we are ording the result
+| @Param: $type - How we order, for example: ASC, or DESC
 |
 */	
-	public function orderBy($orderBy) 
+	public function orderBy($orderBy, $type = 'ASC') 
 	{
-		$this->sql .= " ORDER BY ". mysql_real_escape_string($orderBy);
+		$order = mysql_real_escape_string($orderBy);
+		$type = mysql_real_escape_string($type);
+		
+		$this->sql .= " ORDER BY ". $order ." ". $type ;
 		return $this;
 	}
 
