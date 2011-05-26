@@ -33,6 +33,51 @@
 		database for easy and secure reach. If you have the session Database turned off, then custom information can be stored in the cookie instead, which is WAY less secure then storing 
 		info in the database.
 	</p>
+	
+	<!-- Initalizing -->
+	<h2>Initializing the Session Class</h2>
+	<p>
+		By default, the session class is not initiated, so you will need to set that up manually or enable in the config to autoload the class. Once loaded, the session class will set itself up automatically, 
+		so there isnt much you need to do. All you have to do is use the loader to load the session like so:
+	</p>
+	<code>
+		$this->load->library('Session');
+	</code>
+	
+	<!-- Setting -->
+	<h2>Setting a session variable</h2>
+	<p>
+		Once the session is loaded, you will most likely want and need to set some session variables, such as a username etc etc. Here is how you do that:
+	</p>
+	<code>
+		$this->session->set('<var>$key</var>', '<var>$value</var>');
+	</code>
+	<p>
+		<var>$key</var> - This is the name of the value your setting, such as "username = $value", the $key in this example is "username".<br />
+		<var>$value</var> - This is value you are setting to your key.
+	</p>
+	
+	<!-- Getting -->
+	<h2>Fetching a session variable</h2>
+	<p>
+		Once you have set some session variables, you will probablily need to access one of those variables later on. This is how you do that:
+	</p>
+	<code>
+		$var = $this->session->get('<var>$key</var>');
+	</code>
+	<p>
+		<var>$key</var> - This is the name of the value your getting.<br />
+	</p>
+	
+	<!-- Saving -->
+	<h2>Saving / Updating your Session</h2>
+	<p>
+		Once you have all your session data set up, you will need to save it to the database and cookie. If session data already exists, then it will update where needed. This is how you 
+		save your session once all the data is set.
+	</p>
+	<code>
+		$this->session->save();
+	</code>
 
 </div>
 <!-- END CONTENT -->
@@ -40,10 +85,10 @@
 
 <div id="footer">
 	<p>
-		Previous Topic:&nbsp;&nbsp;<a href="#">Previous Class</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+		Previous Topic:&nbsp;&nbsp;<a href="loader.html">Loader Class</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
 		<a href="#top">Top of Page</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
 		<a href="../index.html">Return to Index</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
-		Next Topic:&nbsp;&nbsp;<a href="#">Next Class</a>
+		Next Topic:&nbsp;&nbsp;<a href="#"> -- </a>
 	</p>
 	<p>Original Template Copyright &#169; 2006 - 2011 &nbsp;&middot;&nbsp; <a href="http://ellislab.com/">EllisLab, Inc.</a></p>
 </div>

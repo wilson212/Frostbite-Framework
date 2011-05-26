@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Input Class :: Frostbite Framework Documentation</title>
+
+	<style type='text/css' media='all'>@import url('./userguide.css');</style>
+	<link rel='stylesheet' type='text/css' media='all' href='../doc_style/userguide.css' />
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<div id="nav"><div id="nav_inner"></div></div>
+<div id="nav2"><a name="top">&nbsp;</a></div>
+<div id="masthead">
+	<table cellpadding="0" cellspacing="0" border="0" style="width:100%">
+		<tr>
+			<td><h1>Frostbite Framework</h1></td>
+			<td id="breadcrumb_right"><a href="../index.html">Return To Index</a></td>
+		</tr>
+	</table>
+</div>
+<!-- END NAVIGATION -->
+
+<br clear="all" />
+
+<!-- START CONTENT -->
+<div id="content">
+	<h1>Input Class</h1>
+
+	<p>
+		The input class makes it easy to interact with data the user has sent over the web, such as POST and COOKIE data. This class can also get the users IP address as well as
+		what browser the user is using. The Input class is mainly used in the session class, but can be initiated and used manually.
+	</p>
+	
+	<!-- Initalizing -->
+	<h2>Initializing the Input Class</h2>
+	<p>
+		By default, the seInput class is not initiated, so you will need to set that up manually or enable in the config to autoload the class. To load the Input class:
+	</p>
+	<code>
+		$this->load->library('Input');
+	</code>
+	
+	<!-- POST -->
+	<h2>Getting a POST variable</h2>
+	<p>
+		Once the Input class is loaded, you can use this method below to access $_POST data
+	</p>
+	<code>
+		$var = $this->input->post('<var>$key</var>');
+	</code>
+	<p>
+		<var>$key</var> - This is the name of the post variable you are trying to get.<br />
+	</p>
+	
+	<!-- COOKIE -->
+	<h2>Reading cookie data</h2>
+	<p>
+		You can use this method below to read users cookie data:
+	</p>
+	<code>
+		$var = $this->input->cookie('<var>$key</var>');
+	</code>
+	<p>
+		<var>$key</var> - This is the name of the cookie you are reading information from.<br />
+	</p>
+
+	<!-- Setting a COOKIE -->
+	<h2>Setting a cookie</h2>
+	<p>
+		You can use this method below to set cookies on the users machine and store data for a later time:
+	</p>
+	<code>
+		$this->input->set_cookie('<var>$name</var>', '<var>$data</var>', '<dfn>$expiration</dfn>');
+	</code>
+	<p>
+		<var>$name</var> - This is the name of the cookie you are setting.<br />
+		<var>$data</var> - The data you are storing in the cookie<br />
+		<dfn>$expiration</dfn> - This is the expiration time in seconds, of when the cookie will expire. Default is one year ( 60 * 60 * 24 * 365 )<br />
+	</p>
+	
+	<!-- Setting a COOKIE -->
+	<h2>Users Agent / Browser Information</h2>
+	<p>
+		It is possible to determine which internet browser and operating system the user is using by using the method below:
+	</p>
+	<code>
+		$var = $this->input->user_agent();
+	</code>
+	
+	<!-- Setting a COOKIE -->
+	<h2>Users IP Address</h2>
+	<p>
+		To determine the users IP adress, you can use the following information:
+	</p>
+	<code>
+		$var = $this->input->ip_address();
+	</code>
+
+	
+</div>
+<!-- END CONTENT -->
+
+
+<div id="footer">
+	<p>
+		Previous Topic:&nbsp;&nbsp;<a href="database.html">Database Class</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+		<a href="#top">Top of Page</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+		<a href="../index.html">Return to Index</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+		Next Topic:&nbsp;&nbsp;<a href="loader.html">Loader Class</a>
+	</p>
+	<p>Original Template Copyright &#169; 2006 - 2011 &nbsp;&middot;&nbsp; <a href="http://ellislab.com/">EllisLab, Inc.</a></p>
+</div>
+
+</body>
+</html>
