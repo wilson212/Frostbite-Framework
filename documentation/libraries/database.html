@@ -265,12 +265,12 @@
 	
 	<!-- And Where -->
 	<h3>and_where()</h3>
-	<p>adds a "AND WHERE $col = $val" to the query. <var>$col</var> is the column we are selecting, and <var>$val</var> is the value of that column.</p>
+	<p>adds a "AND $col = $val" to the query. <var>$col</var> is the column we are selecting, and <var>$val</var> is the value of that column.</p>
 	<code>$this->database->and_where('<var>$col</var>', '<var>$val</var>');</code>
 	
 	<!-- Or Where -->
 	<h3>or_where()</h3>
-	<p>adds a "OR WHERE $col = $val" to the query. <var>$col</var> is the column we are selecting, and <var>$val</var> is the value of that column.</p>
+	<p>adds a "OR $col = $val" to the query. <var>$col</var> is the column we are selecting, and <var>$val</var> is the value of that column.</p>
 	<code>$this->database->or_where('<var>$col</var>', '<var>$val</var>');</code>
 	
 	<!-- From -->
@@ -315,8 +315,8 @@
 	
 	<!-- LIMIT -->
 	<h3>limit()</h3>
-	<p>adds "LIMIT $start, $end" to the query. <var>$start</var> is what the start of the results, and $end is where to stop.</p>
-	<code>$this->database->limit('<var>$start</var>', '<var>$stop</var>');</code>
+	<p>adds "LIMIT $start, $end" to the query. <var>$start</var> is what the start of the results OR We set the limit if no <var>$end</var>, and $end is where to stop (If we are not starting from the first result).</p>
+	<code>$this->database->limit('<var>$start</var>', '<dfn>$stop</dfn>');</code>
 
 
 </div>

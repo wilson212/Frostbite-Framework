@@ -537,7 +537,7 @@ class Database
 | Function: and_where()
 | ---------------------------------------------------------------
 |
-| Querybuilder: Adds "AND WHERE $col = $val" to the query being built
+| Querybuilder: Adds "AND $col = $val" to the query being built
 |
 | @Param: $col - the column
 | @Param: $val - value of the column
@@ -552,7 +552,7 @@ class Database
 		{
 			$val = "'". $val ."'";
 		}
-		$this->sql .= " AND WHERE ". $col ." = ". $val;	
+		$this->sql .= " AND ". $col ." = ". $val;	
 		return $this;
 	}
 	
@@ -561,7 +561,7 @@ class Database
 | Function: or_where()
 | ---------------------------------------------------------------
 |
-| Querybuilder: Adds "OR WHERE $col = $val" to the query being built
+| Querybuilder: Adds "OR $col = $val" to the query being built
 |
 | @Param: $col - the column
 | @Param: $val - value of the column
@@ -576,7 +576,7 @@ class Database
 		{
 			$val = "'". $val ."'";
 		}
-		$this->sql .= " OR WHERE ". $col ." = ". $val;	
+		$this->sql .= " OR ". $col ." = ". $val;	
 		return $this;
 	}
 
@@ -734,16 +734,23 @@ class Database
 |
 | Querybuilder: Adds "LIMIT $limit" to the query being built
 |
-| @Param: $start - start position of the query results
+| @Param: $start - start position of the query results or limit
 | @Param: $end - end position of the query results
 |
 */
-	public function limit($start, $end) 
+	public function limit($start, $end = FALSE) 
 	{
 		$start = mysql_real_escape_string($start);
 		$end = mysql_real_escape_string($end);
 		
-		$this->sql .= " LIMIT ". $start .",". $end;
+		if($end == FALSE)
+		{
+			$this->sql .= " LIMIT ". $start;
+		}
+		else
+		{		
+			$this->sql .= " LIMIT ". $start .",". $end;
+		}
 		return $this;
 	}
 	
