@@ -165,12 +165,14 @@ class Database
 | ---------------------------------------------------------------
 |
 | clears out the query. Not really needed to be honest as a new
-| query would clean out the old anyways.
+| query will automatically call this method.
 |
 */
     public function clear_query()
     {
 		$this->sql = '';
+		$this->columns = array();
+		$this->values = array();
     }
 
 /*
@@ -267,6 +269,10 @@ class Database
 */
 	public function select($data) 
 	{	
+		// Empty out the old junk
+		$this->clear_query();
+		
+		// Define our query type
 		$this->queryType = "SELECT";
 		if(is_array($data))
 		{
@@ -300,6 +306,10 @@ class Database
 	{
 		$col = mysql_real_escape_string($col);
 		
+		// Empty out the old junk
+		$this->clear_query();
+		
+		// Define our query type
 		$this->queryType = "SELECT";
 		$this->sql = "SELECT MAX(". $col .")";
 		return $this;
@@ -319,6 +329,10 @@ class Database
 	{
 		$col = mysql_real_escape_string($col);
 		
+		// Empty out the old junk
+		$this->clear_query();
+		
+		// Define our query type
 		$this->queryType = "SELECT";
 		$this->sql = "SELECT MIN(". $col .")";
 		return $this;
@@ -337,7 +351,10 @@ class Database
 	public function select_avg($col) 
 	{
 		$col = mysql_real_escape_string($col);
+		// Empty out the old junk
+		$this->clear_query();
 		
+		// Define our query type
 		$this->queryType = "SELECT";
 		$this->sql = "SELECT AVG(". $col .")";
 		return $this;
@@ -357,6 +374,10 @@ class Database
 	{
 		$col = mysql_real_escape_string($col);
 		
+		// Empty out the old junk
+		$this->clear_query();
+		
+		// Define our query type
 		$this->queryType = "SELECT";
 		$this->sql = "SELECT SUM(". $col .")";
 		return $this;
@@ -376,6 +397,10 @@ class Database
 	{
 		$col = mysql_real_escape_string($col);
 		
+		// Empty out the old junk
+		$this->clear_query();
+		
+		// Define our query type
 		$this->queryType = "COUNT";
 		$this->sql = "SELECT COUNT(". $col .")";
 		return $this;
@@ -394,6 +419,10 @@ class Database
 */	
 	public function insert($table, $data) 
 	{
+		// Empty out the old junk
+		$this->clear_query();
+		
+		// Define our query type
 		$this->queryType = "INSERT";
 		$this->table = mysql_real_escape_string($table);
 		if(count($data) > 1)
@@ -445,6 +474,10 @@ class Database
 */	
 	public function update($table, $data) 
 	{
+		// Empty out the old junk
+		$this->clear_query();
+		
+		// Define our query type
 		$this->queryType = "UPDATE";
 		$this->table = $table;
 		
@@ -502,6 +535,10 @@ class Database
 */	
 	public function delete_from($table) 
 	{
+		// Empty out the old junk
+		$this->clear_query();
+		
+		// Define our query type
 		$this->queryType = "DELETE";
 		$this->table = mysql_real_escape_string($table);
 		$this->sql = "DELETE FROM ". $this->table;

@@ -4,7 +4,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 	<title><?php echo $Config->get('site_title'); ?> :: 404 - Not Found</title>
-	<link rel="stylesheet" href="<?php echo BASE_URL; ?>core/pages/main.css" type="text/css"/>
+	<link rel="stylesheet" href="<?php echo BASE_URL; ?>system/pages/main.css" type="text/css"/>
 </head>
 
 <body>
