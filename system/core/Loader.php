@@ -106,7 +106,7 @@ class Loader
 */	
 	function database($args = 0, $instance = FALSE)
 	{
-		global $Config;
+		$Config = load_class("Config");
 		
 		// Check to see if our connection Id is numeric
 		if(is_numeric($args))

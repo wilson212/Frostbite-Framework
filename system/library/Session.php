@@ -110,7 +110,7 @@ class Session
 		else
 		{
 			// Read cookie
-			$cookie = @unserialize($this->input->cookie( $this->session_cookie_name ));
+			$cookie = unserialize($this->input->cookie( $this->session_cookie_name ));
 			
 			// Are we storing session data in the database?
 			if($this->session_use_db == TRUE)
@@ -137,7 +137,7 @@ class Session
 					else
 					{
 						$this->data['token'] = $Get['token'];
-						$Get['user_data'] = @unserialize( $Get['user_data'] );
+						$Get['user_data'] = unserialize( $Get['user_data'] );
 						
 						if(count($Get['user_data'] > 1))
 						{
@@ -216,8 +216,7 @@ class Session
 				'id' => $id, 
 				'token' => $this->data['token'], 
 				'user_agent' => $this->input->user_agent(),
-				'ip_address' => $this->input->ip_address(),
-				'last_seen' => time()
+				'ip_address' => $this->input->ip_address()
 			);
 			$ID = serialize( $stuff );
 			
@@ -229,7 +228,7 @@ class Session
 		else
 		{	
 			// Combine the ID being set, and the session token
-			$ID = serialize( $this->data );
+			$ID = serialize( array('token' => $this->data['token'], 'last_seen' =>  time()) );
 			
 			// Set the cookie
 			$this->input->set_cookie( $this->session_cookie_name, $ID );
@@ -288,8 +287,16 @@ class Session
 			$this->DB->delete_from( $this->session_table_name )->where('token', $this->data['token'])->query();
 		}
 		
+		// We must manually expire the cookie time
+		else
+		{
+			$ID = serialize( array( 'token' => $this->data['token'] ) );
+			$time = (time() - 1);
+			$this->input->set_cookie( $this->session_cookie_name, $ID,  $time);
+		}
+		
 		// Remove session variables and cookeis
-		unset($this->data['token']);
+		unset($this->data);
 		session_destroy();
 		
 		// Start a new session
