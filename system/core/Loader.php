@@ -39,6 +39,7 @@ class Loader
 		$class = ucfirst($name);
 		$name = strtolower($name);
 		
+		// Include the model page
 		if($GLOBALS['is_module'] == TRUE)
 		{
 			require(APP_PATH . DS .'modules'. DS . $GLOBALS['controller'] . DS .'models'. DS . $name .'.php');
@@ -100,7 +101,7 @@ class Loader
 |
 | @Param: $args - The indentifier of the DB connection in the DB 
 | 	config file.
-| @Param: $instance_as - If you want to instance the connection
+| @Param: $instance - If you want to instance the connection
 |	in the controller, set to TRUE.
 |
 */	

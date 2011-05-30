@@ -112,7 +112,6 @@ class Frostbite
 	| @Param: $controller - Name of the controller being used
 	| @Param: $action - Action method being used in the controller
 	| @Param: $queryString - The query string, basically params for the Action
-	| @Param: $render - Whether to render the page and close, or just return the contents
 	|
 	*/
 	

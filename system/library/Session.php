@@ -228,10 +228,11 @@ class Session
 		else
 		{	
 			// Combine the ID being set, and the session token
-			$ID = serialize( array('token' => $this->data['token'], 'last_seen' =>  time()) );
+			$ID = serialize( $this->data );
+			$cookie_data = serialize( array('token' => $this->data['token'], 'last_seen' =>  time()) );
 			
 			// Set the cookie
-			$this->input->set_cookie( $this->session_cookie_name, $ID );
+			$this->input->set_cookie( $this->session_cookie_name, $cookie_data );
 		
 			// check to see if we already have this session token saved
 			$this->DB->select('*')->from( $this->session_table_name )->where('token', $this->data['token'])->query();
