@@ -40,7 +40,4 @@ set_error_handler( array( 'Core', 'custom_error_handler' ), E_ALL );
 // Initiate the framework and let it do the rest ;)
 $Frostbite = load_class('Frostbite');
 $Frostbite->Init();
-
-$session = new Session();
-$session->get('token');
 ?>
