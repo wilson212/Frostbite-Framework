@@ -76,7 +76,7 @@ function __autoload($className)
 
 function config($item, $type = 'App')
 {
-	global $Config;
+	$Config = load_class('Config');	
 	
 	switch($type)
 	{
@@ -113,8 +113,7 @@ function config($item, $type = 'App')
 
 function config_set($item, $value)
 {
-	global $Config;
-	
+	$Config = load_class('Config');	
 	$Config->set($item, $value);
 }
 
@@ -130,23 +129,24 @@ function config_set($item, $value)
 
 function config_save()
 {
-	global $Config;	
+	$Config = load_class('Config');	
 	$Config->Save();
 }
 
 /*
 | ---------------------------------------------------------------
-| Method: get_config_vars()
+| Method: load_config()
 | ---------------------------------------------------------------
 |
 | This function is used to get all defined variables from a config
 | file.
 |
-| @Param: $file - full path to the config file being loaded
+| @Param: $file - full path and filename to the config file being loaded
+| @Param: $combine - add the config vars to the config data?
 |
 */
 
-function get_config_vars($file)
+function load_config($file, $combine = FALSE)
 {	
 	$data = array();
 	$vars = array();
@@ -159,6 +159,11 @@ function get_config_vars($file)
 		foreach( $vars as $key => $val ) 
 		{
 			$data[$key] = $val;
+			
+			if($combine == TRUE)
+			{
+				config_set($key, $val);
+			}
 		}
 	}
 	return $data;
@@ -179,7 +184,7 @@ function get_config_vars($file)
 
 function load_module_config($module, $filename = 'config.php')
 {	
-	$file = ''. APP_PATH . DS .'modules' . DS . $module . DS . 'config' . DS . $filename;
+	$file = APP_PATH . DS .'modules' . DS . $module . DS . 'config' . DS . $filename;
 	if(file_exists($file))
 	{
 		$MC = get_config_vars($file);
@@ -196,7 +201,7 @@ function load_module_config($module, $filename = 'config.php')
 
 /*
 | ---------------------------------------------------------------
-| Function: &get_instance()
+| Function: get_instance()
 | ---------------------------------------------------------------
 |
 | Gateway to adding an outside class or file into the base controller
@@ -217,16 +222,11 @@ function load_module_config($module, $filename = 'config.php')
 | is called.
 |
 | @Param: $class - Class needed to be loaded / returned
-| @Param: $is_core - If is set to true, then we will only check the
-|	core folders for the class.
 |
 */
 
-function load_class($class, $is_core = TRUE)
-{
-	// Lets get the prefix
-	$prefix = config('subclass_prefix', 'Core');
-	
+function load_class($class)
+{	
 	// Inititate the Registry singleton into a variable
     $Obj = Registry::singleton();
     
@@ -235,22 +235,17 @@ function load_class($class, $is_core = TRUE)
 	$className = ucfirst($Class);
 	
 	// If class already stored, then just return the class
-	// We load the custom contollers first 	
-    if ($Obj->load($prefix . $Class) !== NULL)
-    { 
-        return $Obj->load($prefix . $Class);        
-    }
-    
-    // Next check for a default version of the class  
-    elseif ($Obj->load($Class) !== NULL)
+    if ($Obj->load($Class) !== NULL)
     { 
         return $Obj->load($Class);        
     }
-
-	// If this is a core class, then return false of we cant
-	// find the class in either of the core folders
-	if($is_core == TRUE)
+	
+	// This method will only load from the core folders, thats it!
+	if($Class != 'config')
 	{
+		// Get our prefix
+		$prefix = config('subclass_prefix', 'Core');
+		
 		// Check for needed classes from the Application library folder
 		if(file_exists(APP_PATH . DS .  'core' . DS . $prefix . $className . '.php')) 
 		{
@@ -259,6 +254,21 @@ function load_class($class, $is_core = TRUE)
 		
 		// Check for needed classes from the Core library folder
 		elseif(file_exists(SYSTEM_PATH . DS .  'core' . DS . $className . '.php')) 
+		{
+			require_once(SYSTEM_PATH . DS .  'core' . DS . $className . '.php');
+		}
+		
+		// Core class doesnt exist
+		else
+		{
+			return FALSE;
+		}
+	}
+	
+	// It is the config class we are looking for
+	else
+	{
+		if(file_exists(SYSTEM_PATH . DS .  'core' . DS . $className . '.php')) 
 		{
 			require_once(SYSTEM_PATH . DS .  'core' . DS . $className . '.php');
 		}

@@ -79,7 +79,7 @@ class Loader
 		$prefix = config('subclass_prefix', 'Core');
 		
 		// Load the Class
-		$class = load_class($name, FALSE);
+		$class = load_class($name);
 		
 		// Do we instance this class?
 		if($instance == TRUE && ( class_exists('Controller') || class_exists($prefix . 'Controller') ))

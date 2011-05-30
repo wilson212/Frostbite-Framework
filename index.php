@@ -31,8 +31,9 @@ require (SYSTEM_PATH . DS . 'core' . DS . 'Frostbite.php');
 // Initiate the system start time
 Benchmark::startTimer('system');
 
-// Init the config
-$Config = new Config();
+// Important to Init the config here! So other classes can use the 
+// Custom class prefix which is stored in the config.
+load_class('Config');
  
 // Register the Core to process errors with the custom_error_handler method
 set_error_handler( array( 'Core', 'custom_error_handler' ), E_ALL );
