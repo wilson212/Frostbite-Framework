@@ -33,41 +33,30 @@
 
 function __autoload($className) 
 {	
-	// Check the core library folder
-	if(file_exists(CORE_PATH . DS .  'library' . DS . $className . '.php')) 
+	// We have our list of folders
+	$folders = array( 
+		SYSTEM_PATH . DS .  'core',
+		APP_PATH . DS .  'core',		
+		SYSTEM_PATH . DS .  'library',
+		APP_PATH . DS .  'library' /*,
+		APP_PATH . DS .  'controllers',
+		APP_PATH . DS . 'modules'
+		*/
+	);	
+	
+	// Start the loop, checking each folder for the class
+	foreach($folders as $folder)
 	{
-		require_once(CORE_PATH . DS .  'library' . DS . $className . '.php');
+		// If the file exists, then include it, and return
+		if(file_exists($folder . DS . $className . '.php')) 
+		{
+			require_once($folder . DS . $className . '.php');
+			return;
+		}
 	}
 	
-	// Check the application library folder
-	elseif(@file_exists(APP_PATH . DS .  'library' . DS . $className . '.php')) 
-	{
-		require_once(APP_PATH . DS .  'library' . DS . $className . '.php');
-	}
-	
-	// Check application controllers
-	elseif(file_exists(APP_PATH . DS . 'controllers' . DS . strtolower($className) . '.php')) 
-	{
-		require_once(APP_PATH . DS . 'controllers' . DS . strtolower($className) . '.php');
-	}
-	
-	// Check Module controllers
-	elseif(@file_exists(APP_PATH . DS . 'modules' . DS . strtolower($className) . DS . 'controller.php')) 
-	{
-		require_once(APP_PATH . DS . 'modules' . DS . strtolower($className) . DS . 'controller.php');
-	}
-	
-	// Check application models
-	elseif(file_exists(APP_PATH . DS .'models' . DS . strtolower($className) . '.php')) 
-	{
-		require_once(APP_PATH . DS .'models' . DS . strtolower($className) . '.php');
-	}
-	
-	// We have an error as there is no classname
-	else 
-	{
-		show_error(3, 'Autoload failed to load class: '. $className, __FILE__, __LINE__);
-	}
+	// If we are at this point, then we didnt find the class file.
+	show_error(3, 'Autoload failed to load class: '. $className, __FILE__, __LINE__);
 }
 
 
@@ -164,7 +153,7 @@ function get_config_vars($file)
 	
 	// Include file
 	include( $file );
-	$vars = @get_defined_vars();
+	$vars = get_defined_vars();
 	if(count($vars) > 1)
 	{
 		foreach( $vars as $key => $val ) 
@@ -228,60 +217,61 @@ function load_module_config($module, $filename = 'config.php')
 | is called.
 |
 | @Param: $class - Class needed to be loaded / returned
-| @Param: $args - Suppossed to be the args passed to the class method
-|	experementatl!
+| @Param: $is_core - If is set to true, then we will only check the
+|	core folders for the class.
 |
 */
 
-function load_class($class, $args = NULL)
+function load_class($class, $is_core = TRUE)
 {
 	// Lets get the prefix
 	$prefix = config('subclass_prefix', 'Core');
 	
+	// Inititate the Registry singleton into a variable
     $Obj = Registry::singleton();
     
-	// lowercase classname
+	// lowercase classname, and have a Uppercase first version
     $Class = strtolower($class);
 	$className = ucfirst($Class);
 	
-	// if class already stored, then just return the class
+	// If class already stored, then just return the class
 	// We load the custom contollers first 	
     if ($Obj->load($prefix . $Class) !== NULL)
     { 
         return $Obj->load($prefix . $Class);        
     }
     
-    // if class already stored, then just return the class  
+    // Next check for a default version of the class  
     elseif ($Obj->load($Class) !== NULL)
     { 
         return $Obj->load($Class);        
     }
 
-	// Check for needed classes from the Application library folder
-	if(file_exists(APP_PATH . DS .  'library' . DS . $prefix . $className . '.php')) 
+	// If this is a core class, then return false of we cant
+	// find the class in either of the core folders
+	if($is_core == TRUE)
 	{
-		require_once(APP_PATH . DS .  'library' . DS . $prefix . $className . '.php');
-	}
-	
-	// Check for needed classes from the Core library folder
-	elseif(file_exists(CORE_PATH . DS .  'library' . DS . $className . '.php')) 
-	{
-		require_once(CORE_PATH . DS .  'library' . DS . $className . '.php');
-	}
-	else
-	{
-		return FALSE;
+		// Check for needed classes from the Application library folder
+		if(file_exists(APP_PATH . DS .  'core' . DS . $prefix . $className . '.php')) 
+		{
+			require_once(APP_PATH . DS .  'core' . DS . $prefix . $className . '.php');
+		}
+		
+		// Check for needed classes from the Core library folder
+		elseif(file_exists(SYSTEM_PATH . DS .  'core' . DS . $className . '.php')) 
+		{
+			require_once(SYSTEM_PATH . DS .  'core' . DS . $className . '.php');
+		}
+		else
+		{
+			return FALSE;
+		}
 	}
     
-    // Initiate the new class
-	if($args !== NULL) 
-	{
-		$dispatch = new $className($args);
-	}
-	else
-	{
-		$dispatch = new $className();
-	}
+	// ------------------------
+    // Initiate the new class |
+	// ------------------------
+	$dispatch = new $className();
 	
 	// Store this new object in the registery
     $Obj->store($Class, $dispatch); 

@@ -1,0 +1,9 @@
+2011-05-29 21:16:56 -- WARNING: Missing argument 2 for load_class(), called in C:\xampp\htdocs\GIT\frostbite\index.php on line 41 and defined - File: C:\xampp\htdocs\GIT\frostbite\system\core\Common.php on Line:248
+2011-05-29 21:16:56 -- WARNING: Missing argument 2 for load_class(), called in C:\xampp\htdocs\GIT\frostbite\index.php on line 41 and defined - File: C:\xampp\htdocs\GIT\frostbite\system\core\Common.php on Line:248
+2011-05-29 21:18:59 -- WARNING: Missing argument 2 for load_class(), called in C:\xampp\htdocs\GIT\frostbite\index.php on line 41 and defined - File: C:\xampp\htdocs\GIT\frostbite\system\core\Common.php on Line:248
+2011-05-29 21:18:59 -- WARNING: Missing argument 2 for load_class(), called in C:\xampp\htdocs\GIT\frostbite\index.php on line 41 and defined - File: C:\xampp\htdocs\GIT\frostbite\system\core\Common.php on Line:248
+2011-05-29 22:07:32 -- ERROR: Autoload failed to load class: welcome - File: C:\xampp\htdocs\GIT\frostbite\system\core\Common.php on Line:64
+2011-05-29 22:31:50 -- ERROR: Autoload failed to load class: welcome - File: C:\xampp\htdocs\GIT\frostbite\system\core\Common.php on Line:60
+2011-05-29 22:32:24 -- ERROR: Autoload failed to load class: welcome - File: C:\xampp\htdocs\GIT\frostbite\system\core\Common.php on Line:62
+2011-05-29 22:32:26 -- ERROR: Autoload failed to load class: welcome - File: C:\xampp\htdocs\GIT\frostbite\system\core\Common.php on Line:62
+2011-05-29 22:33:26 -- ERROR: Autoload failed to load class: welcome - File: C:\xampp\htdocs\GIT\frostbite\system\core\Common.php on Line:63

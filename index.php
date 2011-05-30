@@ -16,17 +16,17 @@
 define('DS', DIRECTORY_SEPARATOR);
 define('ROOT', dirname(__FILE__));
 define('APP_PATH', ROOT . DS .'application');
-define('CORE_PATH', ROOT . DS .'core');
+define('SYSTEM_PATH', ROOT . DS .'system');
 define('SITE_DIR', dirname( $_SERVER['PHP_SELF'] ).'/');
 define('SITE_HREF', stripslashes(str_replace('//', '/', SITE_DIR)));
 define('BASE_URL', 'http://'.$_SERVER["HTTP_HOST"]. SITE_HREF);
 
 // Include our 4 main required files, and routes config file.
 require (APP_PATH . DS . 'config' . DS . 'routes.php');
-require (CORE_PATH . DS . 'library' . DS . 'Benchmark.php');
-require (CORE_PATH . DS . 'library' . DS . 'Registry.php');
-require (CORE_PATH . DS . 'library' . DS . 'Common.php');
-require (CORE_PATH . DS . 'library' . DS . 'Frostbite.php');
+require (SYSTEM_PATH . DS . 'core' . DS . 'Benchmark.php');
+require (SYSTEM_PATH . DS . 'core' . DS . 'Registry.php');
+require (SYSTEM_PATH . DS . 'core' . DS . 'Common.php');
+require (SYSTEM_PATH . DS . 'core' . DS . 'Frostbite.php');
 
 // Initiate the system start time
 Benchmark::startTimer('system');
@@ -40,4 +40,7 @@ set_error_handler( array( 'Core', 'custom_error_handler' ), E_ALL );
 // Initiate the framework and let it do the rest ;)
 $Frostbite = load_class('Frostbite');
 $Frostbite->Init();
+
+$session = new Session();
+$session->get('token');
 ?>

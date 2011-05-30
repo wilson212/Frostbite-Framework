@@ -47,6 +47,34 @@ class Frostbite
 		// Let init a Controller Name
 		$controllerName = $controller;
 	
+		// -----------------------------------------
+		// Lets include the application controller.|
+		// -----------------------------------------		
+		if($is_module == FALSE)
+		{
+			// Check for needed classes from the Application library folder
+			if(file_exists(APP_PATH . DS .  'controllers' . DS . $controller . '.php')) 
+			{
+				require_once(APP_PATH . DS .  'controllers' . DS . $controller . '.php');
+			}
+			else
+			{
+				show_error(404);
+			}
+		}
+		else
+		{
+			// Check for needed classes from the Application library folder
+			if(file_exists(APP_PATH . DS .  'modules' . DS . $controller . DS .'controller.php')) 
+			{
+				require_once(APP_PATH . DS .  'modules' . DS . $controller . DS .'controller.php');
+			}
+			else
+			{
+				show_error(404);
+			}
+		}
+		
 		// -------------------------------------------------------------
 		// Here we init the actual controller / action into a variable.|
 		// -------------------------------------------------------------

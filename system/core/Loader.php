@@ -67,31 +67,22 @@ class Loader
 | ---------------------------------------------------------------
 |
 | This method is used to call in a class from either the APP
-| library, of the core library.
+| library, or the system library folders.
 |
 | @Param: $name - The name of the class
-| @Param: $args - Arguments to be passed to the class
-| @Param: $return - If set to 1, it will return the instance
-|	instead of adding it to the super class.
+| @Param: $instance - Do we instance the class?
 |
 */
-	function library($name, $args = NULL, $instance = 1)
+	function library($name, $instance = TRUE)
 	{
 		// Get the class prefix
 		$prefix = config('subclass_prefix', 'Core');
 		
-		// Check args to be passed, and load the class
-		if($args !== NULL && !empty($args))
-		{
-			$class = load_class($name, $args);
-		}
-		else
-		{
-			$class = load_class($name);
-		}
+		// Load the Class
+		$class = load_class($name, FALSE);
 		
 		// Do we instance this class?
-		if($instance == 1 && ( class_exists('Controller') || class_exists($prefix . 'Controller') ))
+		if($instance == TRUE && ( class_exists('Controller') || class_exists($prefix . 'Controller') ))
 		{
 			$name = strtolower($name);
 			$FB = get_instance();
@@ -120,7 +111,7 @@ class Loader
 		// Check to see if our connection Id is numeric
 		if(is_numeric($args))
 		{
-			$args = $this->_get_db_key($args);
+			$args = $this->_get_db_key();
 		}
 		
 		// Check our registry to see if we already loaded this connection
@@ -177,9 +168,9 @@ class Loader
 		}
 		
 		// Check the core/helpers folder
-		elseif(file_exists(CORE_PATH . DS .  'helpers' . DS . $name . '.php')) 
+		elseif(file_exists(SYSTEM_PATH . DS .  'helpers' . DS . $name . '.php')) 
 		{
-			require_once(CORE_PATH . DS .  'helpers' . DS . $name . '.php');
+			require_once(SYSTEM_PATH . DS .  'helpers' . DS . $name . '.php');
 		}
 	}
 	

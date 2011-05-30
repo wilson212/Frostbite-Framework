@@ -47,12 +47,11 @@
 	
 	<p>The above example shows the minimum to load a library. There are 2 more arguments that can be passed as shown below, but are not required:</p>
 	<code>
-		$this->load->library('<var>$class_name</var>', '<dfn>$args</dfn>', '<dfn>$instance_as</dfn>');
+		$this->load->library('<var>$class_name</var>', <dfn>$instance</dfn>');
 	</code>
 	
 	<p>
-		<dfn>$args</dfn>: Default = <font color='blue'><b>NULL</b></font> - Arguments to be passed to the library constructer.<br />
-		<dfn>$instance_as</dfn>: Default = <var>$class_name</var> - How the the class will be called in the controller. (IE: $this->$instance_as->method()).
+		<dfn>$instance</dfn>: Default = <var>TRUE</var> - Do we instance the class in the controller?.
 	</p>
 	
 	

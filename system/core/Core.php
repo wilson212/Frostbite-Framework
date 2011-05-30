@@ -51,7 +51,7 @@ class Core
 				$config_level = 1;
 				break;
 			case 404:
-				include(CORE_PATH . DS . 'pages' . DS .'404.php');
+				include(SYSTEM_PATH . DS . 'pages' . DS .'404.php');
 				die();
 		}
 		
@@ -66,7 +66,7 @@ class Core
 			{
 				$err_message = date('Y-m-d H:i:s')." -- ". $lvl_txt . $message."\n";
 			}
-			$log = @fopen(CORE_PATH . DS . 'logs' . DS . 'error.log', 'a');
+			$log = @fopen(SYSTEM_PATH . DS . 'logs' . DS . 'error.log', 'a');
 			@fwrite($log, $err_message);
 			@fclose($log);
 		}
@@ -78,7 +78,7 @@ class Core
 			@ob_end_clean();
 			
 			// Show the error page and end processing
-			include(CORE_PATH . DS . 'pages' . DS .'error.php');
+			include(SYSTEM_PATH . DS . 'pages' . DS .'error.php');
 			die();
 		}
 	}

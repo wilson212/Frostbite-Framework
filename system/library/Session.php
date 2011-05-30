@@ -43,7 +43,7 @@ class Session
 		$this->load = load_class('Loader');
 		
 		// load the Input and cookie class
-		$this->input = $this->load->library('Input');
+		$this->input = load_class('Input');
 		
 		// Are we storing session data in the database?
 		// If so then load the DB
