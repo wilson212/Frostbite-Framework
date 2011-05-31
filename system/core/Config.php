@@ -107,6 +107,14 @@ class Config
 				{
 					return $this->data[$key];
 				}
+				else
+				{
+					$key = "TEMP_". $key;
+					if(isset($this->data[$key])) 
+					{
+						return $this->data[$key];
+					}
+				}
 				break;
 				
 			case 'Core':
@@ -116,6 +124,7 @@ class Config
 				}
 				break;
 		}
+		return FALSE;
 	}
 	
 /*
@@ -147,10 +156,18 @@ class Config
 |
 | @Param: $key - variable name to be set
 | @Param: $value - new value of the variable
+| @Param: $combine - Combine this data with the config.php vars?
+|	If FALSE, the data will mot be saved to the config.php via 
+|	the Save() method.
 |
 */
-	function set($key, $val) 
+	function set($key, $val, $combine = TRUE) 
 	{
+		// Add a prefix if $combine is set to FALSE
+		if($combine == FALSE)
+		{
+			$key = "TEMP_". $key;
+		}
 		$this->data[$key] = $val;
 	}
 
@@ -168,28 +185,32 @@ class Config
 		$cfg  = "<?php\n";
 		foreach( $this->data as $key => $val ) 
 		{
-			if(is_numeric($val)) 
+			// Donot store temporary variables
+			if(strpos($key, 'TEMP_') === FALSE)
 			{
-				$cfg .= "\$$key = " . $val . ";\n";
-			} 
-			else 
-			{
-				$cfg .= "\$$key = '" . addslashes( $val ) . "';\n";
+				if(is_numeric($val)) 
+				{
+					$cfg .= "\$$key = " . $val . ";\n";
+				} 
+				else 
+				{
+					$cfg .= "\$$key = '" . addslashes( $val ) . "';\n";
+				}
 			}
 		}
 		$cfg .= "?>";
 		
-		// Copy the current config file, and make a new config file for backup.
-		// Put the current config contents in the backup config file
+		// Copy the current config file for backup, 
+		// and write the new config values to the new config
 		@copy($this->configFile, $this->configFile.'.bak');
-
-		if(@file_put_contents( $this->configFile, $cfg )) 
+		
+		if(file_put_contents( $this->configFile, $cfg )) 
 		{
-			return true;
+			return TRUE;
 		} 
 		else 
 		{
-			return false;
+			return FALSE;
 		}
 	}
 }

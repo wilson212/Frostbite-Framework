@@ -58,18 +58,19 @@
 	</code>
 	
 	<!-- -->
-	<h2>Getting a variable from the <dfn>Core</dfn> or <dfn>Database</dfn> config file</h2>
+	<h2>Getting a variable from the <dfn>Core</dfn> config file</h2>
 	<code>
 		$this->config->get('<var>$var_name</var>', '<dfn>Core</dfn>');
-		<br />OR<br />
-		$this->config->get('<var>$var_name</var>', '<dfn>DB</dfn>');
 	</code>
 	
 	<!-- -->
-	<h2>Setting a variable (Site config only!)</h2>
+	<h2>Setting a variable</h2>
 	<code>
-		$this->config->set('<var>$var_name</var>', '<dfn>$new_value</dfn>');
+		$this->config->set('<var>$var_name</var>', '<var>$new_value</var>', '<dfn>$combine_vars</dfn>');
 	</code>
+	<p>
+		<dfn>$combine_vars</dfn>: Default <font color="blue">TRUE</font> - If set to <font color="blue">FALSE</font>, then this <var>$var_name</var> will be not be saved to the config.php via the Save() method
+	</p>
 	
 	<!-- -->
 	<h2>Saving all set config variables to the config.php (Site config only!)</h2>

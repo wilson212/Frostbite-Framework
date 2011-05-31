@@ -31,7 +31,7 @@ class Core
 */
 	static function trigger_error($lvl, $message = 'Not Specified', $file = "none", $line = 0, $errno = 0)
 	{
-		$Config = new Config;		
+		$Config = load_class('Config');		
 		switch($lvl) 
 		{
 			case 0:
@@ -93,52 +93,49 @@ class Core
 */
 	public static function custom_error_handler($errno, $errstr, $errfile, $errline)
 	{
-		if(!(error_reporting() & $errno)) 
+		if(!$errno) 
 		{
 			// This error code is not included in error_reporting
 			return;
 		}
 
-		/*
-			NOTE: When using this function statically ( Outside this file as an error handler )
-			You must use it as Core::trigger_error() instead of $this->trigger_error()!
-		*/
+		// Pass the error onto the internal trigger_error method
 		switch($errno) 
 		{
 			case E_USER_ERROR:
-				Core::trigger_error(3, $errstr, $errfile, $errline);
+				self::trigger_error(3, $errstr, $errfile, $errline);
 				break;
 
 			case E_USER_WARNING:
-				Core::trigger_error(1, $errstr, $errfile, $errline);
+				self::trigger_error(1, $errstr, $errfile, $errline);
 				break;
 				
 			case E_USER_NOTICE:
-				Core::trigger_error(0, $errstr, $errfile, $errline);
+				self::trigger_error(0, $errstr, $errfile, $errline);
 				break;
 			
 			case E_ERROR:
-				Core::trigger_error(3, $errstr, $errfile, $errline);
+				self::trigger_error(3, $errstr, $errfile, $errline);
 				break;
 				
 			case E_WARNING:
-				Core::trigger_error(1, $errstr, $errfile, $errline);
+				self::trigger_error(1, $errstr, $errfile, $errline);
 				break;
 				
 			case E_NOTICE:
-				Core::trigger_error(0, $errstr, $errfile, $errline);
+				self::trigger_error(0, $errstr, $errfile, $errline);
 				break;
 				
 			case E_STRICT:
-				Core::trigger_error(1, $errstr, $errfile, $errline);
+				self::trigger_error(1, $errstr, $errfile, $errline);
 				break;
 
 			default:
-				Core::trigger_error(3, $errstr, $errfile, $errline);
+				self::trigger_error(3, $errstr, $errfile, $errline);
 				break;
 		}
 
-		/* Don't execute PHP internal error handler */
+		// Don't execute PHP internal error handler
 		return true;
 	}
 }

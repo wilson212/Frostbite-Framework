@@ -69,8 +69,8 @@ function __autoload($className)
 | file.
 |
 | @Param: $item - The config item we are looking for
-| @Param: $type - Either App, DB, or Core. Loads the respective
-|		config file
+| @Param: $type - Either App, or Core. Loads the respective
+|		config file variable
 |
 */
 
@@ -86,10 +86,6 @@ function config($item, $type = 'App')
 		
 		case "Core":
 			return $Config->get($item, $type);
-			break;
-			
-		case "DB":
-			return $Config->getDbInfo($item);
 			break;
 			
 		default:
@@ -108,13 +104,16 @@ function config($item, $type = 'App')
 |
 | @Param: $item - The config item we are setting a value for
 | @Param: $value - the value of $item
+| @Param: $combine - Combine this data with the config.php vars?
+|	If FALSE, the data will mot be saved to the config.php via 
+|	the Save() method.
 |
 */
 
-function config_set($item, $value)
+function config_set($item, $value, $combine = TRUE)
 {
 	$Config = load_class('Config');	
-	$Config->set($item, $value);
+	$Config->set($item, $value, $combine);
 }
 
 /*
@@ -159,11 +158,7 @@ function load_config($file, $combine = FALSE)
 		foreach( $vars as $key => $val ) 
 		{
 			$data[$key] = $val;
-			
-			if($combine == TRUE)
-			{
-				config_set($key, $val);
-			}
+			config_set($key, $val, $combine);
 		}
 	}
 	return $data;
@@ -192,11 +187,11 @@ function load_module_config($module, $filename = 'config.php')
 		{
 			foreach($MC as $key => $value)
 			{
-				config_set($key, $value);
+				config_set($key, $value, FALSE);
 			}
 		}
 	}
-	return TRUE;
+	return $MC;
 }	
 
 /*
@@ -204,7 +199,7 @@ function load_module_config($module, $filename = 'config.php')
 | Function: get_instance()
 | ---------------------------------------------------------------
 |
-| Gateway to adding an outside class or file into the base controller
+| Gateway to adding the controller into your current working class
 |
 */	
 	function get_instance()
@@ -234,53 +229,41 @@ function load_class($class)
     $Class = strtolower($class);
 	$className = ucfirst($Class);
 	
-	// If class already stored, then just return the class
+	// Check the registry for the class, If its there, then return the class
     if ($Obj->load($Class) !== NULL)
     { 
         return $Obj->load($Class);        
     }
 	
-	// This method will only load from the core folders, thats it!
-	if($Class != 'config')
+	// ---------------------------------------------------------
+    // Class not in Registry, So we load it manually and then  | 
+	// store it in the registry for future static use          |
+	// ---------------------------------------------------------
+	
+	// Override the prefix checking IF this is the config class we are loading
+	($Class != 'config') ? $prefix = config('subclass_prefix', 'Core') : $prefix = '';
+
+	// Check for needed classes from the Application library folder
+	if(file_exists(APP_PATH . DS .  'core' . DS . $prefix . $className . '.php')) 
 	{
-		// Get our prefix
-		$prefix = config('subclass_prefix', 'Core');
-		
-		// Check for needed classes from the Application library folder
-		if(file_exists(APP_PATH . DS .  'core' . DS . $prefix . $className . '.php')) 
-		{
-			require_once(APP_PATH . DS .  'core' . DS . $prefix . $className . '.php');
-		}
-		
-		// Check for needed classes from the Core library folder
-		elseif(file_exists(SYSTEM_PATH . DS .  'core' . DS . $className . '.php')) 
-		{
-			require_once(SYSTEM_PATH . DS .  'core' . DS . $className . '.php');
-		}
-		
-		// Core class doesnt exist
-		else
-		{
-			return FALSE;
-		}
+		require_once(APP_PATH . DS .  'core' . DS . $prefix . $className . '.php');
 	}
 	
-	// It is the config class we are looking for
+	// Check for needed classes from the Core library folder
+	elseif(file_exists(SYSTEM_PATH . DS .  'core' . DS . $className . '.php')) 
+	{
+		require_once(SYSTEM_PATH . DS .  'core' . DS . $className . '.php');
+	}
+	
+	// Core class doesnt exist
 	else
 	{
-		if(file_exists(SYSTEM_PATH . DS .  'core' . DS . $className . '.php')) 
-		{
-			require_once(SYSTEM_PATH . DS .  'core' . DS . $className . '.php');
-		}
-		else
-		{
-			return FALSE;
-		}
+		return FALSE;
 	}
     
-	// ------------------------
-    // Initiate the new class |
-	// ------------------------
+	// ----------------------------------------
+    // Initiate the new class into a variable |
+	// ----------------------------------------
 	$dispatch = new $className();
 	
 	// Store this new object in the registery
@@ -303,21 +286,20 @@ function load_class($class)
 | This function is used to easily redirect and refresh pages
 |
 | @Param: $url - Where were going
-| @Param: $type - 0 - direct header, 1 - meta refresh
-| @Param: $wait - Only if $type = 1, then how many sec's we wait
+| @Param: $wait - How many sec's we wait till the redirect.
 |
 */
 
-function redirect($url, $type = 0, $wait = 0)
+function redirect($url, $wait = 0)
 {
 	// Check for a valid URL. If not then add our current BASE_URL to it.
-	if(!preg_match('|^http(s)?://|i', $url) || !preg_match('|^ftp://|i', $url))
+	if(!preg_match('|^http(s)?://|i', $url))
 	{
 		$url = BASE_URL . $url;
 	}
 	
 	// Check for refresh or straight redirect
-	if($type == 1)
+	if($wait >= 1)
 	{
 		header("Refresh:". $wait .";url=". $url);
 	}
