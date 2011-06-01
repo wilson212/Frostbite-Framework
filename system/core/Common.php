@@ -190,8 +190,8 @@ function load_module_config($module, $filename = 'config.php')
 				config_set($key, $value, FALSE);
 			}
 		}
+		return $MC;
 	}
-	return $MC;
 }	
 
 /*

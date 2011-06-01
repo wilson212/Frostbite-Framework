@@ -10,29 +10,40 @@
 | Copyright:	Copyright (c) 2011, Steven Wilson
 | License: 		GNU GPL v3
 |
+| * You are authorized to change or remove this comment box only
+|	in the index.php file.
+|
 */
 
-// Lets get some basics down
+// Default Constants
 define('DS', DIRECTORY_SEPARATOR);
 define('ROOT', dirname(__FILE__));
 define('APP_PATH', ROOT . DS .'application');
 define('SYSTEM_PATH', ROOT . DS .'system');
-define('SITE_DIR', dirname( $_SERVER['PHP_SELF'] ).'/');
-define('SITE_HREF', stripslashes(str_replace('//', '/', SITE_DIR)));
-define('BASE_URL', 'http://'.$_SERVER["HTTP_HOST"]. SITE_HREF);
+define('INDEX_DIR', dirname( $_SERVER['PHP_SELF'] ).'/');
+define('SITE_DIR', stripslashes(str_replace('//', '/', INDEX_DIR)));
+define('BASE_URL', 'http://'.$_SERVER["HTTP_HOST"]. SITE_DIR);
 
-// Include our 4 main required files, and routes config file.
+/*
+| Lets speed to core up by not using the autoloader 
+| to load these system files, that are NEEDED :p
+| These classes are not extendable, or replacable
+*/
 require (APP_PATH . DS . 'config' . DS . 'routes.php');
 require (SYSTEM_PATH . DS . 'core' . DS . 'Benchmark.php');
-require (SYSTEM_PATH . DS . 'core' . DS . 'Registry.php');
 require (SYSTEM_PATH . DS . 'core' . DS . 'Common.php');
+require (SYSTEM_PATH . DS . 'core' . DS . 'Config.php');
+require (SYSTEM_PATH . DS . 'core' . DS . 'Core.php');
 require (SYSTEM_PATH . DS . 'core' . DS . 'Frostbite.php');
+require (SYSTEM_PATH . DS . 'core' . DS . 'Registry.php');
 
 // Initiate the system start time
 Benchmark::startTimer('system');
 
-// Important to Init the config here! So other classes can use the 
-// Custom class prefix which is stored in the config.
+/*
+| Important to Init the config here! So other classes can use the 
+| Custom class prefix, which is stored in the config.
+*/
 load_class('Config');
  
 // Register the Core to process errors with the custom_error_handler method

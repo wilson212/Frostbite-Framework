@@ -105,7 +105,7 @@ class Template
 		@ob_end_clean();
 		
 		// Replace some Global values
-		$page = str_replace('{PAGE_LOAD_TIME}', Benchmark::showTimer('system'), $page);
+		$page = str_replace('{PAGE_LOAD_TIME}', Benchmark::showTimer('system', 4), $page);
 		$page = str_replace('{MEMORY_USAGE}', Benchmark::memory_usage(), $page);
 		echo $page;
     }
