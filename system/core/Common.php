@@ -33,7 +33,7 @@
 
 function __autoload($className) 
 {	
-	// We will need to remove the prefixes from the core classes
+	// We will need to remove the prefixes from the classes
 	if( strncmp($className, 'FB_', 3) == 0)
 	{
 		$className = substr($className, 3);
@@ -260,6 +260,12 @@ function load_class($class)
 	{
 		require_once(SYSTEM_PATH . DS .  'core' . DS . $className . '.php');
 		$prefix = "FB_";
+	}
+	
+	// The file is not in any core folder, reset the prefix
+	else
+	{
+		$prefix = '';
 	}
     
 	// -------------------------------------------------------------
