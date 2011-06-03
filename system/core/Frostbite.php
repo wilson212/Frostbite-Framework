@@ -14,7 +14,7 @@
 |
 */
 
-class Frostbite
+class FB_Frostbite
 {
 	public $Router;
 	protected $dispatch;

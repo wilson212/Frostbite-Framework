@@ -12,7 +12,7 @@
 |
 */
 
-class Input
+class FB_Input
 {
 
 	var $time;

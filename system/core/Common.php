@@ -15,7 +15,7 @@
 */	
 	function show_error($lvl, $message = 'Not Specified', $file = "none", $line = 0, $errno = 0)
 	{
-		$Core = new Core();
+		$Core = new FB_Core();
 		return $Core->trigger_error($lvl, $message, $file, $line, $errno);
 	}
 	
@@ -33,6 +33,12 @@
 
 function __autoload($className) 
 {	
+	// We will need to remove the prefixes from the core classes
+	if( strncmp($className, 'FB_', 3) == 0)
+	{
+		$className = substr($className, 3);
+	}
+	
 	// We have our list of folders
 	$folders = array( 
 		SYSTEM_PATH . DS .  'core',
@@ -204,7 +210,7 @@ function load_module_config($module, $filename = 'config.php')
 */	
 	function get_instance()
 	{
-		return Controller::get_instance();
+		return FB_Controller::get_instance();
 	}
 
 /*
@@ -253,17 +259,13 @@ function load_class($class)
 	elseif(file_exists(SYSTEM_PATH . DS .  'core' . DS . $className . '.php')) 
 	{
 		require_once(SYSTEM_PATH . DS .  'core' . DS . $className . '.php');
-	}
-	
-	// Core class doesnt exist
-	else
-	{
-		return FALSE;
+		$prefix = "FB_";
 	}
     
-	// ----------------------------------------
-    // Initiate the new class into a variable |
-	// ----------------------------------------
+	// -------------------------------------------------------------
+    //  Add the prefix, and Initiate the new class into a variable |
+	// -------------------------------------------------------------
+	$className = $prefix . $className;
 	$dispatch = new $className();
 	
 	// Store this new object in the registery

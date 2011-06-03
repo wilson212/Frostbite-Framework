@@ -19,7 +19,7 @@
 |
 */
 
-class Template 
+class FB_Template 
 {	
 	protected $variables = array();
 	

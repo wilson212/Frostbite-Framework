@@ -19,7 +19,7 @@
 |
 */
 
-class Loader
+class FB_Loader
 {	
 	
 /*
@@ -83,7 +83,7 @@ class Loader
 		$class = load_class($name);
 		
 		// Do we instance this class?
-		if($instance == TRUE && ( class_exists('Controller') || class_exists($prefix . 'Controller') ))
+		if($instance == TRUE && ( class_exists('FB_Controller') || class_exists($prefix . 'Controller') ))
 		{
 			$name = strtolower($name);
 			$FB = get_instance();

@@ -12,7 +12,7 @@
 |
 */
 
-class Core
+class FB_Core
 {
 	
 /*

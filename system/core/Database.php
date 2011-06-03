@@ -35,7 +35,7 @@ class Database
 | Creates the connection to the mysql database, selects the posted DB
 |
 */
-    public function Database($db_host, $db_port, $db_user, $db_pass, $db_name)
+    public function __construct($db_host, $db_port, $db_user, $db_pass, $db_name)
     {
         $this->mysql = @mysql_connect($db_host.":".$db_port, $db_user, $db_pass, true) or show_error(2, 'Cant connect to "'.$db_host.'" using port "'.$db_port.'"!', __FILE__, __LINE__);
         @mysql_select_db($db_name, $this->mysql) or show_error(2, 'Cant connect to database: "'.$db_name.'"', __FILE__, __LINE__);

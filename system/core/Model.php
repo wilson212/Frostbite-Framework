@@ -19,10 +19,10 @@
 |
 */
 
-class Model
+class FB_Model
 {
 	function __construct() 
 	{
-		$this->load = new Loader;
+		$this->load = load_class('Loader');
 	}
 }

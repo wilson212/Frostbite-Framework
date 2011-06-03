@@ -1,6 +1,6 @@
 <?php
 
-class Welcome extends Controller 
+class Welcome extends FB_Controller 
 {
 	function Welcome()
 	{

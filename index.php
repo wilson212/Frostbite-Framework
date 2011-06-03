@@ -47,7 +47,7 @@ Benchmark::startTimer('system');
 load_class('Config');
  
 // Register the Core to process errors with the custom_error_handler method
-set_error_handler( array( 'Core', 'custom_error_handler' ), E_ALL );
+set_error_handler( array( 'FB_Core', 'custom_error_handler' ), E_ALL );
 
 // Initiate the framework and let it do the rest ;)
 $Frostbite = load_class('Frostbite');

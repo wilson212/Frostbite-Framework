@@ -19,7 +19,7 @@
 |
 */
 
-class Controller
+class FB_Controller
 {
 	
 	public $_controller;

@@ -12,7 +12,7 @@
 |
 */
 
-class Router
+class FB_Router
 {
 	var $_controler = FALSE;
 	var $_action = FALSE;

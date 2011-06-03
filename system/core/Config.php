@@ -19,7 +19,7 @@
 |
 */
 
-class Config
+class FB_Config
 {	
 	var $data = array();
 	protected $DB_configs;

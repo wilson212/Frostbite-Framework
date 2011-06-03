@@ -1,6 +1,6 @@
 <?php
 
-class Welcome_Model extends Model 
+class Welcome_Model extends FB_Model 
 {
 	function __construct()
 	{
