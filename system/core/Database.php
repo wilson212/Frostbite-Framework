@@ -425,16 +425,20 @@ class Database
 		// Define our query type
 		$this->queryType = "INSERT";
 		$this->table = mysql_real_escape_string($table);
+		
+		// Loop through if we need to
 		if(count($data) > 1)
 		{
 			foreach($data as $key => $value)
 			{
+				// Check to see if the key is numeric, if not, then escape it
 				if(!is_numeric($key))
 				{
 					$this->columns[] = mysql_real_escape_string($key);
 				}
 				
-				if(!is_numeric($key))
+				// Also Check to see if the value is numeric, if not, add quotes around the value
+				if(!is_numeric($value))
 				{
 					$this->values[] = "'". mysql_real_escape_string($value) ."'";
 				}
@@ -443,6 +447,8 @@ class Database
 					$this->values[] = mysql_real_escape_string($value);
 				}
 			}
+			
+			// If we entered columns, then we use them, otherwise we do a plain insert
 			if(count($this->columns) >= 1)
 			{
 				$this->sql = "INSERT INTO ". $table ." (". implode(',', $this->columns) .") VALUES (". implode(',', $this->values) .")";
@@ -452,11 +458,13 @@ class Database
 				$this->sql = "INSERT INTO ". $table ." VALUES (". implode(',', $this->values) .")";
 			}
 		}
+		
+		// No Loop needed, a simple insert of 1 key / value
 		else
 		{
 			$key = mysql_real_escape_string( key($data) );
 			$value = mysql_real_escape_string($data[$key]);
-			$this->sql = "INSERT INTO ". $table ." (". $key .") VALUES (". $value.")";
+			$this->sql = "INSERT INTO ". $this->table ." (". $key .") VALUES (". $value.")";
 		}
 		return $this;
 	}
@@ -479,7 +487,7 @@ class Database
 		
 		// Define our query type
 		$this->queryType = "UPDATE";
-		$this->table = $table;
+		$this->table = mysql_real_escape_string($table);
 		
 		// Add the column and values to 2 seperate arrays
 		if(count($data) > 1)
@@ -796,6 +804,7 @@ class Database
 */
 	protected function end_sql($return = FALSE) 
 	{
+		// We cant have an empty table when using the query builder!
 		if(empty($this->table))
 		{
 			show_error(2, "No table selected");
