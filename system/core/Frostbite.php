@@ -13,8 +13,9 @@
 | * USE THIS FILE AS THE BOOTSTRAP *
 |
 */
+namespace System\Core;
 
-class FB_Frostbite
+class Frostbite
 {
 	public $Router;
 	protected $dispatch;
@@ -22,7 +23,7 @@ class FB_Frostbite
 	function __construct()
 	{
 		// Initialize the router
-		$this->Router = load_class('Router');
+		$this->Router = load_class('Core\\Router');
 	}
 	
 /*

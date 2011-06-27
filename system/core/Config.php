@@ -18,12 +18,12 @@
 | in the config file.
 |
 */
+namespace System\Core;
 
-class FB_Config
+class Config
 {	
-	var $data = array();
-	protected $DB_configs;
-	protected $Core_configs;
+	protected $data = array();
+	var $files = array();
 
 /*
 | ---------------------------------------------------------------
@@ -32,60 +32,33 @@ class FB_Config
 */	
 	public function __construct() 
 	{
-		// Set defaults
-		$this->configFile = APP_PATH . DS . 'config' . DS . 'config.php';
-		$this->Core_configFile = APP_PATH . DS . 'config' . DS . 'core.config.php';
-		$this->DB_configFile = APP_PATH . DS . 'config' . DS . 'database.config.php';
-		$this->Load();
+		// Set default files
+		$this->files['app'] = APP_PATH . DS . 'config' . DS . 'config.php';
+		$this->files['core'] = APP_PATH . DS . 'config' . DS . 'core.config.php';
+		$this->files['db'] = APP_PATH . DS . 'config' . DS . 'database.config.php';
+		
+		// Lets roll!
+		$this->Init();
 	}
 	
 /*
 | ---------------------------------------------------------------
-| Method: Load()
+| Method: Init()
 | ---------------------------------------------------------------
 |
-| Gets the defined variables in the config files
+| Initiates the default config files (App, Core, and DB)
 |
 */
-	protected function Load() 
+	protected function Init() 
 	{
-		// Load the APP config.php and add the defined
-		// vars to $this->data
-		if(file_exists($this->configFile)) 
-		{
-			include( $this->configFile );
-			$vars = get_defined_vars();
-			foreach( $vars as $key => $val ) 
-			{
-				if($key != 'this' && $key != 'data') 
-				{
-					$this->data[$key] = $val;
-				}
-			}
-		}
+		// Load the APP config.php and add the defined vars
+		$this->Load($this->files['app'], 'app');
 		
-		// Load the core.config.php and add the defined
-		// vars to $this->Core_configs
-		if(file_exists($this->Core_configFile)) 
-		{
-			include( $this->Core_configFile );
-			foreach( $config as $key => $val ) 
-			{
-				$this->Core_configs[$key] = $val;
-			}
-		}
+		// Load the core.config.php and add the defined vars
+		$this->Load($this->files['core'], 'core', 'config');
 		
-		// Load the database.config.php and add the defined
-		// vars to $this->DB_configs
-		if(file_exists($this->DB_configFile)) 
-		{
-			include( $this->DB_configFile );
-			foreach( $DB_configs as $key => $val ) 
-			{
-				$this->DB_configs[$key] = $val;
-			}
-		}
-		
+		// Load the database.config.php and add the defined vars
+		$this->Load($this->files['db'], 'db', 'DB_configs');
 	}
 	
 /*
@@ -96,35 +69,20 @@ class FB_Config
 | Returns the variable ($key) value in the config file.
 |
 | @Param: $key - variable name. Value is returned
+| @Param: $type - config variable container name
 |
 */
 	function get($key, $type = 'App') 
 	{
-		switch($type)
+		// Lowercase the type
+		$type = strtolower($type);
+		
+		// Check if the variable exists
+		if(isset($this->data[$type][$key])) 
 		{
-			case 'App':
-				if(isset($this->data[$key])) 
-				{
-					return $this->data[$key];
-				}
-				else
-				{
-					$key = "TEMP_". $key;
-					if(isset($this->data[$key])) 
-					{
-						return $this->data[$key];
-					}
-				}
-				break;
-				
-			case 'Core':
-				if(isset($this->Core_configs[$key])) 
-				{
-					return $this->Core_configs[$key];
-				}
-				break;
+			return $this->data[$type][$key];
 		}
-		return FALSE;
+		return NULL;
 	}
 	
 /*
@@ -135,15 +93,17 @@ class FB_Config
 | Returns the variable ($key) value in the database config file.
 |
 | @Param: $key - variable name. Value is returned
+| @Param: $pointer - the key in the array. Ex: ['db1']['host'],
+|	The 'host' is the pointer
 |
 */
-	function getDbInfo($key, $value = NULL) 
+	function getDbInfo($key, $pointer = NULL) 
 	{
-		if($value == NULL)
+		if($pointer == NULL)
 		{
 			return $this->DB_configs[$key];
 		}
-		return $this->DB_configs[$key][$value];
+		return $this->DB_configs[$key][$pointer];
 	}
 	
 /*
@@ -156,55 +116,95 @@ class FB_Config
 |
 | @Param: $key - variable name to be set
 | @Param: $value - new value of the variable
-| @Param: $combine - Combine this data with the config.php vars?
-|	If FALSE, the data will mot be saved to the config.php via 
-|	the Save() method.
+| @Param: $name - The container name for the $key variable
 |
 */
-	function set($key, $val, $combine = TRUE) 
+	function set($key, $val, $name = 'App') 
 	{
-		// Add a prefix if $combine is set to FALSE
-		if($combine == FALSE)
+		// Lowercase the $name
+		$name = strtolower($name);
+		$this->data[$name][$key] = $val;
+	}
+	
+/*
+| ---------------------------------------------------------------
+| Method: Load()
+| ---------------------------------------------------------------
+|
+| Load a config file, and adds its defined variables to the $data
+|	array
+|
+| @Param: $file - Full path to the config file, includeing name
+| @Param: $name - The container name we are storing this configs
+|	variables to.
+| @Param: $array - If the config vars are stored in an array, whats
+|	the array variable name?
+|
+*/
+	function Load($file, $name, $array = FALSE) 
+	{
+		// Lowercase the $name
+		$name = strtolower($name);
+		
+		// Include file and add it to the $files array
+		if(!file_exists($file)) return FALSE;
+		include( $file );
+		$this->files[$name] = $file;
+		
+		// Get defined variables
+		$vars = get_defined_vars();
+		if($array != FALSE) $vars = $vars[$array];
+		
+		// Add the variables to the $data[$name] array
+		if(count($vars) > 0)
 		{
-			$key = "TEMP_". $key;
+			foreach( $vars as $key => $val ) 
+			{
+				if($key != 'this' && $key != 'data') 
+				{
+					$this->data[$name][$key] = $val;
+				}
+			}
 		}
-		$this->data[$key] = $val;
+		return;
 	}
 
 /*
 | ---------------------------------------------------------------
-| Method: getDbInfo()
+| Method: Save()
 | ---------------------------------------------------------------
 |
 | Saves all set config variables to the config file, and makes 
 | a backup of the current config file
 |
+| @Param: $name - Name of the container holding the variables
+|
 */
-	function Save() 
+	function Save($name) 
 	{
+		// Lowercase the $name
+		$name = strtolower($name);
+		
+		// Create our new file content
 		$cfg  = "<?php\n";
-		foreach( $this->data as $key => $val ) 
+		foreach( $this->data[$name] as $key => $val ) 
 		{
-			// Donot store temporary variables
-			if(strpos($key, 'TEMP_') === FALSE)
+			if(is_numeric($val)) 
 			{
-				if(is_numeric($val)) 
-				{
-					$cfg .= "\$$key = " . $val . ";\n";
-				} 
-				else 
-				{
-					$cfg .= "\$$key = '" . addslashes( $val ) . "';\n";
-				}
+				$cfg .= "\$$key = " . $val . ";\n";
+			} 
+			else 
+			{
+				$cfg .= "\$$key = '" . addslashes( $val ) . "';\n";
 			}
 		}
 		$cfg .= "?>";
 		
 		// Copy the current config file for backup, 
 		// and write the new config values to the new config
-		@copy($this->configFile, $this->configFile.'.bak');
+		@copy($this->files[$name], $this->files[$name].'.bak');
 		
-		if(file_put_contents( $this->configFile, $cfg )) 
+		if(file_put_contents( $this->files[$name], $cfg )) 
 		{
 			return TRUE;
 		} 

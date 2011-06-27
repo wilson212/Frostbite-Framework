@@ -11,19 +11,31 @@
 | License: 		GNU GPL v3
 |
 | ---------------------------------------------------------------
-| Class: Model()
+| Class: Output
 | ---------------------------------------------------------------
 |
-| This is the Base model class. Doesnt do anything other then
-| load the loader so the Database's can be loaded upon request.
+| Main output file. Pushes source to the browser
 |
 */
 namespace System\Core;
 
-class Model
-{
-	function __construct() 
+class Output 
+{	
+
+/*
+| ---------------------------------------------------------------
+| Function: send()
+| ---------------------------------------------------------------
+|
+| Sends the page to the browser, which is stored in the variable $page
+|
+| @Param: $page - The source of the completed page
+|
+*/
+
+	function send($page) 
 	{
-		$this->load = load_class('Core\\Loader');
+		eval('?>'.$page.'<?');
 	}
 }
+// EOF

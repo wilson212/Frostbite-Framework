@@ -1,6 +1,5 @@
 <?php
-
-class Welcome extends FB_Controller 
+class Welcome extends System\Core\Controller 
 {
 	function Welcome()
 	{
@@ -28,6 +27,7 @@ class Welcome extends FB_Controller
 		| when you load this page in the browser.
 		*/
 		$data = $this->welcome_model->return_default_array();
+		$data['key'] = array( 0 => array( 'name' => 'steve' ), 1 => array( 'name' => 'bob' ), 2 => array( 'name' => 'david' ));
 		$this->output($data);
 	}
 

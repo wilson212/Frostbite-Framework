@@ -11,6 +11,7 @@
 | License: 		GNU GPL v3
 |
 */
+namespace System\Core;
 
 class Database
 {

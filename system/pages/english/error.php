@@ -3,22 +3,17 @@
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-	<title><?php echo $Config->get('site_title'); ?> :: <?php echo str_replace(": ", "", ucfirst(strtolower($lvl_txt))); ?></title>
+	<title>Frostbite :: {ERROR_LEVEL}</title>
 	<link rel="stylesheet" href="<?php echo BASE_URL; ?>system/pages/main.css" type="text/css"/>
 </head>
 
 <body>
 	<div id="error-box">
-		<div class="error-header"><?php echo ucfirst(strtolower($lvl_txt)); ?></div>
+		<div class="error-header">{ERROR_LEVEL}</div>
 		<div class="error-message">
-			<b>Message:</b> <?php echo $message; ?><br /><br />
-			<?php
-				if($file != "none")
-				{
-			?>
-					<b>File:</b> <?php echo $file; ?><br />
-					<b>Line:</b> <?php echo $line; 
-				} ?>
+			<b>Message:</b> {MESSAGE}<br /><br />
+			<b>Reporting File:</b> {FILE}<br />
+			<b>Line:</b> {LINE} 
 		</div>
 	</div>
 </body>

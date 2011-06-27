@@ -7,16 +7,37 @@
 | This function is used to simplify the showing of errors
 |
 | @Param: $lvl - Level of the error
-| @Param: $message - Error message
-| @Param: $file - The file reporting the error
-| @Param: $line - Error line number
-| @Param: $errno - Error number
+| @Param: $err_message - Error message code
+| @Param: $args - An array for vsprintf to replace in the message
 |
 */	
-	function show_error($lvl, $message = 'Not Specified', $file = "none", $line = 0, $errno = 0)
+	function show_error($lvl, $err_message = 'none', $args = NULL)
 	{
-		$Core = new FB_Core();
-		return $Core->trigger_error($lvl, $message, $file, $line, $errno);
+		// Let get a backtrace for deep debugging
+		$backtrace = debug_backtrace();
+		$calling = $backtrace[0];
+		
+		// Load language
+		$lang = load_class('Core.Language');
+		$lang->set_language( config('core_language', 'Core') );
+		$lang->load('errors');
+		$message = $lang->get($err_message);
+		
+		// Allow custom messages
+		if($message === FALSE)
+		{
+			$message = $err_message;
+		}
+		
+		// do replacing
+		if(is_array($args))
+		{
+			$message = vsprintf($message, $args);
+		}
+		
+		// Init and spit the error
+		$E = new \System\Core\Error_Handler();
+		$E->trigger_error($lvl, $message, $calling['file'], $calling['line'], $backtrace);
 	}
 	
 /*
@@ -33,32 +54,19 @@
 
 function __autoload($className) 
 {	
-	// We will need to remove the prefixes from the classes
-	if( strncmp($className, 'FB_', 3) == 0)
-	{
-		$className = substr($className, 3);
-	}
+	// We will need to lowercase everything except for the filename
+	$class_path = str_replace('\\', '|', strtolower($className));
+	$parts = explode('|', $class_path);
+	$parts[2] = strtoupper( $parts[2] );
+	$class_path = implode($parts, DS);
 	
-	// We have our list of folders
-	$folders = array( 
-		SYSTEM_PATH . DS .  'core',
-		APP_PATH . DS .  'core',		
-		SYSTEM_PATH . DS .  'library',
-		APP_PATH . DS .  'library' /*,
-		APP_PATH . DS .  'controllers',
-		APP_PATH . DS . 'modules'
-		*/
-	);	
+	$file = ROOT . DS . $class_path .'.php';
 	
-	// Start the loop, checking each folder for the class
-	foreach($folders as $folder)
+	// If the file exists, then include it, and return
+	if(file_exists($file)) 
 	{
-		// If the file exists, then include it, and return
-		if(file_exists($folder . DS . $className . '.php')) 
-		{
-			require_once($folder . DS . $className . '.php');
-			return;
-		}
+		require_once($file);
+		return;
 	}
 	
 	// If we are at this point, then we didnt find the class file.
@@ -75,29 +83,15 @@ function __autoload($className)
 | file.
 |
 | @Param: $item - The config item we are looking for
-| @Param: $type - Either App, or Core. Loads the respective
-|		config file variable
+| @Param: $type - Name of the config variables, this is set 
+|	when you load the config, defaults are Core, App and Mod
 |
 */
 
 function config($item, $type = 'App')
 {
-	$Config = load_class('Config');	
-	
-	switch($type)
-	{
-		case "App":
-			return $Config->get($item, $type);
-			break;
-		
-		case "Core":
-			return $Config->get($item, $type);
-			break;
-			
-		default:
-			show_error(1, "Unknown config type: \"". $type ."\"");
-			break;
-	}
+	$Config = load_class('Core\\Config');		
+	return $Config->get($item, $type);
 }
 
 /*
@@ -110,16 +104,14 @@ function config($item, $type = 'App')
 |
 | @Param: $item - The config item we are setting a value for
 | @Param: $value - the value of $item
-| @Param: $combine - Combine this data with the config.php vars?
-|	If FALSE, the data will mot be saved to the config.php via 
-|	the Save() method.
+| @Param: $combine - The name of this config variables
 |
 */
 
-function config_set($item, $value, $combine = TRUE)
+function config_set($item, $value, $name = 'App')
 {
-	$Config = load_class('Config');	
-	$Config->set($item, $value, $combine);
+	$Config = load_class('Core\\Config');	
+	$Config->set($item, $value, $name);
 }
 
 /*
@@ -128,14 +120,16 @@ function config_set($item, $value, $combine = TRUE)
 | ---------------------------------------------------------------
 |
 | This function is used to save site config values to the condig.php. 
-| This does not save core, module, or database values.
+| *Warning - This will remove any and ALL comments in the config file
+|
+| @Param: $name - Which config are we saving? App? Core? Module?
 |
 */
 
-function config_save()
+function config_save($name)
 {
-	$Config = load_class('Config');	
-	$Config->Save();
+	$Config = load_class('Core\\Config');	
+	$Config->Save($name);
 }
 
 /*
@@ -147,27 +141,17 @@ function config_save()
 | file.
 |
 | @Param: $file - full path and filename to the config file being loaded
-| @Param: $combine - add the config vars to the config data?
+| @Param: $name - The name of this config variables, for later access. Ex:
+| 	if $name = 'test', the to load a $var -> config( 'var', 'test');
+| @Param: $array - If the config vars are stored in an array, whats
+|	the array variable name?
 |
 */
 
-function load_config($file, $combine = FALSE)
+function load_config($file, $name, $array = FALSE)
 {	
-	$data = array();
-	$vars = array();
-	
-	// Include file
-	include( $file );
-	$vars = get_defined_vars();
-	if(count($vars) > 1)
-	{
-		foreach( $vars as $key => $val ) 
-		{
-			$data[$key] = $val;
-			config_set($key, $val, $combine);
-		}
-	}
-	return $data;
+	$Config = load_class('Core\\Config');	
+	$Config->Load($file, $name, $array);
 }	
 
 /*
@@ -180,6 +164,8 @@ function load_config($file, $combine = FALSE)
 |
 | @Param: $module - Name of the module
 | @Param: $filename - name of the file if not 'config.php'
+| @Param: $array - If the config vars are stored in an array, whats
+|	the array variable name?
 |
 */
 
@@ -188,15 +174,7 @@ function load_module_config($module, $filename = 'config.php')
 	$file = APP_PATH . DS .'modules' . DS . $module . DS . 'config' . DS . $filename;
 	if(file_exists($file))
 	{
-		$MC = get_config_vars($file);
-		if(count($MC) > 1)
-		{
-			foreach($MC as $key => $value)
-			{
-				config_set($key, $value, FALSE);
-			}
-		}
-		return $MC;
+		load_config($file, 'mod');
 	}
 }	
 
@@ -210,7 +188,7 @@ function load_module_config($module, $filename = 'config.php')
 */	
 	function get_instance()
 	{
-		return FB_Controller::get_instance();
+		return System\Core\Controller::get_instance();
 	}
 
 /*
@@ -222,65 +200,77 @@ function load_module_config($module, $filename = 'config.php')
 | that need to be loaded for use, but not reset next time the class
 | is called.
 |
-| @Param: $class - Class needed to be loaded / returned
+| @Param: $className - Class needed to be loaded / returned
 |
 */
 
-function load_class($class)
-{	
+function load_class($className)
+{
+	// Make sure periods are replaced with slahes
+	$className = str_replace('.', '\\', $className);
+	
 	// Inititate the Registry singleton into a variable
-    $Obj = Registry::singleton();
-    
-	// lowercase classname, and have a Uppercase first version
-    $Class = strtolower($class);
-	$className = ucfirst($Class);
-	
+	$Obj = Registry::singleton();
+
+	// Make a lowercase version
+	$Class = strtolower($className);
+	$temp = str_replace('\\', '_', $Class);
+
 	// Check the registry for the class, If its there, then return the class
-    if ($Obj->load($Class) !== NULL)
-    { 
-        return $Obj->load($Class);        
-    }
-	
+	if($Obj->load($temp) !== NULL)
+	{ 
+		return $Obj->load($temp);        
+	}
+
 	// ---------------------------------------------------------
-    // Class not in Registry, So we load it manually and then  | 
+	// Class not in Registry, So we load it manually and then  | 
 	// store it in the registry for future static use          |
 	// ---------------------------------------------------------
 	
-	// Override the prefix checking IF this is the config class we are loading
-	($Class != 'config') ? $prefix = config('subclass_prefix', 'Core') : $prefix = '';
+	///echo $className ."<br />";
 
-	// Check for needed classes from the Application library folder
-	if(file_exists(APP_PATH . DS .  'core' . DS . $prefix . $className . '.php')) 
+	// explode our backslashes!
+	$parts = explode('\\', $Class);
+	if($parts[0] == 'system' || $parts[0] == 'application')
 	{
-		require_once(APP_PATH . DS .  'core' . DS . $prefix . $className . '.php');
+		// Uppercase the filename
+		$parts[2] = ucfirst($parts[2]);
+		$file = $parts[0] . DS . $parts[1] . DS . $parts[2];
+		require_once(ROOT . DS .  $file . '.php');
 	}
-	
-	// Check for needed classes from the Core library folder
-	elseif(file_exists(SYSTEM_PATH . DS .  'core' . DS . $className . '.php')) 
-	{
-		require_once(SYSTEM_PATH . DS .  'core' . DS . $className . '.php');
-		$prefix = "FB_";
-	}
-	
-	// The file is not in any core folder, reset the prefix
 	else
 	{
-		$prefix = '';
-	}
-    
-	// -------------------------------------------------------------
-    //  Add the prefix, and Initiate the new class into a variable |
-	// -------------------------------------------------------------
-	$className = $prefix . $className;
-	$dispatch = new $className();
-	
-	// Store this new object in the registery
-    $Obj->store($Class, $dispatch); 
-    
-    //return singleton object.
-    $Object = $Obj->load($Class);
+		// Uppercase the filename
+		$parts[1] = ucfirst($parts[1]);
+		$file = $parts[0] . DS . $parts[1];
 
-    if(is_object($Object))
+		// Check for needed classes from the Application library folder
+		if(file_exists(APP_PATH. DS . $file . '.php')) 
+		{
+			$className = '\\Application\\'. $className;
+			require_once(APP_PATH . DS . $file . '.php');
+		}
+
+		// Check for needed classes from the Core library folder
+		elseif(file_exists(SYSTEM_PATH . DS . $file . '.php')) 
+		{
+			$className = '\\System\\'. $className;
+			require_once(SYSTEM_PATH . DS . $file . '.php');
+		}
+	}
+
+	// -----------------------------------------
+	//  Initiate the new class into a variable |
+	// -----------------------------------------
+	$dispatch = new $className();
+
+	// Store this new object in the registery
+	$Obj->store($temp, $dispatch); 
+
+	//return singleton object.
+	$Object = $Obj->load($temp);
+
+	if(is_object($Object))
 	{
 		return $Object;
 	}

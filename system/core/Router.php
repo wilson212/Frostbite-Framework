@@ -11,8 +11,9 @@
 | License: 		GNU GPL v3
 |
 */
+namespace System\Core;
 
-class FB_Router
+class Router
 {
 	var $_controler = FALSE;
 	var $_action = FALSE;

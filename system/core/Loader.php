@@ -18,8 +18,9 @@
 | class / method.
 |
 */
+namespace System\Core;
 
-class FB_Loader
+class Loader
 {	
 	
 /*
@@ -70,20 +71,30 @@ class FB_Loader
 | This method is used to call in a class from either the APP
 | library, or the system library folders.
 |
-| @Param: $name - The name of the class
+| @Param: $name - The name of the class, with or without namespacing
 | @Param: $instance - Do we instance the class?
 |
 */
 	function library($name, $instance = TRUE)
 	{
-		// Get the class prefix
-		$prefix = config('subclass_prefix', 'Core');
+		// Make sure periods are replaced with slahes if there is any
+		$name = str_replace('.', '\\', $name);
+		
+		// explode backslahes just in case
+		if(strpos('\\', $name) !== FALSE)
+		{
+			$full_name = $name;
+		}
+		else
+		{
+			$full_name = "Library\\".$name;
+		}
 		
 		// Load the Class
-		$class = load_class($name);
+		$class = load_class($full_name);
 		
 		// Do we instance this class?
-		if($instance == TRUE && ( class_exists('FB_Controller') || class_exists($prefix . 'Controller') ))
+		if($instance == TRUE) // && ( class_exists('\\System\\Core\\Controller') || class_exists('\\Application\\Core\\Controller') ))
 		{
 			$name = strtolower($name);
 			$FB = get_instance();
@@ -107,7 +118,7 @@ class FB_Loader
 */	
 	function database($args = 0, $instance = FALSE)
 	{
-		$Config = load_class("Config");
+		$Config = load_class("Core\\Config");
 		
 		// Check to see if our connection Id is numeric
 		if(is_numeric($args))
@@ -116,19 +127,37 @@ class FB_Loader
 		}
 		
 		// Check our registry to see if we already loaded this connection
-		$Obj = Registry::singleton();
+		$Obj = \Registry::singleton();
 		if($Obj->load("DBC_".$args) != NULL)
 		{
 			return $Obj->load("DBC_".$args);
 		}
 		
+		// Check for a DB class in the Application, and system core folder
+		if(file_exists(APP_PATH. DS . 'core' . DS . 'Database.php')) 
+		{
+			require_once(APP_PATH. DS . 'core' . DS . 'Database.php');
+			$first = "Application\\";
+		}
+		elseif(file_exists(SYSTEM_PATH. DS . 'core' . DS . 'Database.php')) 
+		{
+			require_once(SYSTEM_PATH. DS . 'core' . DS . 'Database.php');
+			$first = "System\\";
+		}
+		else // Nither file exists, we cant continue
+		{
+			show_error(3, 'No database class found!', __FILE__, __LINE__);
+		}
+		
 		// Not in the registry, so istablish a new connection
-		$DB = new Database(
-			$Config->getDbInfo($args, 'host'),
-			$Config->getDbInfo($args, 'port'),
-			$Config->getDbInfo($args, 'username'),
-			$Config->getDbInfo($args, 'password'),
-			$Config->getDbInfo($args, 'database')
+		$dispatch = $first . "Core\\Database";
+		$info = config($args, 'DB');
+		$DB = new $dispatch(
+			$info['host'],
+			$info['port'],
+			$info['username'],
+			$info['password'],
+			$info['database']
 		);
 		
 		// If user wants to instance this, then we do that

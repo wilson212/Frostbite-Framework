@@ -15,7 +15,9 @@
 |	2 = All Fetal errors, and Mysql errors
 |	1 = Fetal errors only ( No mysql errors )
 */
+
 $config['error_display_level'] = 3;
+
 
 /*
 | ---------------------------------------------------------------
@@ -26,17 +28,22 @@ $config['error_display_level'] = 3;
 | error logging.
 |
 */
+
 $config['log_errors'] = 1;
+
 
 /*
 | ---------------------------------------------------------------
-| Subclass_prefix
+| Core_language
 | ---------------------------------------------------------------
 |
-| Allows custom class prefixes for extended librarys
+| The language folder in system/language/ <language> / that you
+| wish to use for error reporting
 |
 */
-$config['subclass_prefix'] = 'MY_';
+
+$config['core_language'] = 'english';
+
 
 /*
 | ---------------------------------------------------------------
@@ -69,6 +76,7 @@ $config['autoload_libraries'] = array();
 
 $config['autoload_helpers'] = array();
 
+
 /*
 | ---------------------------------------------------------------
 | Session: Use Database
@@ -84,6 +92,7 @@ $config['autoload_helpers'] = array();
 
 $config['session_use_database'] = TRUE;
 
+
 /*
 | ---------------------------------------------------------------
 | Session: Database Identifier
@@ -97,6 +106,7 @@ $config['session_use_database'] = TRUE;
 */
 
 $config['session_database_id'] = 'DB';
+
 
 /*
 | ---------------------------------------------------------------
@@ -112,6 +122,7 @@ $config['session_database_id'] = 'DB';
 
 $config['session_table_name'] = 'session_table';
 
+
 /*
 | ---------------------------------------------------------------
 | Session: Cookie Name
@@ -124,5 +135,21 @@ $config['session_table_name'] = 'session_table';
 */
 
 $config['session_cookie_name'] = 'FB_session';
+
+
+/*
+| ---------------------------------------------------------------
+| Template: Use Parser?
+| ---------------------------------------------------------------
+|
+| Do we want to use the template parser to parse pseudo blocks?
+| WARNING: setting to false may break some templates that use
+| pseudo blocks. Only disable if you use plain php templates
+|
+| Format: TRUE or FALSE;
+|
+*/
+
+$config['enable_template_parser'] = TRUE;
 
 // EOF
