@@ -1,22 +1,20 @@
 <?php
-
 /*
 | ---------------------------------------------------------------
-| Error_display_level
+| Environment
 | ---------------------------------------------------------------
 |
 | This is the error level of which you would like to show when
-| viewing the website. This should be set to 3 (all errors) when
-| doing enviorment testing, and just 1 ( Fetal errors ) or 2 
-| ( Fetal errors and Mysql Errors) for live sites.
+| viewing the website. This should be set to 2 (all errors + debugging) 
+| when developing or testing, and just 1 (only fetal erros, no debugging) 
+| for live sites.
 |
 | Levels:
-| 	3 = all errors (including MySQL), warnings, and notices.
-|	2 = All Fetal errors, and Mysql errors
-|	1 = Fetal errors only ( No mysql errors )
+| 	2 = Development, Set at this level when all errors are to be displayed in detail
+|	1 = Production, Enabled when your site is live on the web
 */
 
-$config['error_display_level'] = 3;
+$config['environment'] = 2;
 
 
 /*
