@@ -1,9 +1,7 @@
 <?php
 
-class Page_Model extends Model 
-{
-	var $RDB = FALSE;
-	
+class Page_Model extends System\Core\Model 
+{	
 	function __construct()
 	{
 		parent::__construct();
@@ -13,18 +11,21 @@ class Page_Model extends Model
 	{
 		/* 
 			Tell the loader to load the DB config, and instance 
-			this as DDB in the  contoller. But, since we dont have
+			this as DB in the  contoller. But, since we dont have
 			access to controller variables, we have to define our own
 			(RDB).
 		*/
-		$this->RDB = $this->load->database('DB', 'DDB');
+		$this->RDB = $this->load->database('DB', TRUE);
 		
-		$this->RDB
-			->select("*")
-			->from("categories")
-			->where("id", "1")
-			->query();
-		$contents = $this->RDB->result();
+		// use the querybuilder to build AND clean out sql statement
+		$qb = $this->load->library('querybuilder');
+		$qb->select("*")->from("categories")->where("id", "1");
+		
+		// Query the DB
+		$this->RDB->query( $qb->sql );
+		$contents = $this->RDB->fetch_array();
+		
+		// Return out array of contents
 		return $contents;
 	}
 }

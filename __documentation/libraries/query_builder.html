@@ -26,90 +26,7 @@
 
 <!-- START CONTENT -->
 <div id="content">
-	<h1>Database Class</h1>
-
-	<p>
-		The Database is there to make querying the database much easier. It comes with a QueryBuilder which makes queries extremely easy.
-	</p>
-	
-	<p>Features:</p>
-	<ul>
-		<li>Comes with a QueryBuilder, which can be used to dynamically build MySQL qeuries</li>
-		<li>Prepared returned arrays</li>
-		<li>Automatic Sql Injection cleaning (When using QueryBuilder)</li>
-		<li>Chain querying functions (When using QueryBuilder)</li>
-	</ul>
-
-	
-	<!-- Connection -->
-	<h2>Using the loader to establish a Database Connection</h2>
-	<p>
-		Before you establish a database connection, you need to enter the connection info in the "Application/config/database.config.php" file.
-		Below is an example of how to configure you DB connection:
-	</p>
-	<pre>
-		$DB_configs = array( 
-			'<var>$config_key</var>' => array(
-				'hostname' => 'host IP';
-				'port' => 'mysql port #';
-				'username' => 'database username';
-				'password' => 'database password';
-				'database' => 'name of the database';
-			),
-			'<var>$config_key2</var>' => array(
-				'hostname' => .....
-		);
-	</pre>
-	
-	<p>Now below, this how we load that very connection:
-	<code>
-		$connection = $this->load->database('<var>$config_key</var>', '<dfn>$instance</dfn>');
-	</code>
-	
-	<p>
-		<dfn>$instance</dfn>: Default = <font color="blue"><b>FALSE</b></font> - Do we instance this connection in the controller super object? 
-	</p>
-	
-	<p class="important">
-		<kbd>NOTE:</kbd> If <dfn>$instance</dfn>
-		is set to <font color='blue'><b>TRUE</b></font>, then <var>$connection = </var> is <b>NOT</b> needed as it will be instanced as "$this->$config_key" UNLESS you are using it outside the
-		controller.
-	</p>
-	
-	
-	
-	<!-- Manual -->
-	<h2>Manually Querying the Database (No QueryBuilder)</h2>
-	<p>
-		It is possible to query the database without using the querybuilder. Although this is highly un-recomended, it is possible for those who wish to not use the querybuilder.
-		The example below shows how you would manually query the Database, and then retrieve the result.
-	</p>
-	
-	Instanced:
-	<code>
-		$this-><var>$database_key</var>->query('<var>$query</var>');<br />
-		$result = $this-><var>$database_key</var>->result();
-	</code>
-	
-	Not - Instanced:
-	<code>
-		$connection-><var>$database_key</var>->query('<var>$query</var>');<br />
-		$result = $connection-><var>$database_key</var>->result();
-	</code>
-	
-	<p>
-		<var>$database_key</var>: The same as the <var>$config_key</var> in the Connection example.<br />
-		<var>$query</var>: The query you are putting the in the Database.
-	</p>
-	
-	
-	
-	<!-- Query Builder -->
-	<h2>Using the QueryBuilder (Examples)</h2>
-	<p>
-		The QueryBuilder makes it easy to piece together your queries, and the best part is it automatically cleans your inputs so you dont have to worry about Sql Injection.
-		In the example below, i will show you how to use the query builder to build your statments:
-	</p>
+	<h1>Query Builder</h1>
 	
 	<!-- Select -->
 	<h3>A Simple SELECT Statement</h3>
@@ -317,8 +234,6 @@
 	<h3>limit()</h3>
 	<p>adds "LIMIT $x, $y" to the query. <var>$x</var> is the number if records to display, and $y is our starting point if we are not starting on record number 1.</p>
 	<code>$this->database->limit('<var>$x</var>', '<dfn>$y</dfn>');</code>
-
-
 </div>
 <!-- END CONTENT -->
 

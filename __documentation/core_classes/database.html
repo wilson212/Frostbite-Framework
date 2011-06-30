@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Database Class :: Frostbite Framework Documentation</title>
+
+	<style type='text/css' media='all'>@import url('./userguide.css');</style>
+	<link rel='stylesheet' type='text/css' media='all' href='../doc_style/userguide.css' />
+</head>
+<body>
+
+<!-- START NAVIGATION -->
+<div id="nav"><div id="nav_inner"></div></div>
+<div id="nav2"><a name="top">&nbsp;</a></div>
+<div id="masthead">
+	<table cellpadding="0" cellspacing="0" border="0" style="width:100%">
+		<tr>
+			<td><h1>Frostbite Framework</h1></td>
+			<td id="breadcrumb_right"><a href="../index.html">Return To Index</a></td>
+		</tr>
+	</table>
+</div>
+<!-- END NAVIGATION -->
+
+<br clear="all" />
+
+<!-- START CONTENT -->
+<div id="content">
+	<h1>Database Class</h1>
+	<p>
+		The Database class is there to make querying the database much easier. Be sure to also check the "Libraries -> Querybuilder" section. The querybuilder makes
+		it really simple to build sql statments that can be passed into the database query method.
+	</p>
+
+	
+	<!-- Connection -->
+	<h2>Using the loader to establish a Database Connection</h2>
+	<p>
+		Before you establish a database connection, you need to enter the connection info in the "Application/config/database.config.php" file.
+		Below is an example of how to configure your DB connection:
+	</p>
+	<pre>
+		$DB_configs = array( 
+			'<var>$config_key</var>' => array(
+				'driver'	=> 'The database type (Ex: mysql, mysqli)'
+				'hostname'	=> 'host IP';
+				'port'		=> 'mysql port #';
+				'username'	=> 'database username';
+				'password'	=> 'database password';
+				'database'	=> 'name of the database';
+			),
+			'<var>$config_key2</var>' => array(
+				'hostname' => .....
+		);
+	</pre>
+	<p>
+		Now below, this how we load that very connection:
+		<code>
+			$connection = $this->load->database('<var>$config_key</var>', '<dfn>$instance</dfn>');
+		</code>
+	</p>
+	<h5><u>Arguments:</u></h5>
+	<p>
+		<ol>
+			<li>
+				<var>$config_key</var>: The array key containing your connection information.
+			</li>
+			<li>
+				<dfn>$instance</dfn>: Default = <font color="blue"><b>FALSE</b></font> - Do we instance this connection in the controller super object?
+			</li>
+		</ol>
+	</p>	
+	<p class="important">
+		<kbd>NOTE:</kbd> If <dfn>$instance</dfn>
+		is set to <font color='blue'><b>TRUE</b></font>, then <var>$connection = </var> is <b>NOT</b> needed as it will be instanced as "$this->$config_key" UNLESS you are using it outside the
+		controller.
+	</p>
+	<!-- END Connection -->
+	
+	
+	<!-- Class Variables -->
+	<h2>Public class variables</h2>
+	<p>
+		There are a few variables within the Database Driver that can be accessed from the outside
+	</p>	
+	<p>
+		<!-- variable: statistics -->
+		<h3>$statistics</h3>
+		<p>The statistics variable keeps track of how many queries have been ran in this connection, as well as the total amount of time it took to query all of them. <i>(Type: Array)</i></p>
+		<code>
+			Format: $statistics = array( 'count' => '<i>Query count</i>', 'time' => '<i>Total queries time</i>');<br />
+			Access: $stats = $connection->statistics;
+		</code>
+		<!-- END variable: statistics -->
+		
+		<!-- variable: database -->
+		<h3>$database</h3>
+		<p>This is the current selected database name. <i>(Type: String)</i></p>
+		<code>
+			Format: $database = '<i>Database name</i>'<br />
+			Access: $name = $connection->database;
+		</code>
+		<!-- END variable: statistics -->
+		
+		<!-- variable: queries -->
+		<h3>$queries</h3>
+		<p>This is a multi-dimensional array of each individual query. Each row supplies the query as a sting, and query benchmark time.</i></p>
+		<code>
+			Format: $queries = array( 0 => array('query' => '<i>The query as a string</i>', 'time' => '<i>Queries load time</i>'));<br />
+			Access: $queries_array = $connection->queries;
+		</code>
+		<!-- END variable: statistics -->
+		
+	</p>		
+	<!-- End Variables -->
+	
+	
+	<!-- Querying the DB -->
+	<h2>Querying the Database</h2>
+	<p>
+		The example below shows how you would manually query the Database. This does not return the result.
+	</p>
+	
+	Instanced:
+	<code>
+		$this-><var>$database_key</var>->query('<var>$query</var>');<br />
+	</code>
+	
+	Not - Instanced:
+	<code>
+		$connection->query('<var>$query</var>');<br />
+	</code>	
+	<h5><u>Arguments:</u></h5>
+	<p>
+		<ol>
+			<li>
+				<var>$database_key</var>: The same as the <var>$config_key</var> in the Connection example.
+			</li>
+			<li>
+				<var>$query</var>: The query you are putting the in the Database.
+			</li>
+		</ol>
+	</p>
+	<!-- END Querying -->
+	
+	
+	<!-- Fetching Results -->
+	<h2>Fetching Results</h2>
+	<p>
+		There is actually 3 ways of getting results from the query
+	</p>
+	
+		<!-- Fetch_array() -->
+		<h3>fetch_array()</h3>
+		<p>This method is great when using a Select statement and expect multiple rows of data.</p>
+		<code>
+			$result = $connection->fetch_array('<dfn>$type</dfn>');
+		</code>
+		<h5><u>Arguments:</u></h5>
+		<p>
+			<ol>
+				<li>
+					<dfn>$type</dfn>: Default = MYSQL_ASSOC - The type of array that is to be fetched. It's a constant and can take the following values: 
+					MYSQL_ASSOC, and MYSQL_BOTH. By using MYSQL_BOTH, you'll get an array with both associative and number indices. Using MYSQL_ASSOC (Default), 
+					you only get associative indices (just as if using mysql_fetch_assoc()). If you are not sure which to use, just leave it blank, as MYSQL_ASSOC
+					is the most common array people want.
+				</li>
+			</ol>
+		</p>
+		<!-- END Fetch_array -->
+		
+		<!-- Fetch_row -->
+		<h3>fetch_row()</h3>
+		<p>This method is great when you want a single row of data. Arrat keys will be in a number format based in table order.</p>
+		<code>
+			$result = $connection->fetch_row();
+		</code>
+		<!-- END Fetch_row -->
+		
+		<!-- Fetch_result() -->
+		<h3>fetch_result()</h3>
+		<p>This method is perfect for COUNT() queries. It returns a single variable.</p>
+		<code>
+			$result = $connection->fetch_result('<dfn>$offset</dfn>');
+		</code>
+		<h5><u>Arguments:</u></h5>
+		<p>
+			<ol>
+				<li>
+					<dfn>$offset</dfn>: Default = 0 - The row number from the result that's being retrieved. Row numbers start at 0. 
+				</li>
+			</ol>
+		</p>
+		<!-- END Fetch_result -->
+	
+	<!-- END Fetching results -->
+	
+	<!-- Selecting a new DB -->
+	<h2>Selecting a new database</h2>
+	<p>The frostbite database drivers allow switching between databases using the same connection as long as the database uses the same connection.</p>
+	<code>
+		$connection->select_db('<var>$name</var>');
+	</code>
+	<h5><u>Arguments:</u></h5>
+	<p>
+		<ol>
+			<li>
+				<var>$type</var>: The database name you wish to select.
+			</li>
+		</ol>
+	</p>
+	<!-- END selecting a new database -->
+	
+	
+	<!-- Resetting -->
+	<h2>Reseting database statics</h2>
+	<p>
+		The frostbite database drivers keep an array of all the queries, as well as benchmarks while the script is loading. At any given time you can call the
+		reset() method to reset the statistics.
+	</p>
+	<code>
+		$connection->reset();
+	</code>
+	<!-- END Resetting -->
+	
+	
+	<!-- Num Rows -->
+	<h2>Getting the number of rows</h2>
+	<p>
+		This method will return the number of rows from the last query. Equivelant to mysql_num_rows()
+	</p>
+	<code>
+		$connection->num_rows();
+	</code>
+	<!-- END Num Rows -->
+	
+	
+	<!-- Affected Rows -->
+	<h2>Getting the number of affected rows</h2>
+	<p>
+		This method will return the number of affected rows from the last query. Equivelant to mysql_affected_rows()
+	</p>
+	<code>
+		$connection->affected_rows();
+	</code>
+	<!-- END Affected Rows -->
+	
+	<!-- Insert ID -->
+	<h2>Getting the last insert id</h2>
+	<p>
+		This method will return the insert id of the last Insert. Equivelant to mysql_insert_id()
+	</p>
+	<code>
+		$connection->insert_id();
+	</code>
+	<!-- END Insert ID -->
+
+
+</div>
+<!-- END CONTENT -->
+
+
+<div id="footer">
+	<p>
+		Previous Topic:&nbsp;&nbsp;<a href="config.html">Config Class</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+		<a href="#top">Top of Page</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+		<a href="../index.html">Return to Index</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+		Next Topic:&nbsp;&nbsp;<a href="input.html">Input Class</a>
+	</p>
+	<p>Original Template Copyright &#169; 2006 - 2011 &nbsp;&middot;&nbsp; <a href="http://ellislab.com/">EllisLab, Inc.</a></p>
+</div>
+
+</body>
+</html>

@@ -37,8 +37,8 @@ class Mysqli_driver
 	// result of the last query
 	public $result;
 
-	// All sql statement ran
-	public $sql = array();
+	// All sql statement that have been ran
+	public $queries = array();
 	
 	// Queries statistics.
 	public $statistics = array(
@@ -178,7 +178,7 @@ class Mysqli_driver
 		$bench['time'] = round($end - $start, 5);
 
 		// Add the query to the list of queries
-		$this->sql[] = $bench;
+		$this->queries[] = $bench;
 
 		// Check for errors
 		if($this->mysqli->errno !== 0)
@@ -267,16 +267,19 @@ class Mysqli_driver
 	
 /*
 | ---------------------------------------------------------------
-| Function: clear_query()
+| Function: reset()
 | ---------------------------------------------------------------
 |
-| clears out the query. Not really needed to be honest as a new
-| query will automatically call this method.
+| Clears out and resets the query statistics
 |
 */
-    public function clear()
+    public function reset()
     {
-		$this->sql = '';
+		$this->queries = array();
+		$this->statistics = array(
+			'time'  => 0,
+			'count' => 0
+		);
     }
 	
 /*
@@ -294,7 +297,7 @@ class Mysqli_driver
 
 /*
 | ---------------------------------------------------------------
-| Function: get_insert_id(query)
+| Function: insert_id()
 | ---------------------------------------------------------------
 |
 | The equivelant to mysqli_insert_id(); This functions get the last
@@ -303,7 +306,7 @@ class Mysqli_driver
 | @Param: $query - the query
 |
 */
-	public function get_insert_id()
+	public function insert_id()
 	{
 		return $this->mysqli->insert_id;
 	}
@@ -345,9 +348,10 @@ class Mysqli_driver
 
 	function trigger_error() 
 	{
+		$query = $temp['query'] = end($this->queries);
 		$msg  = $this->mysqli->error . "<br /><br />";
 		$msg .= "<b>MySql Error No:</b> ". $this->mysql->errno ."<br />";
-		$msg .= '<b>Query String:</b> ' . $this->sql;
+		$msg .= '<b>Query String:</b> ' . $query;
 		show_error($msg, false, E_ERROR);
 	}
 }

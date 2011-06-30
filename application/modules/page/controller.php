@@ -1,16 +1,17 @@
 <?php
 
-class Page extends Controller 
+class Page extends System\Core\Controller 
 {
-	function Page()
+	function __construct()
 	{
 		parent::__construct();
 	}
 	
 	function index() 
 	{	
-		$this->load->model('Page_Model');
-		$contents = $this->page_model->get_page_contents();
+		// Just for fun, we are going to instance this model as 'TeSt'
+		$this->load->model('Page_Model', 'TeSt');
+		$contents = $this->TeSt->get_page_contents();
 		$this->output($contents);
 	}
 }
