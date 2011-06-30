@@ -3,7 +3,7 @@
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-	<title><?php echo $Config->get('site_title'); ?> :: 404 - Not Found</title>
+	<title><?php echo config('site_title'); ?> :: 404 - Not Found</title>
 	<link rel="stylesheet" href="<?php echo BASE_URL; ?>system/pages/main.css" type="text/css"/>
 </head>
 
@@ -11,7 +11,9 @@
 	<div id="error-box">
 		<div class="header">Oops, Page Not Found</div>
 		<div class="message">
-			You may have mis-typed the URL, or the page was deleted. Please check your spelling.<br /><br />
+			Sorry, the page you are looking for cannot be located. You may have mis-typed the URL, or the page was deleted. 
+			Please check your spelling and try again. If you feel you have reached this page in error, please contact the 
+			server administrator.<br /><br />
 		</div>
 		<div class="links">
 			<a href='<?php echo BASE_URL; ?>'>Return to Index</a> | <a href='javascript: history.go(-1)'>Previous Page</a>

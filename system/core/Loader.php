@@ -133,25 +133,24 @@ class Loader
 			return $Obj->load("DBC_".$args);
 		}
 		
+		// Get the DB connection information
+		$info = config($args, 'DB');
+		$info['driver'] = ucfirst($info['driver']."_driver");
+		
 		// Check for a DB class in the Application, and system core folder
-		if(file_exists(APP_PATH. DS . 'core' . DS . 'Database.php')) 
+		if(file_exists(APP_PATH. DS . 'database' . DS . $info['driver'] . '.php')) 
 		{
-			require_once(APP_PATH. DS . 'core' . DS . 'Database.php');
+			require_once(APP_PATH. DS . 'database' . DS . $info['driver'] . '.php');
 			$first = "Application\\";
 		}
-		elseif(file_exists(SYSTEM_PATH. DS . 'core' . DS . 'Database.php')) 
+		elseif(file_exists(SYSTEM_PATH. DS . 'database' . DS . $info['driver'] . '.php')) 
 		{
-			require_once(SYSTEM_PATH. DS . 'core' . DS . 'Database.php');
+			require_once(SYSTEM_PATH. DS . 'database' . DS . $info['driver'] . '.php');
 			$first = "System\\";
-		}
-		else // Nither file exists, we cant continue
-		{
-			show_error(3, 'No database class found!', __FILE__, __LINE__);
 		}
 		
 		// Not in the registry, so istablish a new connection
-		$dispatch = $first . "Core\\Database";
-		$info = config($args, 'DB');
+		$dispatch = $first ."Database\\".$info['driver'];
 		$DB = new $dispatch(
 			$info['host'],
 			$info['port'],
@@ -161,9 +160,9 @@ class Loader
 		);
 		
 		// If user wants to instance this, then we do that
-		if($instance != FALSE && (!is_numeric($args) || !is_numeric($instance)))
+		if($instance != FALSE && (!is_numeric($args)))
 		{
-			if($instance === TRUE || is_numeric($instance))
+			if($instance === TRUE)
 			{
 				$instance = $args;
 			}
@@ -220,3 +219,4 @@ class Loader
 		return $keys[0];
 	}
 }
+// EOF

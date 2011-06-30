@@ -11,11 +11,21 @@
 	<div id="error-box">
 		<div class="error-header">{ERROR_LEVEL}</div>
 		<div class="error-message">
-			<p>
-				We are sorry for the inconvenience, but an unrecoverable error has occured. 
-				If the problem persists, please notify the server administrator.
-			</p>
-			<b>Error Message:</b> {MESSAGE}
+			<b>Message:</b> {MESSAGE}<br /><br />
+			<b>Reporting File:</b> {FILE}<br />
+			<b>Line:</b> {LINE} <br /><br />
+			
+			<b><u>Debugging:</u></b><br /><br />
+			
+			<!-- the DEBUG you see will create a loop -->
+			{DEBUG}
+				<b>Backtrace Level {#}:</b><br />
+				<b>File:</b> {FILE}<br />
+				<b>Line:</b> {LINE} <br />
+				<b>Class:</b> {CLASS} <br />
+				<b>Function:</b> {FUNCTION} <br />
+				<b>Function Args:</b> {ARGS} <br /><br />
+			{/DEBUG}
 		</div>
 	</div>
 </body>

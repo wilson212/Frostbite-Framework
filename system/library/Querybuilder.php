@@ -11,309 +11,19 @@
 | License: 		GNU GPL v3
 |
 */
-namespace System\Core;
+namespace System\Library;
 
-class Database
+class Querybuilder
 {
-	// Queries statistics.
-	public $_statistics = array(
-		'time'  => 0,
-		'count' => 0,
-	);
-
-	// Our connection
-	private $mysql;
-	
-	// Mysql Hostname / Ip
-	private $hostname;
-
-	// Mysql Port
-	private $port;
-
-	// Mysql Username
-	private $user;
-
-	// Mysql Password
-	private $pass;
-
-	// Mysql Database Name
-	private $database;
-
 	// Our queryType
 	public $queryType;
-
-	// Our table
-	public $table;
-
-	// result of the last query
-	public $result;
-
+	
 	// Our Sql Statement
-	protected $sql = '';
+	public $sql;
 	
 	// Columns and Vaules of those columns for queries
 	protected $columns = array(); 
 	protected $values  = array();
-
-/*
-| ---------------------------------------------------------------
-| Constructer
-| ---------------------------------------------------------------
-|
-| Creates the connection to the mysql database, then selects the
-| database.
-|
-*/
-    public function __construct($host, $port, $user, $pass, $name)
-    {
-		// Fill Atributes
-		$this->hostname = $host;
-		$this->port = $port;
-		$this->user = $user;
-		$this->pass = $pass;
-		$this->database = $name;
-		
-		// Connection time
-		if(!$this->mysql = mysql_connect($host.":".$port, $user, $pass, true))
-		{
-			show_error('db_connect_error', array( $host, $port), E_ERROR);
-			return FALSE;
-		}
-
-		// Select DB
-		if(!mysql_select_db($name, $this->mysql))
-		{
-			show_error('db_select_error', array( $name ), E_ERROR);
-			return FALSE;
-		}
-		return TRUE;
-    }
-
-/*
-| ---------------------------------------------------------------
-| Function: __destruct
-| ---------------------------------------------------------------
-|
-| Closes the database connection
-|
-*/
-    public function __destruct()
-    {
-        @mysql_close($this->mysql);
-    }
- 
-/*
-| ---------------------------------------------------------------
-| Function: query()
-| ---------------------------------------------------------------
-|
-| Query function is best used for INSERT and UPDATE functions
-|
-*/
-    public function query($query = FALSE)
-    {
-		// Check for a manual query
-		if($query != FALSE)
-		{
-			// Add the query to $this->sql, and then process the query
-			$this->sql = $query;
-			$this->result = mysql_query($query, $this->mysql);
-			
-			// Check for errors
-			if(mysql_errno($this->mysql) !== 0)
-			{
-				$this->trigger_error();
-			}
-			
-			// Up our statistic count and return the result
-			$this->_statistics['count']++;
-			return $this->result;
-		}
-		
-		// No custom query, make sure we have a valid sql statment stored
-		elseif(empty($this->sql) || empty($this->table))
-		{
-			show_error('db_emtpy_query', false, E_ERROR);
-		}
-		
-		// Process our query depending on type
-		switch($this->queryType)
-		{
-			case "SELECT":
-				$this->fetch_array($this->sql);
-				break;
-				
-			case "COUNT":
-				$row = $this->query($this->sql);
-				$this->result = mysql_result($row, 0);
-				break;
-				
-			case "UPDATE":
-			case "INSERT":
-			case "DELETE":
-				$this->result = mysql_query($this->sql, $this->mysql);
-				
-				// Check for errors
-				if(mysql_errno($this->mysql) !== 0)
-				{
-					$this->trigger_error();
-				}
-				
-				// Up our statistic count and return the result
-				$this->_statistics['count']++;
-				break;
-		}
-    }
- 
-/*
-| ---------------------------------------------------------------
-| Function: fetch_array(query)
-| ---------------------------------------------------------------
-|
-| fetch function is great for getting huge arrays of multiple rows and tables
-|
-| @Param: $query - the query
-|
-*/
-    public function fetch_array($query)
-    {
-		// Lets start off with the query
-        $sql = mysql_query($query, $this->mysql);
-	
-		// Check for errors
-		if(mysql_errno($this->mysql) !== 0)
-		{
-			$this->trigger_error();
-		}
-		
-		// Up our statistic count
-		$this->_statistics['count']++;
-		
-		// No rows mean a false to be returned!
-		if(mysql_num_rows($sql) == 0)
-		{
-			$result = FALSE;
-		}
-		
-		// More then 1 row, process as big array
-		elseif(mysql_num_rows($sql) > 1)
-		{
-			$i = 0;
-			while($row = mysql_fetch_assoc($sql))
-			{
-				foreach($row as $colname => $value)
-				{
-					$result[$i][$colname] = $value;
-				}
-				$i++;
-			}
-		}
-		
-		// Just 1 row to return
-		else
-		{
-			$result = mysql_fetch_array($sql);
-		}
-		
-		// Set result and return
-		$this->result = $result;
-    }
-	
-/*
-| ---------------------------------------------------------------
-| Function: clear_query()
-| ---------------------------------------------------------------
-|
-| clears out the query. Not really needed to be honest as a new
-| query will automatically call this method.
-|
-*/
-    public function clear_query()
-    {
-		$this->sql = '';
-		$this->columns = array();
-		$this->values = array();
-    }
-	
-/*
-| ---------------------------------------------------------------
-| Function: result()
-| ---------------------------------------------------------------
-|
-| Retunrs the result of the last query
-|
-*/
-    public function result()
-    {
-		return $this->result;
-    }
-
-/*
-| ---------------------------------------------------------------
-| Function: get_insert_id(query)
-| ---------------------------------------------------------------
-|
-| The equivelant to mysql_insert_id(); This functions get the last
-| primary key from a previous insert
-|
-| @Param: $query - the query
-|
-*/
-	public function get_insert_id()
-	{
-		return mysql_insert_id();
-	}
-	
-/*
-| ---------------------------------------------------------------
-| Function: affected_rows()
-| ---------------------------------------------------------------
-|
-| The equivelant to mysql_affected_rows();
-|
-*/
-	public function affected_rows()
-	{
-		return mysql_affected_rows();
-	}
-	
-/*
-| ---------------------------------------------------------------
-| Function: num_rows()
-| ---------------------------------------------------------------
-|
-| The equivelant to mysql_num_rows();
-|
-*/
-	public function num_rows()
-	{
-		return mysql_num_rows();
-	}
-	
-/*
-| ---------------------------------------------------------------
-| Function: trigger_error()
-| ---------------------------------------------------------------
-|
-| Trigger a Core error using Mysql custom error message
-|
-*/
-
-	function trigger_error() 
-	{
-		$msg  = mysql_error($this->mysql) . "<br /><br />";
-		$msg .= "<b>MySql Error No:</b> ". mysql_errno($this->mysql) ."<br />";
-		$msg .= '<b>Query String:</b> ' . $this->sql;
-		show_error($msg, false, E_ERROR);
-	}
-	
-	
-/*
-|----------------------------------------------------------------
-| 				START OF QUERY BUILDING METHODS
-|----------------------------------------------------------------
-*/
-
 
 /*
 | ---------------------------------------------------------------
@@ -328,7 +38,7 @@ class Database
 	public function select($data) 
 	{	
 		// Empty out the old junk
-		$this->clear_query();
+		$this->clear();
 		
 		// Define our query type
 		$this->queryType = "SELECT";
@@ -365,7 +75,7 @@ class Database
 		$col = mysql_real_escape_string($col);
 		
 		// Empty out the old junk
-		$this->clear_query();
+		$this->clear();
 		
 		// Define our query type
 		$this->queryType = "COUNT";
@@ -388,7 +98,7 @@ class Database
 		$col = mysql_real_escape_string($col);
 		
 		// Empty out the old junk
-		$this->clear_query();
+		$this->clear();
 		
 		// Define our query type
 		$this->queryType = "COUNT";
@@ -411,7 +121,7 @@ class Database
 		$col = mysql_real_escape_string($col);
 		
 		// Empty out the old junk
-		$this->clear_query();
+		$this->clear();
 		
 		// Define our query type
 		$this->queryType = "COUNT";
@@ -434,7 +144,7 @@ class Database
 		$col = mysql_real_escape_string($col);
 		
 		// Empty out the old junk
-		$this->clear_query();
+		$this->clear();
 		
 		// Define our query type
 		$this->queryType = "COUNT";
@@ -457,7 +167,7 @@ class Database
 		$col = mysql_real_escape_string($col);
 		
 		// Empty out the old junk
-		$this->clear_query();
+		$this->clear();
 		
 		// Define our query type
 		$this->queryType = "COUNT";
@@ -479,7 +189,7 @@ class Database
 	public function insert($table, $data) 
 	{
 		// Empty out the old junk
-		$this->clear_query();
+		$this->clear();
 		
 		// Define our query type
 		$this->queryType = "INSERT";
@@ -549,7 +259,7 @@ class Database
 	public function update($table, $data) 
 	{
 		// Empty out the old junk
-		$this->clear_query();
+		$this->clear();
 		
 		// Define our query type
 		$this->queryType = "UPDATE";
@@ -617,7 +327,7 @@ class Database
 	public function delete_from($table) 
 	{
 		// Empty out the old junk
-		$this->clear_query();
+		$this->clear();
 		
 		// Define our query type
 		$this->queryType = "DELETE";
@@ -864,5 +574,21 @@ class Database
 		$this->sql .= " LIMIT ". $y .",". $x;
 		return $this;
 	}
+	
+	
+/*
+| ---------------------------------------------------------------
+| Function: clear()
+| ---------------------------------------------------------------
+|
+| clears out the query. Not really needed to be honest as a new
+| query will automatically call this method.
+|
+*/
+    public function clear()
+    {
+		$this->sql = '';
+		$this->columns = array();
+		$this->values = array();
+    }
 }
-// EOF

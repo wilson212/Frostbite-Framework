@@ -71,27 +71,35 @@ class Language
 		
 		// Make this a bit easier to type
 		$lang = $this->Language;
+		
+		// Load the core language file if it exists
+		if (file_exists(SYSTEM_PATH . DS .'language' . DS . $lang . DS . $file))
+		{
+			$vars = include(SYSTEM_PATH . DS .'language' . DS . $lang . DS . $file);
+		}
 
-		// Determine where the language file is and load it
+		// Next we load the application file, allows overriding of the core one
 		if(file_exists(APP_PATH . DS .'language' . DS . $lang . DS . $file))
 		{
-			include(APP_PATH . DS .'language' . DS . $lang . DS . $file);
-		}
-		elseif (file_exists(SYSTEM_PATH . DS .'language' . DS . $lang . DS . $file))
-		{
-			include(SYSTEM_PATH . DS .'language' . DS . $lang . DS . $file);
-		}
-		else
-		{
-			// Only show an error if we arent able to return FALSE
-			if($return == FALSE)
+			if(isset($vars))
 			{
-				trigger_error('Unable to load the requested language file: '.$lang.'/'.$file);
+				$vars2 = include(APP_PATH . DS .'language' . DS . $lang . DS . $file);
+			}
+			else
+			{
+				$vars = include(APP_PATH . DS .'language' . DS . $lang . DS . $file);
 			}
 		}
+		
+		// Merge if both the app and core had the same filename
+		if(isset($vars2))
+		{
+			$vars = array_merge($vars, $vars2);
+		}
+
 
 		// If the array "$language" is none existant in the language file, we have an error
-		if(!isset($language) || !is_array($language))
+		if(!isset($vars) || !is_array($vars))
 		{
 			return FALSE;
 		}
@@ -99,13 +107,13 @@ class Language
 		// Do we return the array?
 		if($return == TRUE)
 		{
-			return $language;
+			return $vars;
 		}
 
 		// Without a return, we need to store what we have here.
 		$this->loaded_files[] = $file;
-		$this->language_vars = array_merge($this->language_vars, $language);
-		unset($language);
+		$this->language_vars = array_merge($this->language_vars, $vars);
+		unset($vars);
 		return TRUE;
 	}
 

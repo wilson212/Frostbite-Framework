@@ -30,6 +30,9 @@ class Error_Handler
 	// Error Level Text.
 	var $ErrorLevel;
 	
+	// Error Backtrace.
+	var $ErrorTrace;
+	
 	// Our current language
 	var $lang;
 	
@@ -40,7 +43,7 @@ class Error_Handler
 |
 | Main error handler. Triggers, logs, and shows the error message
 |
-| @Param: $lvl - Level of the error
+| @Param: $errno - The error number
 | @Param: $message - Error message
 | @Param: $file - The file reporting the error
 | @Param: $line - Error line number
@@ -48,7 +51,7 @@ class Error_Handler
 | @Param: $backtrace - Backtrace information if any
 |
 */
-	function trigger_error($lvl, $message = 'none', $file = "", $line = 0, $backtrace = NULL)
+	function trigger_error($errno, $message = 'none', $file = "", $line = 0, $backtrace = NULL)
 	{
 		// Language setup
 		$this->lang = strtolower( config('core_language', 'Core') );
@@ -57,43 +60,65 @@ class Error_Handler
 		$this->ErrorMessage = $message;
 		$this->ErrorFile = $file; //str_replace(ROOT . DS, '', $file);
 		$this->ErrorLine = $line;
+		$this->ErrorTrace = $backtrace;
+		$this->Environment = config('environment', 'Core');
 
 		// Get our level text
-		switch($lvl) 
+		switch($errno) 
 		{
-			case 0:
-				$this->ErrorLevel = 'NOTICE';
-				$config_level = 3;
+			case E_USER_ERROR:
+				$this->ErrorLevel = 'Error';
+				$severity = 2;
+				break;
+
+			case E_USER_WARNING:
+				$this->ErrorLevel = 'Warning';
+				$severity = 1;
 				break;
 				
-			case 1:
-				$this->ErrorLevel = 'WARNING';
-				$config_level = 3;
+			case E_USER_NOTICE:
+				$this->ErrorLevel = 'Notice';
+				$severity = 1;
+				break;
+			
+			case E_ERROR:
+				$this->ErrorLevel = 'Error';
+				$severity = 2;
 				break;
 				
-			case 2:
-				$this->ErrorLevel = 'MySQL ERROR';
-				$config_level = 2;
+			case E_WARNING:
+				$this->ErrorLevel = 'Warning';
+				$severity = 1;
 				break;
 				
-			case 3:
-				$this->ErrorLevel = 'ERROR';
-				$config_level = 1;
+			case E_NOTICE:
+				$this->ErrorLevel = 'Notice';
+				$severity = 1;
+				break;
+				
+			case E_STRICT:
+				$this->ErrorLevel = 'Strict';
+				$severity = 1;
 				break;
 				
 			case 404:
 				include(SYSTEM_PATH . DS . 'pages' . DS . $this->lang . DS . '404.php');
 				die();
-		}
 
+			default:
+				$this->ErrorLevel = 'Error Code: '.$errno;
+				$severity = 2;
+				break;
+		}
+		
 		// log error if enabled
 		if( config('log_errors', 'Core') == 1 )
 		{
 			$this->log_error();
 		}
 		
-		// If the error is more severe then the config level, show it
-		if( config('error_display_level', 'Core') >= $config_level )
+		// Only build the error page when its fetal, or a development Env.
+		if( $this->Environment == 2 || $severity == 2 )
 		{
 			// build nice error page
 			$this->build_error_page();			
@@ -110,17 +135,78 @@ class Error_Handler
 */	
 	function build_error_page()
 	{
-		// Capture the template using Output Buffering
+		// Capture the template using Output Buffering, file depends on Environment
 		ob_start();
-		include(SYSTEM_PATH . DS . 'pages' . DS . $this->lang . DS . 'error.php');
-		$page = ob_get_contents();
+			if($this->Environment == 1)
+			{
+				include(SYSTEM_PATH . DS . 'pages' . DS . $this->lang . DS . 'error.php');
+			}
+			else
+			{
+				include(SYSTEM_PATH . DS . 'pages' . DS . $this->lang . DS . 'debug_error.php');
+			}
+			$page = ob_get_contents();
 		@ob_end_clean();
 		
+		// If we are debugging, build the debug block
+		if($this->Environment == 2)
+		{
+			// Create the regex, and search for it
+			$regex = "{DEBUG}(.*){/DEBUG}";
+			while(preg_match("~". $regex ."~iUs", $page, $match))
+			{
+				$blocks = ''; // Each block of backtrace will be added here
+				
+				// We dont need the first trace.
+				unset($this->ErrorTrace[0]);
+				$i = 1;
+				
+				// Make sure we have at least 1 backtrace!
+				if(count($this->ErrorTrace) > 0)
+				{
+					// Loop through each level and add it to the $blocks var.
+					foreach($this->ErrorTrace as $key => $value)
+					{
+						$block = $match[1];
+						$block = str_replace('{#}', $key++, $block);
+						
+						// Loop though each variable in the Trace level
+						foreach($value as $k => $v)
+						{	
+							// Upper case the key
+							$k = strtoupper($k);
+							
+							// If $v is an object, then go to next loop
+							if(is_object($v) OR is_resource($v)) continue;
+							
+							// If $v is an array, we need to dump it
+							if(is_array($v))
+							{
+								$v = "<pre>" . $this->var_dump($v, $k) . "</pre>";
+							}
+							$block = str_replace("{".$k."}", $v, $block);
+						}
+						
+						// Add to blocks
+						$blocks .= $block;
+						
+						// We only want to do this no more then 3 times
+						if($i == 2) { break; }
+						$i++;
+					}
+				}
+				
+				// Finally replace the whole thing with $blocks
+				$page = str_replace($match[0], $blocks, $page);
+			}
+		}
+		
 		// alittle parsing
-		$page = str_replace("{ERROR_LEVEL}", ucfirst(strtolower($this->ErrorLevel)), $page);
+		$page = str_replace("{ERROR_LEVEL}", $this->ErrorLevel, $page);
 		$page = str_replace("{MESSAGE}", $this->ErrorMessage, $page);
 		$page = str_replace("{FILE}", $this->ErrorFile, $page);
 		$page = str_replace("{LINE}", $this->ErrorLine, $page);
+		$page = preg_replace('~{(.*)}~', '', $page);
 		
 		// Spit the page out
 		eval('?>'.$page.'<?');		
@@ -137,15 +223,19 @@ class Error_Handler
 */	
 	function log_error()
 	{
-		// Check for a error file, determines our log message
-		if($this->ErrorFile != "")
-		{
-			$err_message = date('Y-m-d H:i:s')." -- ".$this->ErrorLevel . $this->ErrorMessage ." - File: ".$this->ErrorFile." on Line:".$this->ErrorLine."\n";
-		}
-		else
-		{
-			$err_message = date('Y-m-d H:i:s')." -- ". $this->ErrorLevel . $this->ErrorMessage ."\n";
-		}
+		// Setup the url and remove html breaks in the log file
+		$url = (isset($_GET['url'])) ? $_GET['url'] : '';
+		
+		// Create our log message
+		$err_message =  "| Logging started at: ". date('Y-m-d H:i:s') ."\n";
+		$err_message .= "| Error Level: ".$this->ErrorLevel ."\n";
+		$err_message .= "| Message: ".$this->ErrorMessage ."\n"; 
+		$err_message .= "| Reporting File: ".$this->ErrorFile."\n";
+		$err_message .= "| Error Line: ".$this->ErrorLine."\n";
+		$err_message .= "| URL When Error Occured: ".BASE_URL . $url ."\n\n";
+		$err_message .= "--------------------------------------------------------------------\n\n";
+
+		// Write in the log file, the very long message we made
 		$log = @fopen(SYSTEM_PATH . DS . 'logs' . DS . 'error.log', 'a');
 		@fwrite($log, $err_message);
 		@fclose($log);
@@ -153,13 +243,98 @@ class Error_Handler
 	
 /*
 | ---------------------------------------------------------------
-| Function: custom_error_handler()
+| Function: var_html_dump()
 | ---------------------------------------------------------------
 |
-| Php uses this error handle instead of the default one
+| Creates a nice looking dump of an array. Thanks to Highstrike
+| http://www.php.net/manual/en/function.var-dump.php#80288
 |
 */
-	public static function custom_error_handler($errno, $errstr, $errfile, $errline)
+
+	protected function var_dump($var, $var_name = NULL, $indent = NULL)
+	{	
+		// Init our empty html return
+		$html = '';
+		
+		// Create our indent style
+		$tab_line = "<span style='color:#eeeeee;'>|</span> &nbsp;&nbsp;&nbsp;&nbsp ";
+
+   
+		// Grab our variable type and get our text color
+		$type = ucfirst(get_type($var));
+		switch($type)
+		{
+			case "Array":
+				// Count our number of keys in the array
+				$count = count($var);
+				$html .= "$indent" . ($var_name ? "$var_name => ":"") . "<span style='color:#a2a2a2'>$type ($count)</span><br />$indent(<br />";
+				$keys = array_keys($var);
+				
+				// Foreach array key, we need to get the value.
+				foreach($keys as $name)
+				{
+					$value = $var[$name];
+					$html .= $this->var_dump($value, "['$name']", $indent.$tab_line);
+				}
+				$html .= "$indent)<br />";
+				break;
+				
+			case "String":
+				$type_color = "<span style='color:green'>";
+				$html .= "$indent$var_name = <span style='color:#a2a2a2'>$type(".strlen($var).")</span> $type_color\"$var\"</span><br />";
+				break;
+				
+			case "Integer":
+				$type_color = "<span style='color:red'>";
+				$html .= "$indent$var_name = <span style='color:#a2a2a2'>$type(".strlen($var).")</span> $type_color$var</span><br />";
+				break;
+				
+			case "Double":
+				$type_color = "<span style='color:red'>"; 
+				$type = "Float";
+				$html .= "$indent$var_name = <span style='color:#a2a2a2'>$type(".strlen($var).")</span> $type_color$var</span><br />";
+				break;
+				
+			case "Boolean":
+				$type_color = "<span style='color:blue'>";
+				$html .= "$indent$var_name = <span style='color:#a2a2a2'>$type(".strlen($var).")</span> $type_color".($var == 1 ? "TRUE":"FALSE")."</span><br />";
+				break;
+				
+			case "NULL":
+				$type_color = "<span style='color:black'>";
+				$html .= "$indent$var_name = <span style='color:#a2a2a2'>$type(".strlen($var).")</span> ".$type_color."NULL</span><br />";
+				break;
+				
+			case "Object":
+				$html .= "$indent$var_name <span style='color:#a2a2a2'>$type</span><br />$indent(<br />";
+				foreach($var as $name=>$value) $html .= $this->var_dump($value, "$name", $indent.$tab_line);
+				$html .= "$indent)<br />";
+				break;
+				
+			case "Resource":
+				$type_color = "<span style='color:black'>";
+				$html .= "$indent$var_name = <span style='color:#a2a2a2'>$type</span> ".$type_color."Resource</span><br />";
+				break;
+				
+			default:
+				$html .= "$indent$var_name = <span style='color:#a2a2a2'>$type(".@strlen($var).")</span> $var<br />";
+				break;
+		}
+	
+		// Return our variable dump :D
+		return $html;
+	}
+	
+/*
+| ---------------------------------------------------------------
+| Function: php_error_handler()
+| ---------------------------------------------------------------
+|
+| Php uses this error handle instead of the default one because
+| php calls this method statically
+|
+*/
+	public static function php_error_handler($errno, $errstr, $errfile, $errline)
 	{
 		if(!$errno) 
 		{
@@ -167,43 +342,11 @@ class Error_Handler
 			return;
 		}
 		
-		$self = self::singleton();
-
-		// Pass the error onto the internal trigger_error method
-		switch($errno) 
-		{
-			case E_USER_ERROR:
-				$self->trigger_error(3, $errstr, $errfile, $errline);
-				break;
-
-			case E_USER_WARNING:
-				$self->trigger_error(1, $errstr, $errfile, $errline);
-				break;
-				
-			case E_USER_NOTICE:
-				$self->trigger_error(0, $errstr, $errfile, $errline);
-				break;
-			
-			case E_ERROR:
-				$self->trigger_error(3, $errstr, $errfile, $errline);
-				break;
-				
-			case E_WARNING:
-				$self->trigger_error(1, $errstr, $errfile, $errline);
-				break;
-				
-			case E_NOTICE:
-				$self->trigger_error(0, $errstr, $errfile, $errline);
-				break;
-				
-			case E_STRICT:
-				$self->trigger_error(1, $errstr, $errfile, $errline);
-				break;
-
-			default:
-				$self->trigger_error(3, $errstr, $errfile, $errline);
-				break;
-		}
+		// Get singleton
+		$self = self::singleton();	
+		
+		// Trigger
+		$self->trigger_error($errno, $errstr, $errfile, $errline, debug_backtrace());
 
 		// Don't execute PHP internal error handler
 		return true;

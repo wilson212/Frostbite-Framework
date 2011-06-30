@@ -10,10 +10,13 @@ body
 	background-color: #f8f8f8;
 	margin-left: auto;
 	margin-right: auto;
-	border: 1px solid #000000;
+	border: 1px solid #111;
 	-moz-border-radius: 6px;
 	border-radius: 6px;
-	-webkit-border-radius: 6px; 
+	-webkit-border-radius: 6px;	
+	-moz-box-shadow: 0 0 5px 5px #888;
+	-webkit-box-shadow: 0 0 5px 5px#888;
+	box-shadow: 0 0 5px 5px #888;
 }
 div.error-header {
 	margin: 10px;
@@ -46,4 +49,18 @@ div.message {
 	margin:10px;
 	text-align: center;
 	font-size: 14px;
+}
+
+pre
+{
+	margin: 0px 0px 10px 0px; 
+	display: block; 
+	background: white; 
+	color: black; 
+	font-family: Verdana; 
+	border: 1px solid #cccccc; 
+	padding: 5px; 
+	font-size: 11px; 
+	line-height: 14px;
+	overflow:auto;
 }

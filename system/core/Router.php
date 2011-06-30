@@ -74,13 +74,13 @@ class Router
 		// Make sure the first character of the controller is not an _ !
 		if( strncmp($controller, '_', 1) == 0 || strncmp($action, '_', 1) == 0 )
 		{
-			show_error(404);
+			show_404();
 		}
 		
 		// DO a controller check, make sure it exists. If not, then we have a 404
 		if(!$this->controller_exists($controller))
 		{
-			show_error(404);
+			show_404();
 		}
 		
 		// Set static Variables

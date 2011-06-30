@@ -2,14 +2,16 @@
 /* 
 | --------------------------------------------------------------
 | 
-| SimpleCMS
+| Frostbite Framework
 |
 | --------------------------------------------------------------
 |
 | Author: 		Steven Wilson
-| Copyright:	Copyright (c) 2011, ArchWeb Dev Team
+| Copyright:	Copyright (c) 2011, Steven Wilson
 | License: 		GNU GPL v3
 |
+| * You are authorized to change or remove this comment box only
+|	in the index.php file.
 */
 
 // Default Constants
@@ -34,9 +36,11 @@ require (SYSTEM_PATH . DS . 'core' . DS . 'Registry.php');
 
 // Initiate the system start time
 Benchmark::startTimer('system');
+
+// show_error('test', false, E_ERROR);
  
-// Register the Core to process errors with the custom_error_handler method
-set_error_handler( array( 'System\\Core\\Error_Handler', 'custom_error_handler' ), E_ALL );
+// Register the Core to process errors with the custom_error_handler method 
+set_error_handler( array( 'System\\Core\\Error_Handler', 'php_error_handler' ), E_ALL | E_STRICT );
 
 // Initiate the framework and let it do the rest ;)
 $Frostbite = load_class('Core\\Frostbite');

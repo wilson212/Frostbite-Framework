@@ -140,7 +140,14 @@ class Controller
 |
 */	
 	function output($data = array()) 
-	{	
+	{		
+		// Make sure our data is in an array format
+		if(!is_array($data))
+		{
+			show_error('non_array', array('data', 'Controller::output'));
+			$data = array();
+		}
+		
 		// Add the passed variables to the template variables list
 		if(count($data) > 0)
 		{

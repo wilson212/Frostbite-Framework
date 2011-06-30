@@ -60,7 +60,7 @@ class Frostbite
 			}
 			else
 			{
-				show_error(404);
+				show_404();
 			}
 		}
 		else
@@ -72,7 +72,7 @@ class Frostbite
 			}
 			else
 			{
-				show_error(404);
+				show_404();
 			}
 		}
 		
@@ -101,7 +101,7 @@ class Frostbite
 		else 
 		{
 			// If the method didnt exist, then we have a 404
-			show_error(404);
+			show_404();
 		}
 	}
 	

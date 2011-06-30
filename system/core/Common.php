@@ -6,12 +6,12 @@
 |
 | This function is used to simplify the showing of errors
 |
-| @Param: $lvl - Level of the error
 | @Param: $err_message - Error message code
-| @Param: $args - An array for vsprintf to replace in the message
+| @Param: $args - An array for vsprintf to replace in the 
+| @Param: $lvl - Level of the error
 |
 */	
-	function show_error($lvl, $err_message = 'none', $args = NULL)
+	function show_error($err_message = 'none', $args = NULL, $lvl = E_ERROR)
 	{
 		// Let get a backtrace for deep debugging
 		$backtrace = debug_backtrace();
@@ -20,7 +20,7 @@
 		// Load language
 		$lang = load_class('Core.Language');
 		$lang->set_language( config('core_language', 'Core') );
-		$lang->load('errors');
+		$lang->load('core_errors');
 		$message = $lang->get($err_message);
 		
 		// Allow custom messages
@@ -38,6 +38,21 @@
 		// Init and spit the error
 		$E = new \System\Core\Error_Handler();
 		$E->trigger_error($lvl, $message, $calling['file'], $calling['line'], $backtrace);
+	}
+	
+/*
+| ---------------------------------------------------------------
+| Function: show_404()
+| ---------------------------------------------------------------
+|
+| Displays the 404 Page
+|
+*/	
+	function show_404()
+	{		
+		// Init and spit the error
+		$E = new \System\Core\Error_Handler();
+		$E->trigger_error(404);
 	}
 	
 /*
@@ -70,7 +85,7 @@ function __autoload($className)
 	}
 	
 	// If we are at this point, then we didnt find the class file.
-	show_error(3, 'Autoload failed to load class: '. $className, __FILE__, __LINE__);
+	show_error('autoload_failed', array( addslashes($className) ), E_ERROR);
 }
 
 
@@ -189,6 +204,30 @@ function load_module_config($module, $filename = 'config.php')
 	function get_instance()
 	{
 		return System\Core\Controller::get_instance();
+	}
+	
+/*
+| ---------------------------------------------------------------
+| Function: get_type()
+| ---------------------------------------------------------------
+|
+| Since the built in php gettype() method is really slow and php
+| even says not to use it, we will creat our own cool little gettype()
+| method thats even alittle faster.
+|
+*/
+	function get_type($var)
+	{
+		if (is_array($var)) 	return "array";
+		if (is_string($var)) 	return "string";
+		if (is_bool($var)) 		return "boolean";
+		if (is_int($var)) 		return "integer";
+		if (is_null($var)) 		return "NULL";
+		if (is_numeric($var)) 	return "numeric";
+		if (is_float($var)) 	return "float";
+		if (is_object($var)) 	return "object";
+		if (is_resource($var)) 	return "resource";
+		return FALSE;
 	}
 
 /*

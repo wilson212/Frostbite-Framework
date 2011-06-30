@@ -33,8 +33,22 @@ class Output
 |
 */
 
-	function send($page) 
+	function send($page, $data = array()) 
 	{
+		// Make sure our data is in an array format
+		if(!is_array($data))
+		{
+			show_error('non_array', array('data', 'Output::send'), E_ERROR);
+			$data = array();
+		}
+		
+		// extract variables
+		if(count($data) > 0)
+		{
+			extract($data);
+		}
+		
+		// Spit out the page
 		eval('?>'.$page.'<?');
 	}
 }
