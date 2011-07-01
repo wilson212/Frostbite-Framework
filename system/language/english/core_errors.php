@@ -1,8 +1,10 @@
 <?php
 return array(
 	'autoload_failed' => "Autoload failed to load class: %s",
+	'benchmark_key_not_found' => "Benchmark key \"%s\" does not exists. You must start timer timer before displaying it.",
 	'db_connect_error' => "Cant connect to %s using port %s!",
 	'db_empty_query' => "Query was empty. Please build a query before calling the 'query' method!",
+	'db_key_not_found' => "Database connection info for key \"%s\" not found in the database configuration file.",
 	'db_select_error' => "Cant connect to database: %s",
 	'missing_page_view' => "Template engine was unable to locate the view file for this page. Please make sure a view page is created and is correctly named.",
 	'none' => 'No Message Specifed',

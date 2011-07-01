@@ -25,12 +25,12 @@ class Benchmark
 |
 | Starts a new timer
 |
-| @Param: $key - Name of this start time
+| @Param: (String) $key - Name of this start time
 |
 */
     public static function startTimer($key)
 	{
-		self::$start[$key] = microtime(1);
+		self::$start[$key] = microtime(true);
 	}
 
 /*
@@ -40,12 +40,12 @@ class Benchmark
 |
 | Stops a defined timer
 |
-| @Param: $key - Name of this timer to be stopped
+| @Param: (String) $key - Name of this timer to be stopped
 |
 */
-    private static function stopTimer($key)
+    public static function stopTimer($key)
 	{
-		self::$stop[$key] = microtime(1);
+		self::$stop[$key] = microtime(true);
 	}
 
 /*
@@ -55,20 +55,27 @@ class Benchmark
 |
 | Displays the final time from start to finish
 |
+| @Param: (String) $key - Name of this timer to be shown
+| @Param: (Int) $round - How many numbers after the "." do we show?
+| @Param: (Bool) $stop - Stop the timer as well?
+| @Return: (Float) - The time it took from start to finish. FALSE
+|	if no timer was set in the first place.
+|
 */
-    public static function showTimer($key, $round = 3)
+    public static function showTimer($key, $round = 3, $stop = FALSE)
 	{
-		if(count(self::$start[$key]) == 0)
+		if(!isset(self::$start[$key]))
 		{
-			show_error(1, 'Before displaying a timer, You need to start it first!');
+			show_error('benchmark_key_not_found', false, E_WARNING);
+			return FALSE;
 		}
 		else
 		{
-			if(!isset(self::$stop[$key]))
+			if(!isset(self::$stop[$key]) && $stop == TRUE)
 			{
-				self::$stop[$key] = microtime(1);
+				self::$stop[$key] = microtime(true);
 			}
-			return round( (self::$stop[$key] - self::$start[$key]), $round);
+			return round( (microtime(true) - self::$start[$key]), $round );
 		}
 	}
     

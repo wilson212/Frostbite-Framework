@@ -49,17 +49,15 @@ class Loader
 		{
 			require(APP_PATH . DS . 'models' . DS . $name .'.php');
 		}
-		
-		// instance it in the controller
-		$FB = get_instance();
-		
+
+		// Instnace the Model in the controller
 		if($instance_as !== NULL)
 		{
-			$FB->$instance_as = new $class();
+			get_instance()->$instance_as = new $class();
 		}
 		else
 		{
-			$FB->$name = new $class();
+			get_instance()->$name = new $class();
 		}
 	}
 	
@@ -97,8 +95,7 @@ class Loader
 		if($instance == TRUE) // && ( class_exists('\\System\\Core\\Controller') || class_exists('\\Application\\Core\\Controller') ))
 		{
 			$name = strtolower($name);
-			$FB = get_instance();
-			$FB->$name = $class;
+			get_instance()->$name = $class;
 		}
 		return $class;
 	}
@@ -116,25 +113,21 @@ class Loader
 |	in the controller, set to TRUE.
 |
 */	
-	function database($args = 0, $instance = FALSE)
+	function database($args, $instance = FALSE)
 	{
-		$Config = load_class("Core\\Config");
-		
-		// Check to see if our connection Id is numeric
-		if(is_numeric($args))
-		{
-			$args = $this->_get_db_key();
-		}
-		
 		// Check our registry to see if we already loaded this connection
-		$Obj = \Registry::singleton();
-		if($Obj->load("DBC_".$args) != NULL)
+		$Obj = \Registry::singleton()->load("DBC_".$args);
+		if($Obj != NULL)
 		{
-			return $Obj->load("DBC_".$args);
+			return $Obj;
 		}
 		
 		// Get the DB connection information
 		$info = config($args, 'DB');
+		if($info === NULL)
+		{
+			show_error('db_key_not_found', array($args), E_ERROR);
+		}
 		$info['driver'] = ucfirst($info['driver']."_driver");
 		
 		// Check for a DB class in the Application, and system core folder
@@ -166,15 +159,16 @@ class Loader
 			{
 				$instance = $args;
 			}
-			$FB = get_instance();
-			$FB->$instance = $DB;
+			
+			// Easy way to instance the connection is like this
+			get_instance()->$instance = $DB;
 		}
 		
 		// Store the connection in the registry
-		$Obj->store("DBC_".$args, $DB);
+		\Registry::singleton()->store("DBC_".$args, $DB);
 		
 		// Return the object!
-		return $Obj->load("DBC_".$args);
+		return \Registry::singleton()->load("DBC_".$args);
 	}
 	
 /*
@@ -201,22 +195,6 @@ class Loader
 		{
 			require_once(SYSTEM_PATH . DS .  'helpers' . DS . $name . '.php');
 		}
-	}
-	
-/*
-| ---------------------------------------------------------------
-| Method: _get_db_key()
-| ---------------------------------------------------------------
-|
-| This method returns the correct key identifier for database 0
-|
-*/
-	function _get_db_key()
-	{		
-		include(APP_PATH . DS .  'config' . DS . 'database.config.php');
-		$keys = array_keys($DB_configs);
-
-		return $keys[0];
 	}
 }
 // EOF

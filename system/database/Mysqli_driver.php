@@ -65,8 +65,7 @@ class Mysqli_driver
 		$this->database = $name;
 		
 		// Connection time
-		$this->connect();
-		
+		$this->connect();		
 		return TRUE;
     }
 	
@@ -99,6 +98,8 @@ class Mysqli_driver
 | ---------------------------------------------------------------
 |
 | Selects a database in the current connection
+|
+| @Param: (String) $name - The database name
 |
 */
     public function select_db($name)
@@ -262,8 +263,97 @@ class Mysqli_driver
 */
     public function fetch_result($result = 0)
     {		
-		return $this->result->data_seek($result);
+		$res = $this->result->fetch_row();
+		($res !== FALSE) ? $res = $res[$result] : '';
+		return $res;
     }
+	
+/*
+| ---------------------------------------------------------------
+| Function: insert()
+| ---------------------------------------------------------------
+|
+| An easy method that will insert data into a table
+|
+| @Param: (String) $table - The table name we are inserting into
+| @Param: (String) $data - An array of "column => value"'s
+| @Return: (Bool) Returns TRUE on success of FALSE on error
+|
+*/
+	public function insert($table, $data)
+	{
+		// enclose the column names in grave accents
+        $cols = '`' . implode('`,`', array_keys($data)) . '`';
+
+        // question marks for escaping values later on
+        $values = rtrim(str_repeat('?,', count($data)), ',');
+
+        // run the query
+        $this->mysqli->query('INSERT INTO ' . $table . '(' . $cols . ') VALUES (' . $values . ')', array_values($data));
+
+		// Return TRUE or FALSE
+        return $this->result;
+	}
+	
+/*
+| ---------------------------------------------------------------
+| Function: update()
+| ---------------------------------------------------------------
+|
+| An easy method that will update data in a table
+|
+| @Param: (String) $table - The table name we are inserting into
+| @Param: (Array) $data - An array of "column => value"'s
+| @Param: (String) $where - The where statement Ex: "id = 5"
+| @Return: (Bool) Returns TRUE on success of FALSE on error
+|
+*/	
+	function update($table, $data, $where = '')
+    {
+		// Our string of columns
+        $cols = '';
+
+        // start creating the SQL string and enclose field names in `
+        foreach($data as $key => $value) 
+		{
+			if(is_numeric($value))
+			{
+				$cols .= ', `' . $key . '` = '.$value.'';
+				continue;
+			}
+			$cols .= ', `' . $key . '` = \''.$value.'\'';
+        }
+		
+		// Trim the first comma, dont worry. ltrim is really quick :)
+		$cols = ltrim($cols, ', ');
+
+        // run the query
+        $this->mysqli->query('UPDATE ' . $table . ' SET ' . $cols . ($where != '' ? ' WHERE ' . $where : ''));
+		
+		// Return TRUE or FALSE
+        return $this->result;
+    }
+	
+/*
+| ---------------------------------------------------------------
+| Function: delete()
+| ---------------------------------------------------------------
+|
+| An easy method that will delete data from a table
+|
+| @Param: (String) $table - The table name we are inserting into
+| @Param: (String) $where - The where statement Ex: "id = 5"
+| @Return: (Bool) Returns TRUE on success of FALSE on error
+|
+*/
+	public function delete($table, $where = '')
+	{
+        // run the query
+        $this->mysqli->query('DELETE FROM ' . $table . ($where != '' ? ' WHERE ' . $where : ''));
+
+		// Return TRUE or FALSE
+        return $this->result;
+	}
 	
 /*
 | ---------------------------------------------------------------

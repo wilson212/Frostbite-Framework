@@ -11,15 +11,17 @@
 | License: 		GNU GPL v3
 |
 */
+namespace System\Library;
 
 class Session
 {
 	static $started = FALSE;
-	private $data;
+	public $data;
 	private $session_use_db;
 	private $session_db_id;
 	private $session_table_name;
 	private $DB;
+	private $QB;
 
 /*
 | ---------------------------------------------------------------
@@ -27,9 +29,7 @@ class Session
 | ---------------------------------------------------------------
 */	
 	function __construct()
-	{
-		$this->DB = FALSE;
-		
+	{		
 		// start the session
 		$this->start_session();
 		
@@ -50,6 +50,7 @@ class Session
 		if($this->session_use_db == TRUE)
 		{
 			$this->DB = $this->load->database( $this->session_db_id );
+			$this->QB = $this->load->library('Querybuilder');
 		}
 		
 		// Check for session data. If there is none, create it.
@@ -116,8 +117,8 @@ class Session
 			if($this->session_use_db == TRUE)
 			{				
 				// Get the database result
-				$this->DB->select('*')->from( $this->session_table_name )->where('token', $cookie['token'])->query();
-				$Get = $this->DB->result();
+				$this->QB->select('*')->from( $this->session_table_name )->where('token', $cookie['token']);
+				$Get = $this->DB->query( $this->QB->sql )->fetch_array();
 				
 				if($Get !== FALSE)
 				{
@@ -205,7 +206,7 @@ class Session
 		// Cant have an empty ID
 		if($id === NULL && $this->session_use_db == FALSE)
 		{
-			show_error(1, 'You need to set some information to be stored in the cookie, before saving a session.', __FILE__, __LINE__);
+			show_error('You need to set some information to be stored in the cookie, before saving a session.', false, E_WARNING);
 		}
 		
 		// If we arent storing session Data in the DB, then we set a cookie only
@@ -235,8 +236,8 @@ class Session
 			$this->input->set_cookie( $this->session_cookie_name, $cookie_data );
 		
 			// check to see if we already have this session token saved
-			$this->DB->select('*')->from( $this->session_table_name )->where('token', $this->data['token'])->query();
-			$Get = $this->DB->result();
+			$this->QB->select('*')->from( $this->session_table_name )->where('token', $this->data['token']);
+			$Get = $this->query( $this->QB->sql )->fetch_array();
 			
 			// No session exists, insert new data
 			if($Get == FALSE)
@@ -249,7 +250,7 @@ class Session
 					'last_seen' => time(),
 					'user_data' => $ID
 				);
-				$this->DB->insert( $this->session_table_name, $data )->query();
+				$this->DB->insert( $this->session_table_name, $data );
 			}
 			
 			// Session data does exists for this token, so update.
@@ -285,7 +286,7 @@ class Session
 		if($this->session_use_db == TRUE)
 		{			
 			// Delete data
-			$this->DB->delete_from( $this->session_table_name )->where('token', $this->data['token'])->query();
+			$this->DB->delete( $this->session_table_name, 'token = '. $this->data['token']);
 		}
 		
 		// We must manually expire the cookie time
@@ -387,10 +388,12 @@ class Session
 			// Update data
 			$ID = serialize( $this->data );
 			
-			$this->DB
-				->update($this->session_table_name, array( 'last_seen' => time(), 'user_data' => $ID ))
-				->where('token', $this->data['token'])
-				->query();
+			// Prep data
+			$table = $this->session_table_name;
+			$data = array( 'last_seen' => time(), 'user_data' => $ID );
+			$where = 'token = '.$this->data['token'].'';
+	
+			return $this->DB->update( $table, $data, $where );
 		}
 		return TRUE;
 	}

@@ -11,8 +11,9 @@
 | License: 		GNU GPL v3
 |
 */
+namespace System\Core;
 
-class FB_Input
+class Input
 {
 
 	var $time;
@@ -42,9 +43,6 @@ class FB_Input
 		$this->time = ( time() + (60 * 60 * 24 * 365) );
 		$this->cookie_path =  "/";
 		$this->cookie_domain = $_SERVER['HTTP_HOST'];
-		
-		// This is truely not needed!
-		$_GET = array();
 	}
    
 
@@ -175,7 +173,7 @@ class FB_Input
 	
 /*
 | ---------------------------------------------------------------
-| Method: is_clean()
+| Method: validate()
 | ---------------------------------------------------------------
 |
 | Returns TRUE if the given string is clean of xss, FALSE otherwise
@@ -184,7 +182,7 @@ class FB_Input
 | @Param: $type - BASIC, DATE, or EMAIL
 |
 */	
-	function is_clean($txt, $type)
+	function validate($txt, $type = 'basic')
 	{
 		//clear of bad input
 		$validation = htmlentities($txt);
