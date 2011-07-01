@@ -28,7 +28,7 @@ class Benchmark
 | @Param: (String) $key - Name of this start time
 |
 */
-    public static function startTimer($key)
+	public static function startTimer($key)
 	{
 		self::$start[$key] = microtime(true);
 	}
@@ -43,7 +43,7 @@ class Benchmark
 | @Param: (String) $key - Name of this timer to be stopped
 |
 */
-    public static function stopTimer($key)
+	public static function stopTimer($key)
 	{
 		self::$stop[$key] = microtime(true);
 	}

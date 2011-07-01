@@ -283,16 +283,16 @@ class Mysqli_driver
 	public function insert($table, $data)
 	{
 		// enclose the column names in grave accents
-        $cols = '`' . implode('`,`', array_keys($data)) . '`';
+		$cols = '`' . implode('`,`', array_keys($data)) . '`';
 
-        // question marks for escaping values later on
-        $values = rtrim(str_repeat('?,', count($data)), ',');
+		// question marks for escaping values later on
+		$values = rtrim(str_repeat('?,', count($data)), ',');
 
-        // run the query
-        $this->mysqli->query('INSERT INTO ' . $table . '(' . $cols . ') VALUES (' . $values . ')', array_values($data));
+		// run the query
+		$this->mysqli->query('INSERT INTO ' . $table . '(' . $cols . ') VALUES (' . $values . ')', array_values($data));
 
 		// Return TRUE or FALSE
-        return $this->result;
+		return $this->result;
 	}
 	
 /*
@@ -311,10 +311,10 @@ class Mysqli_driver
 	function update($table, $data, $where = '')
     {
 		// Our string of columns
-        $cols = '';
+		$cols = '';
 
-        // start creating the SQL string and enclose field names in `
-        foreach($data as $key => $value) 
+		// start creating the SQL string and enclose field names in `
+		foreach($data as $key => $value) 
 		{
 			if(is_numeric($value))
 			{
@@ -322,16 +322,16 @@ class Mysqli_driver
 				continue;
 			}
 			$cols .= ', `' . $key . '` = \''.$value.'\'';
-        }
-		
+		}
+
 		// Trim the first comma, dont worry. ltrim is really quick :)
 		$cols = ltrim($cols, ', ');
 
-        // run the query
-        $this->mysqli->query('UPDATE ' . $table . ' SET ' . $cols . ($where != '' ? ' WHERE ' . $where : ''));
-		
+		// run the query
+		$this->mysqli->query('UPDATE ' . $table . ' SET ' . $cols . ($where != '' ? ' WHERE ' . $where : ''));
+
 		// Return TRUE or FALSE
-        return $this->result;
+		return $this->result;
     }
 	
 /*
@@ -348,11 +348,11 @@ class Mysqli_driver
 */
 	public function delete($table, $where = '')
 	{
-        // run the query
-        $this->mysqli->query('DELETE FROM ' . $table . ($where != '' ? ' WHERE ' . $where : ''));
+		// run the query
+		$this->mysqli->query('DELETE FROM ' . $table . ($where != '' ? ' WHERE ' . $where : ''));
 
 		// Return TRUE or FALSE
-        return $this->result;
+		return $this->result;
 	}
 	
 /*
