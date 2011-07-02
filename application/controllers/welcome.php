@@ -28,7 +28,9 @@ class Welcome extends System\Core\Controller
 		*/
 		$data = $this->welcome_model->return_default_array();
 		$data['key'] = array( 0 => array( 'name' => 'steve' ), 1 => array( 'name' => 'bob' ), 2 => array( 'name' => 'david' ));
-		$this->output($data);
+		
+		// Load the page, and we are done :)
+		$this->load->view('index', $data);
 	}
 
 	function _afterAction() 

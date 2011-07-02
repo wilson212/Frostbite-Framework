@@ -64,6 +64,55 @@ class Loader
 	
 /*
 | ---------------------------------------------------------------
+| Method: view()
+| ---------------------------------------------------------------
+|
+| This method is used to load the view file and display it
+|
+| @Param: (String) $name - The name of the controllers view file
+| @Param: (Array) $data - an array of variables to be extracted
+| @Param: (Bool) $return - Return the page instead of echo it?
+|
+*/
+	function view($name, $data, $return = FALSE)
+	{		
+		// Make sure our data is in an array format
+		if(!is_array($data))
+		{
+			show_error('non_array', array('data', 'Loader::view'), E_WARNING);
+			$data = array();
+		}
+
+		// extract variables
+		extract($data);
+
+		// Figure out our file path
+		if($GLOBALS['is_module'] == TRUE)
+		{
+			$file = APP_PATH . DS . 'modules' . DS . $GLOBALS['controller'] . DS . 'views' . DS . $name . '.php';
+		}
+		else
+		{
+			$file = APP_PATH . DS . 'views' . DS . $GLOBALS['controller'] . DS . $name . '.php';		 
+		}
+
+		// Get our page contents
+		ob_start();
+		include($file);
+		$page = ob_get_contents();
+		ob_end_clean();
+		
+		// Replace some Global values
+		$page = str_replace('{PAGE_LOAD_TIME}', \Benchmark::showTimer('system', 4), $page);
+		$page = str_replace('{MEMORY_USAGE}', \Benchmark::memory_usage(), $page);
+
+		// Spit out the page
+		if($return == FALSE) echo $page;
+		return $page;
+	}
+	
+/*
+| ---------------------------------------------------------------
 | Method: library()
 | ---------------------------------------------------------------
 |
@@ -94,9 +143,9 @@ class Loader
 		$class = load_class($full_name);
 		
 		// Do we instance this class?
-		if($instance == TRUE && ( class_exists('\\System\\Core\\Controller') || class_exists('\\Application\\Core\\Controller') ))
+		if($instance == TRUE)
 		{
-			$name = strtolower($name);
+			$name = str_replace('Library\\', '', strtolower($name));
 			get_instance()->$name = $class;
 		}
 		return $class;
@@ -122,6 +171,8 @@ class Loader
 		$Obj = \Registry::singleton()->load("DBC_".$args);
 		if($Obj != NULL)
 		{
+			// Skip to the instancing 
+			if($instance != FALSE) goto Instance;
 			return $Obj;
 		}
 		
@@ -149,7 +200,7 @@ class Loader
 		
 		// Not in the registry, so istablish a new connection
 		$dispatch = $first ."Database\\".$info['driver'];
-		$DB = new $dispatch(
+		$Obj = new $dispatch(
 			$info['host'],
 			$info['port'],
 			$info['username'],
@@ -157,20 +208,24 @@ class Loader
 			$info['database']
 		);
 		
-		// If user wants to instance this, then we do that
-		if($instance != FALSE && (!is_numeric($args)))
-		{
-			if($instance === TRUE)
-			{
-				$instance = $args;
-			}
-			
-			// Easy way to instance the connection is like this
-			get_instance()->$instance = $DB;
-		}
-		
 		// Store the connection in the registry
-		\Registry::singleton()->store("DBC_".$args, $DB);
+		\Registry::singleton()->store("DBC_".$args, $Obj);		
+		
+		// Here is our instance goto
+		Instance: 
+		{
+			// If user wants to instance this, then we do that
+			if($instance != FALSE && (!is_numeric($args)))
+			{
+				if($instance === TRUE)
+				{
+					$instance = $args;
+				}
+				
+				// Easy way to instance the connection is like this
+				get_instance()->$instance = $Obj;
+			}
+		}
 		
 		// Return the object!
 		return \Registry::singleton()->load("DBC_".$args);

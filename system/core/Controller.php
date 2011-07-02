@@ -22,9 +22,13 @@ namespace System\Core;
 
 class Controller
 {
-	
+	// Our controller name
 	public $_controller;
+	
+	// Our action (sub page)
 	public $_action;
+	
+	// The instance of this class
 	private static $instance;
 
 
@@ -42,11 +46,6 @@ class Controller
 	{		
 		// Set the instance here
 		self::$instance = $this;
-		
-		// Defaults
-		$this->_controller = $GLOBALS['controller'];
-		$this->_action = $GLOBALS['action'];
-		$this->_is_module = $GLOBALS['is_module'];
 		
 		// Initiate the loader
 		$this->load = load_class('Core\\Loader');
@@ -92,9 +91,6 @@ class Controller
 		{
 			load_module_config($GLOBALS['controller']);
 		}
-		
-		// Default Template Init.
-		$this->output = load_class('Core\\Output');
 	}
 	
 /*
@@ -103,6 +99,8 @@ class Controller
 | ---------------------------------------------------------------
 |
 | Gateway to adding this controller class to an outside file
+|
+| @Return: (Object) Returns the instance of this class
 |
 */	
 	public static function get_instance()
@@ -130,67 +128,5 @@ class Controller
 */	
 	function _afterAction() {}
 	
-
-/*
-| ---------------------------------------------------------------
-| Function: output()
-| ---------------------------------------------------------------
-|
-| A convenient way to output the screen.
-|
-*/	
-	function output($data = array()) 
-	{		
-		// Make sure our data is in an array format
-		if(!is_array($data))
-		{
-			show_error('non_array', array('data', 'Controller::output'));
-			$data = array();
-		}
-		
-		// Add the passed variables to the template variables list
-		if(count($data) > 0)
-		{
-			foreach($data as $key => $value)
-			{
-				$this->variables[$key] = $value;
-			}
-		}
-		
-		// Extract the variables so $this->variables[ $var ]
-		// becomes just " $var "
-		@extract($this->variables);
-		
-		// Start output bffering
-		ob_start();
-
-		// Load the view (Temp... Will actually be alittle more dynamic then this)
-		if($this->_is_module == TRUE)
-		{
-			if(file_exists(APP_PATH . DS . 'modules' . DS . $this->_controller . DS . 'views' . DS . $this->_action . '.php')) 
-			{
-				include(APP_PATH . DS . 'modules' . DS . $this->_controller . DS . 'views' . DS . $this->_action . '.php');		 
-			}
-		}
-		else
-		{
-			if(file_exists(APP_PATH . DS . 'views' . DS . $this->_controller . DS . $this->_action . '.php')) 
-			{
-				include(APP_PATH . DS . 'views' . DS . $this->_controller . DS . $this->_action . '.php');		 
-			}
-		}
-		
-		// End output buffering
-		$page = ob_get_contents();
-		@ob_end_clean();
-		
-		// Replace some Global values
-		$page = str_replace('{PAGE_LOAD_TIME}', \Benchmark::showTimer('system', 4), $page);
-		$page = str_replace('{MEMORY_USAGE}', \Benchmark::memory_usage(), $page);
-		
-		// Send to the Template parser
-		$this->output = load_class('Core\\Output');
-		$this->output->send($page);
-	}	
 }
 // EOF

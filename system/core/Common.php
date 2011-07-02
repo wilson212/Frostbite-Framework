@@ -235,6 +235,12 @@ function load_class($className)
 		$className = str_replace('.', '\\', $className);
 	}
 	
+	// Now we need to make sure the user supplied some sort of path
+	if(!strpos($className, '\\'))
+	{
+		show_error('autoload_failed', array( addslashes($className) ), E_ERROR);
+	}
+	
 	// Inititate the Registry singleton into a variable
 	$Obj = Registry::singleton();
 
@@ -320,13 +326,15 @@ function redirect($url, $wait = 0)
 	{
 		$url = BASE_URL . $url;
 	}
-	
+
 	// Check for refresh or straight redirect
-	if($wait > 0)
+	if($wait >= 1)
 	{
 		header("Refresh:". $wait .";url=". $url);
-		return;
 	}
-	header("Location: ".$url);
+	else
+	{
+		header("Location: ".$url);
+	}
 }
 // EOF
