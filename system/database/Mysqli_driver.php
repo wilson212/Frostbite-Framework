@@ -284,12 +284,24 @@ class Mysqli_driver
 	{
 		// enclose the column names in grave accents
 		$cols = '`' . implode('`,`', array_keys($data)) . '`';
+		$values = '';
 
 		// question marks for escaping values later on
-		$values = rtrim(str_repeat('?,', count($data)), ',');
+		foreach(array_values($data) as $value)
+		{
+			if(is_numeric($value))
+			{
+				$values .= $value .", ";
+				continue;
+			}
+			$values .= "'".$value ."', ";
+		}
+		
+		// Remove the last comma
+		$values = rtrim($values, ', ');
 
 		// run the query
-		$this->mysqli->query('INSERT INTO ' . $table . '(' . $cols . ') VALUES (' . $values . ')', array_values($data));
+		$this->query('INSERT INTO ' . $table . '(' . $cols . ') VALUES (' . $values . ')');
 
 		// Return TRUE or FALSE
 		return $this->result;
@@ -312,13 +324,16 @@ class Mysqli_driver
     {
 		// Our string of columns
 		$cols = '';
+		
+		// Do we have a where tp process?
+		($where != '') ? $where = ' WHERE ' . $where : '';
 
 		// start creating the SQL string and enclose field names in `
 		foreach($data as $key => $value) 
 		{
 			if(is_numeric($value))
 			{
-				$cols .= ', `' . $key . '` = '.$value.'';
+				$cols .= ', `' . $key . '` = '. $value;
 				continue;
 			}
 			$cols .= ', `' . $key . '` = \''.$value.'\'';
@@ -328,7 +343,7 @@ class Mysqli_driver
 		$cols = ltrim($cols, ', ');
 
 		// run the query
-		$this->mysqli->query('UPDATE ' . $table . ' SET ' . $cols . ($where != '' ? ' WHERE ' . $where : ''));
+		$this->query('UPDATE ' . $table . ' SET ' . $cols . $where);
 
 		// Return TRUE or FALSE
 		return $this->result;
@@ -349,7 +364,7 @@ class Mysqli_driver
 	public function delete($table, $where = '')
 	{
 		// run the query
-		$this->mysqli->query('DELETE FROM ' . $table . ($where != '' ? ' WHERE ' . $where : ''));
+		$this->query('DELETE FROM ' . $table . ($where != '' ? ' WHERE ' . $where : ''));
 
 		// Return TRUE or FALSE
 		return $this->result;
@@ -438,10 +453,10 @@ class Mysqli_driver
 
 	function trigger_error() 
 	{
-		$query = $temp['query'] = end($this->queries);
+		$query = end($this->queries);
 		$msg  = $this->mysqli->error . "<br /><br />";
-		$msg .= "<b>MySql Error No:</b> ". $this->mysql->errno ."<br />";
-		$msg .= '<b>Query String:</b> ' . $query;
+		$msg .= "<b>MySql Error No:</b> ". $this->mysqli->errno ."<br />";
+		$msg .= '<b>Query String:</b> ' . $query['query'];
 		show_error($msg, false, E_ERROR);
 	}
 }

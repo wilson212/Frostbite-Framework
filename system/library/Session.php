@@ -40,17 +40,17 @@ class Session
 		$this->session_cookie_name = config('session_cookie_name', 'Core');
 		
 		// Init the loader class
-		$this->load = load_class('Loader');
+		$this->load = load_class('Core\\Loader');
 		
 		// load the Input and cookie class
-		$this->input = load_class('Input');
+		$this->input = load_class('Core\\Input');
 		
 		// Are we storing session data in the database?
 		// If so then load the DB
 		if($this->session_use_db == TRUE)
 		{
 			$this->DB = $this->load->database( $this->session_db_id );
-			$this->QB = $this->load->library('Querybuilder');
+			$this->QB = $this->load->library('Querybuilder', FALSE);
 		}
 		
 		// Check for session data. If there is none, create it.
@@ -140,17 +140,12 @@ class Session
 						$this->data['token'] = $Get['token'];
 						$Get['user_data'] = unserialize( $Get['user_data'] );
 						
-						if(count($Get['user_data'] > 1))
+						if(count($Get['user_data'] > 0))
 						{
 							foreach($Get['user_data'] as $key => $value)
 							{
 								$this->set($key, $value);
 							}
-						}
-						elseif(count($Get['user_data']) == 1)
-						{
-							$key = key( $Get['user_data'][0] );
-							$this->set( $key, $Get['user_data'][$key] );
 						}
 						
 						return TRUE;
@@ -237,7 +232,7 @@ class Session
 		
 			// check to see if we already have this session token saved
 			$this->QB->select('*')->from( $this->session_table_name )->where('token', $this->data['token']);
-			$Get = $this->query( $this->QB->sql )->fetch_array();
+			$Get = $this->DB->query( $this->QB->sql )->fetch_array();
 			
 			// No session exists, insert new data
 			if($Get == FALSE)
@@ -286,7 +281,7 @@ class Session
 		if($this->session_use_db == TRUE)
 		{			
 			// Delete data
-			$this->DB->delete( $this->session_table_name, 'token = '. $this->data['token']);
+			$this->DB->delete( $this->session_table_name, '`token` = \''. $this->data['token'] .'\'');
 		}
 		
 		// We must manually expire the cookie time
@@ -391,7 +386,7 @@ class Session
 			// Prep data
 			$table = $this->session_table_name;
 			$data = array( 'last_seen' => time(), 'user_data' => $ID );
-			$where = 'token = '.$this->data['token'].'';
+			$where = '`token` = \''.$this->data['token'].'\'';
 	
 			return $this->DB->update( $table, $data, $where );
 		}
