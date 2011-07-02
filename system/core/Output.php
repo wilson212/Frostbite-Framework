@@ -29,7 +29,9 @@ class Output
 |
 | Sends the page to the browser, which is stored in the variable $page
 |
-| @Param: $page - The source of the completed page
+| @Param: (String) $page - The source of the completed page
+| @Param: (Array) $data - Variables to be extracted
+| @Return: (None) Displays page
 |
 */
 

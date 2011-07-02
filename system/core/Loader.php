@@ -30,9 +30,10 @@ class Loader
 |
 | This method is used to call in a model
 |
-| @Param: $name - The name of the model
-| @Param: $instance_as - How you want to access it as in the 
+| @Param: (String) $name - The name of the model
+| @Param: (Mixed) $instance_as - How you want to access it as in the 
 |	controller (IE: $instance_as = test; In controller: $this->test)
+| @Return: (Object) Returns the model
 |
 */
 	function model($name, $instance_as = NULL)
@@ -69,8 +70,9 @@ class Loader
 | This method is used to call in a class from either the APP
 | library, or the system library folders.
 |
-| @Param: $name - The name of the class, with or without namespacing
-| @Param: $instance - Do we instance the class?
+| @Param: (String) $name - The name of the class, with or without namespacing
+| @Param: (Mixed) $instance - Do we instance the class?
+| @Return: (Object) Returns the library class
 |
 */
 	function library($name, $instance = TRUE)
@@ -92,7 +94,7 @@ class Loader
 		$class = load_class($full_name);
 		
 		// Do we instance this class?
-		if($instance == TRUE) // && ( class_exists('\\System\\Core\\Controller') || class_exists('\\Application\\Core\\Controller') ))
+		if($instance == TRUE && ( class_exists('\\System\\Core\\Controller') || class_exists('\\Application\\Core\\Controller') ))
 		{
 			$name = strtolower($name);
 			get_instance()->$name = $class;
@@ -107,10 +109,11 @@ class Loader
 |
 | This method is used to setup a database connection
 |
-| @Param: $args - The indentifier of the DB connection in the DB 
-| 	config file.
-| @Param: $instance - If you want to instance the connection
-|	in the controller, set to TRUE.
+| @Param: (String) $args - The indentifier of the DB connection in 
+|	the DB config file.
+| @Param: (Mixed) $instance - If you want to instance the connection
+|	in the controller, set to TRUE, or the instance variable desired
+| @Return: (Object) Returns the database object / connection
 |
 */	
 	function database($args, $instance = FALSE)
@@ -128,6 +131,8 @@ class Loader
 		{
 			show_error('db_key_not_found', array($args), E_ERROR);
 		}
+		
+		// Uppercase the driver and add "_driver" to it
 		$info['driver'] = ucfirst($info['driver']."_driver");
 		
 		// Check for a DB class in the Application, and system core folder
@@ -136,7 +141,7 @@ class Loader
 			require_once(APP_PATH. DS . 'database' . DS . $info['driver'] . '.php');
 			$first = "Application\\";
 		}
-		elseif(file_exists(SYSTEM_PATH. DS . 'database' . DS . $info['driver'] . '.php')) 
+		else
 		{
 			require_once(SYSTEM_PATH. DS . 'database' . DS . $info['driver'] . '.php');
 			$first = "System\\";
@@ -179,7 +184,8 @@ class Loader
 | This method is used to call in a helper file from either the 
 | application/helpers, or the core/helpers folders.
 |
-| @Param: $name - The name of the helper file
+| @Param: (String) $name - The name of the helper file
+| @Return: (None)
 |
 */
 	function helper($name)
@@ -191,7 +197,7 @@ class Loader
 		}
 		
 		// Check the core/helpers folder
-		elseif(file_exists(SYSTEM_PATH . DS .  'helpers' . DS . $name . '.php')) 
+		else 
 		{
 			require_once(SYSTEM_PATH . DS .  'helpers' . DS . $name . '.php');
 		}

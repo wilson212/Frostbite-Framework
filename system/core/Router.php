@@ -10,14 +10,28 @@
 | Copyright:	Copyright (c) 2011, Steven Wilson
 | License: 		GNU GPL v3
 |
+| ---------------------------------------------------------------
+| Class: Router
+| ---------------------------------------------------------------
+|
+| This class is used to determine our controller / action. It is
+| also used for module checking, or spitting out 404's
+|
 */
 namespace System\Core;
 
 class Router
 {
+	// Our controller name
 	var $_controler = FALSE;
+	
+	// Our action (sub page)
 	var $_action = FALSE;
+	
+	// The querystring
 	var $_queryString = FALSE;
+	
+	// Is a module?
 	var $_is_module = FALSE;
 	
 /*
@@ -96,6 +110,8 @@ class Router
 |
 | Returns the controller name from the routeUrl method.
 |
+| @Return: (String) - Returns the controller name
+|
 */	
 	function get_class()
 	{		
@@ -108,6 +124,8 @@ class Router
 | ---------------------------------------------------------------
 |
 | Returns the action name from the routeUrl method.
+|
+| @Return: (String) - Returns the action
 |
 */	
 	function get_method()
@@ -122,6 +140,8 @@ class Router
 |
 | Returns the query string name from the routeUrl method.
 |
+| @Return: (String) - Returns the querystring
+|
 */	
 	function get_queryString()
 	{		
@@ -134,6 +154,8 @@ class Router
 | ---------------------------------------------------------------
 |
 | Returns TRUE of the controller belongs to a module
+|
+| @Return: (Bool) - Returns if we are loading a module
 |
 */	
 	function get_type()
@@ -150,6 +172,7 @@ class Router
 | returns TRUE if a controller was found, FALSE otherwise
 |
 | @Param: $name - Name of the controller being searched for.
+| @Return: (Bool) - If the controller exists, it returns TRUE
 |
 */
 	function controller_exists($name)
@@ -158,7 +181,7 @@ class Router
 		{
 			return TRUE;
 		}
-		elseif(@file_exists(APP_PATH . DS . 'modules' . DS . strtolower($name) . DS . 'controller.php'))
+		elseif(file_exists(APP_PATH . DS . 'modules' . DS . strtolower($name) . DS . 'controller.php'))
 		{
 			$this->_is_module = TRUE;
 			return TRUE;

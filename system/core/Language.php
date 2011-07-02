@@ -10,12 +10,21 @@
 | Copyright:	Copyright (c) 2011, Steven Wilson
 | License: 		GNU GPL v3
 |
+| ---------------------------------------------------------------
+| Class: Language
+| ---------------------------------------------------------------
+|
+| This class is used to load language files and return lang vars.
+| 
 */
 namespace System\Core;
 
 class Language
 {
+	// Array of ur language variables
 	public $language_vars = array();
+	
+	// An array of loaded language files
 	public $loaded_files = array();
 
 /*
@@ -36,7 +45,8 @@ class Language
 |
 | Sets the langauge. Does not reload already loaded files
 |
-| @Param: $lang - Name of the language we are loading
+| @Param: (String) $lang - Name of the language we are loading
+| @Return (None)
 |
 */	
 	function set_language($lang)
@@ -52,10 +62,11 @@ class Language
 |
 | Loads the lanugage file
 |
-| @Param: $file - Name of the language file, without the extension
-| @Param: $lang - Language we are loading
-| @Param: $return - Set to TRUE to return the $lang array, FALSE
+| @Param: (String) $file - Name of the language file, without the extension
+| @Param: (String) $lang - Language we are loading
+| @Param: (Bool) $return - Set to TRUE to return the $lang array, FALSE
 |		to just save the variables here.
+| @Return (Mixed) Depends on the $return variable
 |
 */
 	public function load($file, $return = FALSE)
@@ -124,7 +135,9 @@ class Language
 |
 | Returns the variable from the config array
 |
-| @Param: $var - the key of the lang array value, needed to be returned
+| @Param: (String) $var - the key of the lang array value, needed
+|	to be returned
+| @Return (Mixed) FALSE if the var is unset, or the Variable otherwise
 |
 */
 	public function get($var)

@@ -33,6 +33,8 @@ class Frostbite
 |
 | This is the function that runs the whole show!
 |
+| @Return: (None)
+|
 */
 	function Init()
 	{
@@ -105,16 +107,17 @@ class Frostbite
 		}
 	}
 	
-	/*
-	| ---------------------------------------------------------------
-	| Method: performAction()
-	| ---------------------------------------------------------------
-	|
-	| @Param: $controller - Name of the controller being used
-	| @Param: $action - Action method being used in the controller
-	| @Param: $queryString - The query string, basically params for the Action
-	|
-	*/
+/*
+| ---------------------------------------------------------------
+| Method: performAction()
+| ---------------------------------------------------------------
+|
+| @Param: (String) $controller - Name of the controller being used
+| @Param: (String) $action - Action method being used in the controller
+| @Param: (String) $queryString - The query string, basically params for the Action
+| @Return: (Object) - Returns the method
+|
+*/
 	
 	function performAction($controller, $action, $queryString = null) 
 	{	

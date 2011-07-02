@@ -21,8 +21,11 @@
 namespace System\Core;
 
 class Config
-{	
+{
+	// An array of all out stored containers / variables
 	protected $data = array();
+	
+	// A list of our loaded config files
 	var $files = array();
 
 /*
@@ -48,6 +51,8 @@ class Config
 |
 | Initiates the default config files (App, Core, and DB)
 |
+| @Return: (None)
+|
 */
 	protected function Init() 
 	{
@@ -68,8 +73,9 @@ class Config
 |
 | Returns the variable ($key) value in the config file.
 |
-| @Param: $key - variable name. Value is returned
-| @Param: $type - config variable container name
+| @Param: (String) $key - variable name. Value is returned
+| @Param: (Mixed) $type - config variable container name
+| @Return: (Mixed) May return NULL if the var is not set
 |
 */
 	function get($key, $type = 'App') 
@@ -92,9 +98,10 @@ class Config
 |
 | Returns the variable ($key) value in the database config file.
 |
-| @Param: $key - variable name. Value is returned
-| @Param: $pointer - the key in the array. Ex: ['db1']['host'],
+| @Param: (String) $key - variable name. Value is returned
+| @Param: (Mixed) $pointer - the key in the array. Ex: ['db1']['host'],
 |	The 'host' is the pointer
+| @Return: (Array) An array of the database config for this $key
 |
 */
 	function getDbInfo($key, $pointer = NULL) 
@@ -114,9 +121,10 @@ class Config
 | Sets the variable ($key) value. If not saved, default value
 | will be returned as soon as page is re-loaded / changed.
 |
-| @Param: $key - variable name to be set
-| @Param: $value - new value of the variable
-| @Param: $name - The container name for the $key variable
+| @Param: (String) $key - variable name to be set
+| @Param: (Mixed) $value - new value of the variable
+| @Param: (Mixed) $name - The container name for the $key variable
+| @Return: (None)
 |
 */
 	function set($key, $val, $name = 'App') 
@@ -134,11 +142,12 @@ class Config
 | Load a config file, and adds its defined variables to the $data
 |	array
 |
-| @Param: $file - Full path to the config file, includeing name
-| @Param: $name - The container name we are storing this configs
+| @Param: (String) $file - Full path to the config file, includeing name
+| @Param: (String) $name - The container name we are storing this configs
 |	variables to.
-| @Param: $array - If the config vars are stored in an array, whats
+| @Param: (String) $array - If the config vars are stored in an array, whats
 |	the array variable name?
+| @Return: (None)
 |
 */
 	function Load($file, $name, $array = FALSE) 
@@ -177,7 +186,8 @@ class Config
 | Saves all set config variables to the config file, and makes 
 | a backup of the current config file
 |
-| @Param: $name - Name of the container holding the variables
+| @Param: (String) $name - Name of the container holding the variables
+| @Return: (Bool) TRUE on success, FALSE otherwise
 |
 */
 	function Save($name) 

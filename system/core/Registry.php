@@ -56,7 +56,8 @@ Class Registry
 |
 | This method is a privte method used to return a stored object
 |
-| @Param: $key - Object to be returned
+| @Param: (String) $key - Object to be returned
+| @Return: (Object) Returns the class requested, or NULL
 |
 */
 	
@@ -76,8 +77,9 @@ Class Registry
 |
 | This method is a privte method used to store an object
 |
-| @Param: $key - Object name to be stored
-| @Param: $val - value of the object
+| @Param: (String) $key - Object name to be stored
+| @Param: (Mixed) $val - value of the object
+| @Return: (None)
 |
 */
 
@@ -93,7 +95,8 @@ Class Registry
 |
 | This method is used statically to get request handle
 |
-| @Param: $key - Object name to be loaded and returned
+| @Param: (String) $key - Object name to be loaded and returned
+| @Return: (Object) Returns the object
 |
 */
 
@@ -110,8 +113,9 @@ Class Registry
 |
 | This method is used to store an object locally
 |
-| @Param: $key - Object name to be stored
-| @Param: $val - value of the object
+| @Param: (String) $key - Object name to be stored
+| @Param: (Mixed) $val - value of the object
+| @Return: (None)
 |
 */
 

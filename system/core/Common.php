@@ -6,9 +6,10 @@
 |
 | This function is used to simplify the showing of errors
 |
-| @Param: $err_message - Error message code
-| @Param: $args - An array for vsprintf to replace in the 
-| @Param: $lvl - Level of the error
+| @Param: (String) $err_message - Error message code
+| @Param: (Array) $args - An array for vsprintf to replace in the 
+| @Param: (Int) $lvl - Level of the error
+| @Return: (None)
 |
 */	
 	function show_error($err_message = 'none', $args = NULL, $lvl = E_ERROR)
@@ -47,6 +48,8 @@
 |
 | Displays the 404 Page
 |
+| @Return: (None)
+|
 */	
 	function show_404()
 	{		
@@ -63,29 +66,28 @@
 | This function is used to autoload files of delcared classes
 | that have not been included yet
 |
-| @Param: $className - Class name to autoload ofc silly
+| @Param: (String) $className - Class name to autoload ofc silly
+| @Return: (None)
 |
 */
 
 function __autoload($className) 
 {	
 	// We will need to lowercase everything except for the filename
-	$class_path = str_replace('\\', '|', strtolower($className));
-	$parts = explode('|', $class_path);
-	$parts[2] = strtoupper( $parts[2] );
+	$parts = explode('\\', $className);
+	$parts[2] = ucfirst( $parts[2] );
 	$class_path = implode($parts, DS);
 	
+	// Lets make our file path
 	$file = ROOT . DS . $class_path .'.php';
 	
 	// If the file exists, then include it, and return
-	if(file_exists($file)) 
+	if(!include $file)
 	{
-		require_once($file);
-		return;
+		// Failed to load class all together.
+		show_error('autoload_failed', array( addslashes($className) ), E_ERROR);
 	}
-	
-	// If we are at this point, then we didnt find the class file.
-	show_error('autoload_failed', array( addslashes($className) ), E_ERROR);
+	return;
 }
 
 
@@ -97,9 +99,10 @@ function __autoload($className)
 | This function is used to return a config value from a config
 | file.
 |
-| @Param: $item - The config item we are looking for
-| @Param: $type - Name of the config variables, this is set 
+| @Param: (String) $item - The config item we are looking for
+| @Param: (Mixed) $type - Name of the config variables, this is set 
 |	when you load the config, defaults are Core, App and Mod
+| @Return: (Mixed) - Returns the config vaule of $item
 |
 */
 
@@ -117,9 +120,10 @@ function config($item, $type = 'App')
 | This function is used to set site config values. This does not
 | set core, or database values.
 |
-| @Param: $item - The config item we are setting a value for
-| @Param: $value - the value of $item
-| @Param: $combine - The name of this config variables
+| @Param: (String) $item - The config item we are setting a value for
+| @Param: (Mixed) $value - the value of $item
+| @Param: (Mixed) $name - The name of this config variables container
+| @Return: (None)
 |
 */
 
@@ -137,7 +141,8 @@ function config_set($item, $value, $name = 'App')
 | This function is used to save site config values to the condig.php. 
 | *Warning - This will remove any and ALL comments in the config file
 |
-| @Param: $name - Which config are we saving? App? Core? Module?
+| @Param: (Mixed) $name - Which config are we saving? App? Core? Module?
+| @Return: (None)
 |
 */
 
@@ -155,11 +160,12 @@ function config_save($name)
 | This function is used to get all defined variables from a config
 | file.
 |
-| @Param: $file - full path and filename to the config file being loaded
-| @Param: $name - The name of this config variables, for later access. Ex:
+| @Param: (String) $file - full path and filename to the config file being loaded
+| @Param: (Mixed) $name - The name of this config variables, for later access. Ex:
 | 	if $name = 'test', the to load a $var -> config( 'var', 'test');
-| @Param: $array - If the config vars are stored in an array, whats
+| @Param: (String) $array - If the config vars are stored in an array, whats
 |	the array variable name?
+| @Return: (None)
 |
 */
 
@@ -177,20 +183,19 @@ function load_config($file, $name, $array = FALSE)
 | This function is used to load a modules config file, and add
 | those config values to the site config.
 |
-| @Param: $module - Name of the module
-| @Param: $filename - name of the file if not 'config.php'
-| @Param: $array - If the config vars are stored in an array, whats
+| @Param: (String) $module - Name of the module
+| @Param: (String) $filename - name of the file if not 'config.php'
+| @Param: (String) $array - If the config vars are stored in an array, whats
 |	the array variable name?
+| @Return: (None)
 |
 */
 
-function load_module_config($module, $filename = 'config.php')
+function load_module_config($module, $filename = 'config.php', $array = FALSE)
 {	
+	// Get our filename and use the load_config method
 	$file = APP_PATH . DS .'modules' . DS . $module . DS . 'config' . DS . $filename;
-	if(file_exists($file))
-	{
-		load_config($file, 'mod');
-	}
+	load_config($file, 'mod', $array);
 }	
 
 /*
@@ -200,34 +205,12 @@ function load_module_config($module, $filename = 'config.php')
 |
 | Gateway to adding the controller into your current working class
 |
+| @Return: (Object) - Return the instnace of the Controller
+|
 */	
 	function get_instance()
 	{
 		return System\Core\Controller::get_instance();
-	}
-	
-/*
-| ---------------------------------------------------------------
-| Function: get_type()
-| ---------------------------------------------------------------
-|
-| Since the built in php gettype() method is really slow and php
-| even says not to use it, we will creat our own cool little gettype()
-| method thats even alittle faster.
-|
-*/
-	function get_type($var)
-	{
-		if (is_array($var)) 	return "array";
-		if (is_string($var)) 	return "string";
-		if (is_bool($var)) 		return "boolean";
-		if (is_int($var)) 		return "integer";
-		if (is_null($var)) 		return "NULL";
-		if (is_numeric($var)) 	return "numeric";
-		if (is_float($var)) 	return "float";
-		if (is_object($var)) 	return "object";
-		if (is_resource($var)) 	return "resource";
-		return FALSE;
 	}
 
 /*
@@ -239,21 +222,25 @@ function load_module_config($module, $filename = 'config.php')
 | that need to be loaded for use, but not reset next time the class
 | is called.
 |
-| @Param: $className - Class needed to be loaded / returned
+| @Param: (String) $className - Class needed to be loaded / returned
+| @Return: (Object) - Returns the loaded class
 |
 */
 
 function load_class($className)
 {
 	// Make sure periods are replaced with slahes
-	$className = str_replace('.', '\\', $className);
+	if(strpos($className, '.'))
+	{
+		$className = str_replace('.', '\\', $className);
+	}
 	
 	// Inititate the Registry singleton into a variable
 	$Obj = Registry::singleton();
 
-	// Make a lowercase version
-	$Class = strtolower($className);
-	$temp = str_replace('\\', '_', $Class);
+	// Make a lowercase version, and a storage name
+	$class = strtolower($className);
+	$temp = str_replace('\\', '_', $class);
 
 	// Check the registry for the class, If its there, then return the class
 	if($Obj->load($temp) !== NULL)
@@ -265,11 +252,12 @@ function load_class($className)
 	// Class not in Registry, So we load it manually and then  | 
 	// store it in the registry for future static use          |
 	// ---------------------------------------------------------
-	
-	///echo $className ."<br />";
 
-	// explode our backslashes!
-	$parts = explode('\\', $Class);
+	// We need to find the file the class is stored in. Good thing the
+	// Namespaces are pretty much paths to the class ;)
+	$parts = explode('\\', $class);
+	
+	// Do we already have our full path?
 	if($parts[0] == 'system' || $parts[0] == 'application')
 	{
 		// Uppercase the filename
@@ -277,6 +265,8 @@ function load_class($className)
 		$file = $parts[0] . DS . $parts[1] . DS . $parts[2];
 		require_once(ROOT . DS .  $file . '.php');
 	}
+	
+	// We dont, So we need to create our path
 	else
 	{
 		// Uppercase the filename
@@ -287,14 +277,14 @@ function load_class($className)
 		if(file_exists(APP_PATH. DS . $file . '.php')) 
 		{
 			$className = '\\Application\\'. $className;
-			require_once(APP_PATH . DS . $file . '.php');
+			include_once(APP_PATH . DS . $file . '.php');
 		}
 
 		// Check for needed classes from the Core library folder
-		elseif(file_exists(SYSTEM_PATH . DS . $file . '.php')) 
+		else 
 		{
 			$className = '\\System\\'. $className;
-			require_once(SYSTEM_PATH . DS . $file . '.php');
+			include_once(SYSTEM_PATH . DS . $file . '.php');
 		}
 	}
 
@@ -307,12 +297,7 @@ function load_class($className)
 	$Obj->store($temp, $dispatch); 
 
 	//return singleton object.
-	$Object = $Obj->load($temp);
-
-	if(is_object($Object))
-	{
-		return $Object;
-	}
+	return $Obj->load($temp);
 }
 
 /*
@@ -322,8 +307,9 @@ function load_class($className)
 |
 | This function is used to easily redirect and refresh pages
 |
-| @Param: $url - Where were going
-| @Param: $wait - How many sec's we wait till the redirect.
+| @Param: (String) $url - Where were going
+| @Param: (Int) $wait - How many sec's we wait till the redirect.
+| @Return: (None)
 |
 */
 
@@ -336,13 +322,11 @@ function redirect($url, $wait = 0)
 	}
 	
 	// Check for refresh or straight redirect
-	if($wait >= 1)
+	if($wait > 0)
 	{
 		header("Refresh:". $wait .";url=". $url);
+		return;
 	}
-	else
-	{
-		header("Location: ".$url);
-	}
+	header("Location: ".$url);
 }
 // EOF

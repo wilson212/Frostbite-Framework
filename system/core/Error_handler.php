@@ -10,6 +10,12 @@
 | Copyright:	Copyright (c) 2011, Steven Wilson
 | License: 		GNU GPL v3
 |
+| ---------------------------------------------------------------
+| Class: Error_Handler
+| ---------------------------------------------------------------
+|
+| Main error handler for the Core.
+|
 */
 namespace System\Core;
 
@@ -43,12 +49,12 @@ class Error_Handler
 |
 | Main error handler. Triggers, logs, and shows the error message
 |
-| @Param: $errno - The error number
-| @Param: $message - Error message
-| @Param: $file - The file reporting the error
-| @Param: $line - Error line number
-| @Param: $errno - Error number
-| @Param: $backtrace - Backtrace information if any
+| @Param: (Int)		$errno - The error number
+| @Param: (String)	$message - Error message
+| @Param: (String)	$file - The file reporting the error
+| @Param: (Int)		$line - Error line number
+| @Param: (Int)		$errno - Error number
+| @Param: (Array)	$backtrace - Backtrace information if any
 |
 */
 	function trigger_error($errno, $message = 'none', $file = "", $line = 0, $backtrace = NULL)
@@ -261,7 +267,7 @@ class Error_Handler
 
    
 		// Grab our variable type and get our text color
-		$type = ucfirst(get_type($var));
+		$type = ucfirst(gettype($var));
 		switch($type)
 		{
 			case "Array":

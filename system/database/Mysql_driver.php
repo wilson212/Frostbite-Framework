@@ -371,6 +371,8 @@ class Mysql_driver
 |
 | Clears out and resets the query statistics
 |
+| @Return: (None)
+|
 */
     public function reset()
     {
@@ -386,7 +388,7 @@ class Mysql_driver
 | Function: result()
 | ---------------------------------------------------------------
 |
-| Retunrs the result of the last query
+| @Return: (Object) Returns the result of the last query
 |
 */
     public function result()
@@ -402,7 +404,7 @@ class Mysql_driver
 | The equivelant to mysql_insert_id(); This functions get the last
 | primary key from a previous insert
 |
-| @Param: $query - the query
+| @Return: (Int) Returns the insert id of the last insert
 |
 */
 	public function insert_id()
@@ -417,6 +419,8 @@ class Mysql_driver
 |
 | The equivelant to mysql_affected_rows();
 |
+| @Return: (Int) Returns the number of affected row in the last query
+|
 */
 	public function affected_rows()
 	{
@@ -429,6 +433,8 @@ class Mysql_driver
 | ---------------------------------------------------------------
 |
 | The equivelant to mysql_num_rows();
+|
+| @Return: (Int) Returns the number of rows in the last result
 |
 */
 	public function num_rows()

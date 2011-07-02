@@ -10,26 +10,48 @@
 | Copyright:	Copyright (c) 2011, Steven Wilson
 | License: 		GNU GPL v3
 |
+| ---------------------------------------------------------------
+| Class: Input
+| ---------------------------------------------------------------
+|
+| This class handles client side information such as input, cookies,
+| $_POST vars, Ip address, browser etc etc.
+| 
 */
 namespace System\Core;
 
 class Input
 {
 
+	// Cookie expire time
 	var $time;
+	
+	// Cookie path
 	var $cookie_path;
+	
+	// Cookie domain
 	var $cookie_domain;
+	
+	// Users IP address and Browser info
 	var $user_agent = FALSE;
 	var $ip_address = FALSE;
 	
+	// Array of tags and attributes
 	protected $tagsArray = array();
 	protected $attrArray = array();
 
+	// Our tagging methods
 	protected $tagsMethod = 0;
 	protected $attrMethod = 0;
 
+	// Use the xss cleaner
 	protected $xssAuto = 1;
-	protected $tagBlacklist = array('applet', 'body', 'bgsound', 'base', 'basefont', 'embed', 'frame', 'frameset', 'head', 'html', 'id', 'iframe', 'ilayer', 'layer', 'link', 'meta', 'name', 'object', 'script', 'style', 'title', 'xml');
+	
+	// Blacklist of tags and attributes
+	protected $tagBlacklist = array('applet', 'body', 'bgsound', 
+		'base', 'basefont', 'embed', 'frame', 'frameset', 'head', 'html', 'id', 'iframe', 
+		'ilayer', 'layer', 'link', 'meta', 'name', 'object', 'script', 'style', 'title', 'xml'
+	);
 	protected $attrBlacklist = array('action', 'background', 'codebase', 'dynsrc', 'lowsrc');
 
 /*
@@ -53,8 +75,9 @@ class Input
 |
 | Returns a $_POST variable
 |
-| @Param: $var - variable name to be returned
-| @Param: $xss - Check for XSS ?
+| @Param: (String) $var - variable name to be returned
+| @Param: (Bool) $xss - Check for XSS ?
+| @Return (Mixed) Returns the value of $_POST[$var]
 |
 */
 	public function post($var, $xss = FALSE)
@@ -80,8 +103,9 @@ class Input
 |
 | Returns a $_COOKIE variable
 |
-| @Param: $name - variable name to be returned
-| @Param: $xss - Check for XSS ?
+| @Param: (String) $name - variable name to be returned
+| @Param: (Bool) $xss - Check for XSS ?
+| @Return (Mixed) Returns the value of $_COOKIE[$var]
 |
 */
 	public function cookie($name, $xss = FALSE)
@@ -107,9 +131,10 @@ class Input
 |
 | Sets a cookie
 |
-| @Param: $key - Name of the cookie
-| @Param: $val - Value of the cookie
-| @Param: $time - Cookie expire time from now in seconds
+| @Param: (String) $key - Name of the cookie
+| @Param: (Mixed) $val - Value of the cookie
+| @Param: (Int) $time - Cookie expire time from now in seconds
+| @Return (None)
 |
 */	
     function set_cookie($key, $val, $time = NULL)
@@ -126,7 +151,7 @@ class Input
 | Method: user_agent()
 | ---------------------------------------------------------------
 |
-| Returns the browser name the user is using
+| @Return (String) Returns the users browser info
 |
 */
 	public function user_agent()
@@ -143,7 +168,7 @@ class Input
 | Method: ip_address()
 | ---------------------------------------------------------------
 |
-| Returns the users IP address
+| @Return (Mixed) Returns the users IP address
 |
 */	
 	public function ip_address()
@@ -178,8 +203,9 @@ class Input
 |
 | Returns TRUE if the given string is clean of xss, FALSE otherwise
 |
-| @Param: $txt - String to be tested
-| @Param: $type - BASIC, DATE, or EMAIL
+| @Param: (Mixed) $txt - String to be tested
+| @Param: (String) $type - BASIC, DATE, or EMAIL
+| @Return (Bool) Returns True is the $txt passes as a clean string
 |
 */	
 	function validate($txt, $type = 'basic')
@@ -256,11 +282,12 @@ class Input
 |
 | Sets the cleaning rules such as allowed tags etc.
 |
-| @param: $tagsArray - list of user-defined tags
-| @param: $attrArray - list of user-defined attributes
-| @param: $tagsMethod - 0 = allow just user-defined, 1= allow all but user-defined
-| @param: $attrMethod - 0 = allow just user-defined, 1= allow all but user-defined
-| @param: $xssAuto - 0 = only auto clean essentials, 1= allow clean blacklisted tags/attr
+| @param: (Array) $tagsArray - list of user-defined tags
+| @param: (Array) $attrArray - list of user-defined attributes
+| @param: (Int) $tagsMethod - 0 = allow just user-defined, 1= allow all but user-defined
+| @param: (Int) $attrMethod - 0 = allow just user-defined, 1= allow all but user-defined
+| @param: (Int) $xssAuto - 0 = only auto clean essentials, 1= allow clean blacklisted tags/attr
+| @Return (None)
 |
 */
 	public function set_rules($tagsArray = array(), $attrArray = array(), $tagsMethod = 0, $attrMethod = 0, $xssAuto = 1) 
@@ -296,7 +323,8 @@ class Input
 |
 | Main call function. Used to clean user input
 |
-| @Param: $source - String or array to be cleaned
+| @Param: (Mixed) $source - String or array to be cleaned
+| @Return (Mixed) Returns the cleaned source of $source
 |
 */		
 	public function clean($source) 
@@ -329,7 +357,8 @@ class Input
 |
 | Removes all unwanted tags and attributes
 |
-| @Param: $source - String or array to be cleaned
+| @Param: (String) $source - String or array to be cleaned
+| @Return (Mixed) Returns the cleaned source of $source
 |
 */	
 	protected function remove($source) 
@@ -350,7 +379,8 @@ class Input
 |
 | Internal method to strip a string of certain tags
 |
-| @Param: $source - String or array to be cleaned
+| @Param: (String) $source - String or array to be cleaned
+| @Return (Mixed) Returns the cleaned source of $source
 |
 */	
 	protected function filterTags($source) 
@@ -515,7 +545,8 @@ class Input
 |
 | Internal method to strip a tag of certain attributes
 |
-| @Param: $source - String or array to be cleaned
+| @Param: (String) $source - String or array to be cleaned
+| @Return (Mixed) Returns the cleaned source of $source
 |
 */		
 	protected function filterAttr($attrSet) 
@@ -608,7 +639,8 @@ class Input
 |
 | Converts to plain text
 |
-| @Param: $source - String to be converted
+| @Param: (String) $source - String to be converted
+| @Return (Mixed) Returns the cleaned source of $source
 |
 */		
 	protected function decode($source) 
