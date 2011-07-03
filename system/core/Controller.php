@@ -54,39 +54,27 @@ class Controller
 		// Autoload the config autoload_helpers |
 		// --------------------------------------
 		$libs = config('autoload_helpers', 'Core');
-		if(count($libs) > 1)
+		if(count($libs) > 0)
 		{
 			foreach($libs as $lib)
 			{
 				$this->load->helper($lib);
 			}
 		}
-		elseif(count($libs) == 1)
-		{
-			$this->load->helper($libs[0]);
-		}
 		
 		//-----------------------------------------
 		// Autoload the config autoload_libraries |
 		//-----------------------------------------
 		$libs = config('autoload_libraries', 'Core');
-		if(count($libs) > 1)
+		if(count($libs) > 0)
 		{
 			foreach($libs as $lib)
 			{
 				$this->load->library($lib);
 			}
 		}
-		elseif(count($libs) == 1)
-		{
-			$this->load->library($libs[0]);
-		}
 		
-		/*
-			load module config file if there is one
-			config values will be merged with the site config
-			and accessed as config(' $item ');
-		*/
+		// load module config file if there is one
 		if($GLOBALS['is_module'] == TRUE)
 		{
 			load_module_config($GLOBALS['controller']);

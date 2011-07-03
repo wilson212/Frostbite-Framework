@@ -36,9 +36,9 @@ class Config
 	public function __construct() 
 	{
 		// Set default files
-		$this->files['app'] = APP_PATH . DS . 'config' . DS . 'config.php';
-		$this->files['core'] = APP_PATH . DS . 'config' . DS . 'core.config.php';
-		$this->files['db'] = APP_PATH . DS . 'config' . DS . 'database.config.php';
+		$this->files['app']['file_path'] = APP_PATH . DS . 'config' . DS . 'config.php';
+		$this->files['core']['file_path'] = APP_PATH . DS . 'config' . DS . 'core.config.php';
+		$this->files['db']['file_path'] = APP_PATH . DS . 'config' . DS . 'database.config.php';
 		
 		// Lets roll!
 		$this->Init();
@@ -57,13 +57,13 @@ class Config
 	protected function Init() 
 	{
 		// Load the APP config.php and add the defined vars
-		$this->Load($this->files['app'], 'app');
+		$this->Load($this->files['app']['file_path'], 'app');
 		
 		// Load the core.config.php and add the defined vars
-		$this->Load($this->files['core'], 'core', 'config');
+		$this->Load($this->files['core']['file_path'], 'core', 'config');
 		
 		// Load the database.config.php and add the defined vars
-		$this->Load($this->files['db'], 'db', 'DB_configs');
+		$this->Load($this->files['db']['file_path'], 'db', 'DB_configs');
 	}
 	
 /*
@@ -158,7 +158,8 @@ class Config
 		// Include file and add it to the $files array
 		if(!file_exists($file)) return FALSE;
 		include( $file );
-		$this->files[$name] = $file;
+		$this->files[$name]['file_path'] = $file;
+		$this->files[$name]['config_key'] = $array;
 		
 		// Get defined variables
 		$vars = get_defined_vars();
@@ -195,26 +196,49 @@ class Config
 		// Lowercase the $name
 		$name = strtolower($name);
 		
+		// Check to see if we need to put this in an array
+		$ckey = $this->files[$name]['config_key'];
+		if($ckey != FALSE)
+		{
+			$Old_Data = $this->data[$name];
+			$this->data[$name] = array("$ckey" => $this->data[$name]);
+		}
+		
 		// Create our new file content
 		$cfg  = "<?php\n";
+		
+		// Loop through each var and write it
 		foreach( $this->data[$name] as $key => $val ) 
 		{
 			if(is_numeric($val)) 
 			{
 				$cfg .= "\$$key = " . $val . ";\n";
 			} 
-			else 
+			elseif(is_array($val))
+			{
+				$val = var_export($val, TRUE);
+				$cfg .= "\$$key = " . $val . ";\n";
+			}
+			else
 			{
 				$cfg .= "\$$key = '" . addslashes( $val ) . "';\n";
 			}
 		}
+	
+		// Close the php tag
 		$cfg .= "?>";
+		
+		// Add the back to non array if we did put it in one
+		if($ckey != FALSE)
+		{
+			$this->data[$name] = $Old_Data;
+		}
 		
 		// Copy the current config file for backup, 
 		// and write the new config values to the new config
-		@copy($this->files[$name], $this->files[$name].'.bak');
+		@copy($this->files[$name]['file_path'], $this->files[$name]['file_path'].'.bak');
 		
-		if(file_put_contents( $this->files[$name], $cfg )) 
+		if(file_put_contents( $this->files[$name]['file_path'], $cfg )) 
 		{
 			return TRUE;
 		} 
