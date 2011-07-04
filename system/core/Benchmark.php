@@ -66,7 +66,7 @@ class Benchmark
 	{
 		if(!isset(self::$start[$key]))
 		{
-			show_error('benchmark_key_not_found', false, E_WARNING);
+			show_error('benchmark_key_not_found', array($key), E_WARNING);
 			return FALSE;
 		}
 		else
