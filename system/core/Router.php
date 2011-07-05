@@ -45,7 +45,8 @@ class Router
 */	
 	function routeUrl() 
 	{
-		global $routes;
+		// Include our routes config
+		include APP_PATH . DS . 'config' . DS . 'routes.php';
 		
 		// Get our current url, which is passed on by the htaccess file
 		$url = (isset($_GET['url']) ? $_GET['url'] : '');

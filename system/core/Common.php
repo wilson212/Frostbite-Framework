@@ -74,11 +74,20 @@
 function __autoload($className) 
 {	
 	// We will need to lowercase everything except for the filename
-	$parts = explode('\\', $className);
-	$parts[2] = ucfirst( $parts[2] );
-	$class_path = implode($parts, DS);
+	$parts = explode('\\', strtolower($className));
 	
-	// Lets make our file path
+	// Shave the first value if empty (it happens when going from the root 
+	// namespace "\\System\\Core...")
+	if( empty($parts[0]) ) $parts = array_shift($parts);
+	
+	// Upercase the filename
+	$last = count($parts) - 1;
+	$parts[$last] = ucfirst($parts[$last]);
+	
+	// Build our filepath
+	$class_path = implode(DS, $parts);
+	
+	// Lets make our file path from the root directory
 	$file = ROOT . DS . $class_path .'.php';
 	
 	// If the file exists, then include it, and return
@@ -210,6 +219,10 @@ function load_module_config($module, $filename = 'config.php', $array = FALSE)
 */	
 	function get_instance()
 	{
+		if(class_exists('Application\\Core\\Controller', FALSE))
+		{
+			return Application\Core\Controller::get_instance();
+		}
 		return System\Core\Controller::get_instance();
 	}
 
@@ -246,16 +259,16 @@ function load_class($className)
 
 	// Make a lowercase version, and a storage name
 	$class = strtolower($className);
-	$temp = str_replace('\\', '_', $class);
+	$store_name = str_replace('\\', '_', $class);
 
 	// Check the registry for the class, If its there, then return the class
-	if($Obj->load($temp) !== NULL)
+	if($Obj->load($store_name) !== NULL)
 	{ 
-		return $Obj->load($temp);        
+		return $Obj->load($store_name);        
 	}
 
 	// ---------------------------------------------------------
-	// Class not in Registry, So we load it manually and then  | 
+	// Class not in Registry, So we load it manually and then  |
 	// store it in the registry for future static use          |
 	// ---------------------------------------------------------
 
@@ -263,35 +276,37 @@ function load_class($className)
 	// Namespaces are pretty much paths to the class ;)
 	$parts = explode('\\', $class);
 	
-	// Do we already have our full path?
-	if($parts[0] == 'system' || $parts[0] == 'application')
-	{
-		// Uppercase the filename
-		$parts[2] = ucfirst($parts[2]);
-		$file = $parts[0] . DS . $parts[1] . DS . $parts[2];
-		require_once(ROOT . DS .  $file . '.php');
-	}
+	// Uppercase the filename
+	$last = count($parts) - 1;
+	$parts[$last] = ucfirst($parts[$last]);
 	
-	// We dont, So we need to create our path
-	else
+	// Build our filepath
+	$file = str_replace('\\', DS, implode('\\', $parts));
+	
+	// If we dont have the full path, create it
+	if($parts[0] !== 'system' && $parts[0] !== 'application')
 	{
-		// Uppercase the filename
-		$parts[1] = ucfirst($parts[1]);
-		$file = $parts[0] . DS . $parts[1];
-
 		// Check for needed classes from the Application library folder
 		if(file_exists(APP_PATH. DS . $file . '.php')) 
 		{
+			$file = APP_PATH . DS . $file .'.php';
 			$className = '\\Application\\'. $className;
-			include_once(APP_PATH . DS . $file . '.php');
 		}
-
-		// Check for needed classes from the Core library folder
 		else 
 		{
+			$file = SYSTEM_PATH . DS . $file .'.php';
 			$className = '\\System\\'. $className;
-			include_once(SYSTEM_PATH . DS . $file . '.php');
 		}
+	}
+	else
+	{
+		$file = ROOT . DS . $file .'.php';
+	}
+	
+	// Include our file. If it doesnt exists, class is un-obtainable.
+	if(!include $file)
+	{
+		show_error('autoload_failed', array( addslashes($className) ), E_ERROR);
 	}
 
 	// -----------------------------------------
@@ -300,10 +315,10 @@ function load_class($className)
 	$dispatch = new $className();
 
 	// Store this new object in the registery
-	$Obj->store($temp, $dispatch); 
+	$Obj->store($store_name, $dispatch); 
 
 	//return singleton object.
-	return $Obj->load($temp);
+	return $Obj->load($store_name);
 }
 
 /*

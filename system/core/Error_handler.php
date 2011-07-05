@@ -141,6 +141,13 @@ class Error_Handler
 */	
 	function build_error_page()
 	{
+		// Clear out all the old junk so we don't get 2 pages
+		// all fused together
+		if(ob_get_level() != 0)
+		{
+			ob_end_clean();
+		}
+		
 		// Capture the template using Output Buffering, file depends on Environment
 		ob_start();
 			if($this->Environment == 1)

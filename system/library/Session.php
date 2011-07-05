@@ -26,10 +26,10 @@ class Session
 	protected $session_db_id;
 	protected $session_table_name;
 	public $session_cookie_name;
+	public $db_session_exists;
 	
-	// Our DB and Querybuilder classes
+	// Our DB connection
 	protected $DB;
-	protected $QB;
 
 /*
 | ---------------------------------------------------------------
@@ -53,12 +53,11 @@ class Session
 		// load the Input class
 		$this->input = load_class('Core\\Input');
 		
-		// Are we storing session data in the database?
-		// If so then load the DB and querybuilder
+		// Are we storing session data in the database? If so, Load the DB connction
 		if($this->session_use_db == TRUE)
 		{
 			$this->DB = $this->load->database( $this->session_db_id );
-			$this->QB = $this->load->library('Querybuilder', FALSE);
+			$this->db_session_exists = FALSE; // default
 		}
 		
 		// Check for session data. If there is none, create it.
@@ -96,7 +95,6 @@ class Session
 	protected function create()
 	{
 		$time = microtime(1);
-		$this->data['last_seen'] = time();
 		$this->data['token'] = sha1(base64_encode(pack("H*", md5(utf8_encode( $time )))));
 	}
 
@@ -113,86 +111,69 @@ class Session
 	protected function check()
 	{
 		// Check for a session cookie
-		if($this->input->cookie( $this->session_cookie_name ) == FALSE)
+		$cookie = $this->input->cookie( $this->session_cookie_name );
+		
+		// If the cookie doesnt exists, then neither does the session
+		if($cookie == FALSE)
 		{
 			// No cookie means we have nothing to go off of, return FALSE
 			return FALSE;
 		}
+		
+		// Read cookie data
+		$cookie = unserialize($cookie);
+		
+		// Are we storing session data in the database?
+		if($this->session_use_db == TRUE)
+		{				
+			// Get the database result
+			$query = "SELECT * FROM `". $this->session_table_name ."` WHERE `token` = '". $cookie['token'] ."'";
+			$result = $this->DB->query( $query )->fetch_array();
+			
+			// If we have a result, then data IS in the DB
+			if($result !== FALSE)
+			{
+				// check users IP address to prevent cookie stealing
+				if($result['ip_address'] == $this->input->ip_address() )
+				{	
+					$this->data['token'] = $result['token'];
+					$result['user_data'] = unserialize( $result['user_data'] );
+				
+					// Set data if we have any
+					if(count($result['user_data']) > 0)
+					{
+						foreach($result['user_data'] as $key => $value)
+						{
+							// Set the data in the session
+							$this->set($key, $value);
+						}
+					}
+				
+					// Update last seen
+					$this->data['last_seen'] = time();
+				
+					// Set our local variable to true and return
+					$this->db_session_exists = TRUE;
+					return TRUE;
+				}
+			}
+			
+			// If we are here, validation checks failed
+			return FALSE;
+		}
+		
+		// config says, No sessions in database, Load cookie manually
 		else
 		{
-			// Read cookie data
-			$cookie = unserialize($this->input->cookie( $this->session_cookie_name ));
-			
-			// Are we storing session data in the database?
-			if($this->session_use_db == TRUE)
-			{				
-				// Get the database result
-				$this->QB->select('*')->from( $this->session_table_name )->where('token', $cookie['token']);
-				$Get = $this->DB->query( $this->QB->sql )->fetch_array();
-				
-				// If we have a result, then data IS in the DB
-				if($Get !== FALSE)
-				{
-					// Check user agent to prevent cookie stealing
-					if($Get['user_agent'] != $this->input->user_agent() )
-					{
-						return FALSE;
-					}
-					
-					// check users IP address to prevent cookie stealing
-					elseif($Get['ip_address'] != $this->input->ip_address() )
-					{
-						return FALSE;
-					}
-					
-					// All is good, Return TRUE
-					else
-					{
-						$this->data['token'] = $Get['token'];
-						$Get['user_data'] = unserialize( $Get['user_data'] );
-						
-						// Set data if we have any
-						if(count($Get['user_data'] > 0))
-						{
-							foreach($Get['user_data'] as $key => $value)
-							{
-								// Set the data in the session
-								$this->set($key, $value);
-							}
-						}
-						return TRUE;
-					}
-				}
-				
-				// False return from DB
-				else
-				{
-					return FALSE;
-				}
-			}
-			
-			// config says, No sessions in database, Load cookie manually
-			else
+			// check users IP address to prevent cookie stealing
+			if($cookie['ip_address'] == $this->input->ip_address() )
 			{
-				// Check user agent to prevent cookie stealing
-				if($cookie['user_agent'] != $this->input->user_agent() )
-				{
-					return FALSE;
-				}
-				
-				// check users IP address to prevent cookie stealing
-				elseif($cookie['ip_address'] != $this->input->ip_address() )
-				{
-					return FALSE;
-				}
-				
-				// Everything looks good ;)
-				else
-				{
-					$this->data['token'] = $cookie['token'];					
-					return $cooke['id'];
-				}	
+				$this->data['token'] = $cookie['token'];					
+				return $cooke['id'];
 			}
+			
+			// If we are here, the cookie is no good
+			return FALSE;			
 		}
 	}
 
@@ -205,7 +186,8 @@ class Session
 | things like "Remeber Me" etc etc.
 |
 | @Param: $id - Any kind of information you want stored in the 
-|		cookie such as a usename or userID.
+|	cookie such as a usename or userID. ONLY needed if user
+|	is not using a database session
 |
 */	
 	public function save($id = NULL)
@@ -214,6 +196,7 @@ class Session
 		if($id === NULL && $this->session_use_db == FALSE)
 		{
 			show_error('You need to set some information to be stored in the cookie, before saving a session.', false, E_WARNING);
+			return FALSE;
 		}
 		
 		// If we arent storing session Data in the DB, then we set a cookie only
@@ -223,7 +206,6 @@ class Session
 			$stuff = array(
 				'id' => $id, 
 				'token' => $this->data['token'], 
-				'user_agent' => $this->input->user_agent(),
 				'ip_address' => $this->input->ip_address()
 			);
 			$ID = serialize( $stuff );
@@ -238,23 +220,18 @@ class Session
 		// If we are storing session data, then lets do that!
 		else
 		{	
-			// Combine the ID being set, and the session token
-			$cookie_data = serialize( array('token' => $this->data['token'], 'last_seen' =>  time()) );
+			// Set a cookie with the session token
+			$cookie_data = serialize( array('token' => $this->data['token']) );
 			
 			// Set the cookie
 			$this->input->set_cookie( $this->session_cookie_name, $cookie_data );
-		
-			// check to see if we already have this session token saved
-			$this->QB->select('*')->from( $this->session_table_name )->where('token', $this->data['token']);
-			$Get = $this->DB->query( $this->QB->sql )->fetch_array();
-			
+
 			// No session exists, insert new data
-			if($Get == FALSE)
+			if ($this->db_session_exists == FALSE)
 			{						
 				// Add session data to the DB only if it doesnt exists
 				$data = array( 
-					'token' => $this->data['token'], 
-					'user_agent' => $this->input->user_agent(), 
+					'token' => $this->data['token'],  
 					'ip_address' => $this->input->ip_address(),
 					'last_seen' => time(),
 					'user_data' => serialize( $this->data )
@@ -296,7 +273,7 @@ class Session
 		else
 		{
 			$ID = serialize( array( 'token' => $this->data['token'] ) );
-			$time = (time() - 1);
+			$time = time() - 1;
 			$this->input->set_cookie( $this->session_cookie_name, $ID,  $time);
 		}
 		
@@ -344,7 +321,7 @@ class Session
 |
 */
 	public function set($name, $value = NULL)
-	{
+	{	
 		// Check for an array
 		if(is_array($name))
 		{
@@ -357,9 +334,6 @@ class Session
 		{
 			$this->data[$name] = $value;
 		}
-		
-		// Return the sucess
-        return TRUE; 
 	}
 
 /*
@@ -372,11 +346,7 @@ class Session
 */	
 	public function delete($name)
 	{
-		// unset $name
         unset($this->data[$name]);
-
-		// Return success		
-        return TRUE; 
 	}
 
 /*
@@ -388,11 +358,9 @@ class Session
 |
 */
 	public function update()
-	{
-		$this->data['last_seen'] = time();
-		
+	{	
 		// Are we storing session data in the database? 
-		// If so then remove update the session last_seen
+		// If so then update the session last_seen
 		if($this->session_use_db == TRUE)
 		{			
 			// Update data
@@ -406,7 +374,6 @@ class Session
 			// return the straight db result
 			return $this->DB->update( $table, $data, $where );
 		}
-		return TRUE;
 	}
 }
 // EOF
