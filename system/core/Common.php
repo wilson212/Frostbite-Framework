@@ -1,6 +1,47 @@
 <?php
 /*
 | ---------------------------------------------------------------
+| Method: __autoload()
+| ---------------------------------------------------------------
+|
+| This function is used to autoload files of delcared classes
+| that have not been included yet
+|
+| @Param: (String) $className - Class name to autoload ofc silly
+| @Return: (None)
+|
+*/
+
+function __autoload($className) 
+{	
+	// We will need to lowercase everything except for the filename
+	$parts = explode('\\', strtolower($className));
+	
+	// Shave the first value if empty (it happens when going from the root 
+	// namespace "\\System\\Core...")
+	if( empty($parts[0]) ) $parts = array_shift($parts);
+	
+	// Upercase the filename
+	$last = count($parts) - 1;
+	$parts[$last] = ucfirst($parts[$last]);
+	
+	// Build our filepath
+	$class_path = implode(DS, $parts);
+	
+	// Lets make our file path from the root directory
+	$file = ROOT . DS . $class_path .'.php';
+	
+	// If the file exists, then include it, and return
+	if(!file_exists($file))
+	{
+		// Failed to load class all together.
+		show_error('autoload_failed', array( addslashes($className) ), E_ERROR);
+	}
+	include($file);
+}
+
+/*
+| ---------------------------------------------------------------
 | Function: show_error()
 | ---------------------------------------------------------------
 |
@@ -57,48 +98,6 @@
 		$E = new \System\Core\Error_Handler();
 		$E->trigger_error(404);
 	}
-	
-/*
-| ---------------------------------------------------------------
-| Method: __autoload()
-| ---------------------------------------------------------------
-|
-| This function is used to autoload files of delcared classes
-| that have not been included yet
-|
-| @Param: (String) $className - Class name to autoload ofc silly
-| @Return: (None)
-|
-*/
-
-function __autoload($className) 
-{	
-	// We will need to lowercase everything except for the filename
-	$parts = explode('\\', strtolower($className));
-	
-	// Shave the first value if empty (it happens when going from the root 
-	// namespace "\\System\\Core...")
-	if( empty($parts[0]) ) $parts = array_shift($parts);
-	
-	// Upercase the filename
-	$last = count($parts) - 1;
-	$parts[$last] = ucfirst($parts[$last]);
-	
-	// Build our filepath
-	$class_path = implode(DS, $parts);
-	
-	// Lets make our file path from the root directory
-	$file = ROOT . DS . $class_path .'.php';
-	
-	// If the file exists, then include it, and return
-	if(!include $file)
-	{
-		// Failed to load class all together.
-		show_error('autoload_failed', array( addslashes($className) ), E_ERROR);
-	}
-	return;
-}
-
 
 /*
 | ---------------------------------------------------------------
@@ -304,10 +303,7 @@ function load_class($className)
 	}
 	
 	// Include our file. If it doesnt exists, class is un-obtainable.
-	if(!include $file)
-	{
-		show_error('autoload_failed', array( addslashes($className) ), E_ERROR);
-	}
+	require($file);
 
 	// -----------------------------------------
 	//  Initiate the new class into a variable |
