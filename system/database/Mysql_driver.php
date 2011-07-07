@@ -202,11 +202,27 @@ class Mysql_driver
 | arrays of multiple rows and tables
 |
 | @Param: $type - Basically the second parameter of mysql_fetch_array
-|	http://www.php.net/manual/en/function.mysql-fetch-array.php 
+|	http://www.php.net/manual/en/function.mysql-fetch-array.php
+|	but without the MYSQL_ part. 
 |
 */
-    public function fetch_array($type = MYSQL_ASSOC)
-    {		
+    public function fetch_array($type = 'ASSOC')
+    {
+		// Get our real type
+		$type = strtoupper($type);
+		switch($type)
+		{
+			case "ASSOC":
+				$type = MYSQL_ASSOC;
+				break;
+			case "NUM":
+				$type = MYSQL_NUM;
+				break;
+			default:
+				$type = MYSQL_BOTH;
+				break;
+		}
+		
 		// Get our number of rows
 		$rows = $this->num_rows($this->result);
 

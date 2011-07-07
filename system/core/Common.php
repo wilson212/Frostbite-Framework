@@ -261,9 +261,10 @@ function load_class($className)
 	$store_name = str_replace('\\', '_', $class);
 
 	// Check the registry for the class, If its there, then return the class
-	if($Obj->load($store_name) !== NULL)
-	{ 
-		return $Obj->load($store_name);        
+	$loaded = $Obj->load($store_name);
+	if($loaded !== NULL)
+	{
+		return $loaded;
 	}
 
 	// ---------------------------------------------------------
@@ -313,8 +314,8 @@ function load_class($className)
 	// Store this new object in the registery
 	$Obj->store($store_name, $dispatch); 
 
-	//return singleton object.
-	return $Obj->load($store_name);
+	// return dispatched class.
+	return $dispatch;
 }
 
 /*

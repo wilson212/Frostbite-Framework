@@ -13,24 +13,11 @@
 */
 namespace System\Database;
 
-class Mysqli_driver
+class Sqlite_driver
 {
-
-	// Our Link Identifier
-	private $mysqli;
+	// The sqlite class
+	public $sqlite;
 	
-	// Mysql Hostname / Ip
-	private $hostname;
-
-	// Mysql Port
-	private $port;
-
-	// Mysql Username
-	private $user;
-
-	// Mysql Password
-	private $pass;
-
 	// Mysql Database Name
 	public $database;
 
@@ -58,14 +45,10 @@ class Mysqli_driver
     public function __construct($host, $port, $user, $pass, $name)
     {
 		// Fill Atributes
-		$this->hostname = $host;
-		$this->port = $port;
-		$this->user = $user;
-		$this->pass = $pass;
 		$this->database = $name;
 		
 		// Connection time
-		$this->connect();		
+		$this->connect();
 		return TRUE;
     }
 	
@@ -78,68 +61,27 @@ class Mysqli_driver
 |
 */
     public function connect()
-    {
-		// Make sure we arent already connected
-		if(is_object($this->mysqli)) return;
-		
+    {	
 		// Connect
-		$this->mysqli = new \mysqli($this->hostname, $this->user, $this->pass, $this->database, $this->port);
-
-		// Make the connection, or spit an error out
-		if(mysqli_connect_errno())
+		$filepath = SYSTEM_PATH . DS . 'database' . DS  . $this->database;
+		if( !$this->sqlite = new \SQLiteDatabase($filepath, 0666, $error) )
 		{
-			show_error('db_connect_error', array( $host, $port ), E_ERROR);
+			show_error('db_connect_error', array( $this->database, 'local' ), E_ERROR);
 		}
     }
 	
 /*
 | ---------------------------------------------------------------
-| Function: select_db
-| ---------------------------------------------------------------
-|
-| Selects a database in the current connection
-|
-| @Param: (String) $name - The database name
-|
-*/
-    public function select_db($name)
-    {
-		// Make sure we are already connected
-		if(!is_object($this->mysqli)) $this->connect();
-
-		// Select our Database or spit out an error
-		if(!$this->mysqli->select_db($name))
-		{
-			show_error('db_select_error', array( $name ), E_ERROR);
-		}
-
-		// Return
-		$this->database = $name;
-		return TRUE;
-    }
-
-/*
-| ---------------------------------------------------------------
 | Function: close
 | ---------------------------------------------------------------
 |
-| Closes the database connection
+| Closes the SQLite DB connection
 |
 */
     public function close()
-    {
-		// Make sure we are already connected
-		if(!is_object($this->mysqli)) return TRUE;
-		
-		// Kill first to make sure we close the TCP
-		$this->mysqli->kill( $this->mysqli->thread_id );
-
-		// Othereise clost the connection
-		if(!$this->mysqli->close())
-		{
-			return FALSE;
-		}
-		return TRUE;
+    {	
+		// Connect
+		$this->sqlite = NULL;
     }
  
 /*
@@ -151,8 +93,9 @@ class Mysqli_driver
 | benchmarks times for each query, as well as stores the query
 | in the $sql array.
 |
-| @Param: $query - The full query statement
-| @Param: $sprints - An array or replacemtnts of (?)'s in the $query
+| @Param: (String) $query - The full query statement
+| @Param: (Array) $sprints - An array or replacemtnts of (?)'s 
+|	in the $query
 |
 */
     public function query($query, $sprints = NULL)
@@ -166,13 +109,10 @@ class Mysqli_driver
 		
 		// Create our benchmark array
 		$bench['query'] = $query;
-		
-		// Clear old query
-		$this->result = NULL;
 
 		// Time our query
 		$start = microtime();
-		$result = $this->mysqli->query($query);
+		$result = $this->sqlite->query($query);
 		$end = microtime();
 
 		// Get our benchmark time
@@ -182,7 +122,7 @@ class Mysqli_driver
 		$this->queries[] = $bench;
 
 		// Check for errors
-		if($this->mysqli->errno !== 0)
+		if($this->lastError() !== 0)
 		{
 			$this->trigger_error();
 		}
@@ -205,9 +145,9 @@ class Mysqli_driver
 | fetch_array is great for getting the result that holds huge 
 | arrays of multiple rows and tables
 |
-| @Param: $type - Basically the second parameter of mysql_fetch_array
-|	http://www.php.net/manual/en/mysqli-result.fetch-array.php
-|	but without the MYSQLI_ part.  
+| @Param: $type - Basically the second parameter of sqlite_fetch_array
+|	http://www.php.net/manual/en/function.sqlite-fetch-array.php
+|	but without the SQLITE_ part. 
 |
 */
     public function fetch_array($type = 'ASSOC')
@@ -217,30 +157,22 @@ class Mysqli_driver
 		switch($type)
 		{
 			case "ASSOC":
-				$type = MYSQLI_ASSOC;
+				$type = SQLITE_ASSOC;
 				break;
 			case "NUM":
-				$type = MYSQLI_NUM;
+				$type = SQLITE_NUM;
 				break;
 			default:
-				$type = MYSQLI_BOTH;
+				$type = SQLITE_BOTH;
 				break;
 		}
-		
-		// Get our number of rows
-		$rows = $this->num_rows();
-
-		// No rows mean a false to be returned!
-		if($rows == 0)
-		{
-			return FALSE;
-		}
-
+	
 		// More then 1 row, process as big array
-		else
+		if($this->result !== FALSE)
 		{
-			return $this->result->fetch_array($type);
-		}		
+			return $this->sqlite->fetch($type);
+		}
+		return FALSE		
     }
 	
 /*
@@ -248,23 +180,18 @@ class Mysqli_driver
 | Function: fetch_row()
 | ---------------------------------------------------------------
 |
-| fetch_row is equivilent to mysql_fetch_row()
+| fetch_row is equivilent to mysql_fetch_row(), but for sqlite
 |
 */
     public function fetch_row()
     {		
-		// Get our number of rows
-		$rows = $this->num_rows();
-
-		// No rows mean a false to be returned!
-		if($rows == 0)
+		if($this->result !== FALSE)
 		{
-			return FALSE;
+			// Remember, we want 1 row so return after first loop
+			$row = $this->result->fetch();
+			return $row[0];
 		}
-		else
-		{
-			return $this->result->fetch_row();
-		}
+		return FALSE;
     }
 	
 /*
@@ -274,14 +201,12 @@ class Mysqli_driver
 |
 | fetch is equivalent to mysql_result()
 |
-| @Param: $result - The result number to be returned
+| @Param: (Int) $result - The result number to be returned
 |
 */
-    public function fetch_result($result = 0)
+    public function fetch_result()
     {		
-		$res = $this->result->fetch_row();
-		($res !== FALSE) ? $res = $res[$result] : '';
-		return $res;
+		return $this->result->fetchSingle();
     }
 	
 /*
@@ -312,7 +237,7 @@ class Mysqli_driver
 			}
 			$values .= "'".$value ."', ";
 		}
-		
+
 		// Remove the last comma
 		$values = rtrim($values, ', ');
 
@@ -340,7 +265,7 @@ class Mysqli_driver
     {
 		// Our string of columns
 		$cols = '';
-		
+
 		// Do we have a where tp process?
 		($where != '') ? $where = ' WHERE ' . $where : '';
 
@@ -349,7 +274,7 @@ class Mysqli_driver
 		{
 			if(is_numeric($value))
 			{
-				$cols .= ', `' . $key . '` = '. $value;
+				$cols .= ', `' . $key . '` = '.$value;
 				continue;
 			}
 			$cols .= ', `' . $key . '` = \''.$value.'\'';
@@ -410,7 +335,7 @@ class Mysqli_driver
 | Function: result()
 | ---------------------------------------------------------------
 |
-| @Return: (Object) Returns the result object
+| @Return: (Object) Returns the result of the last query
 |
 */
     public function result()
@@ -423,15 +348,15 @@ class Mysqli_driver
 | Function: insert_id()
 | ---------------------------------------------------------------
 |
-| The equivelant to mysqli_insert_id(); This functions get the last
-| primary key from a previous insert
+| The equivelant to sqlite_last_insert_rowid(); This functions get 
+| the last primary key from a previous insert
 |
 | @Return: (Int) Returns the insert id of the last insert
 |
 */
 	public function insert_id()
 	{
-		return $this->mysqli->insert_id;
+		return $this->sqlite->lastInsertRowid();
 	}
 	
 /*
@@ -439,14 +364,18 @@ class Mysqli_driver
 | Function: affected_rows()
 | ---------------------------------------------------------------
 |
-| The equivelant to mysqli_affected_rows();
+| The equivelant to sqlite_chages();
 |
 | @Return: (Int) Returns the number of affected row in the last query
 |
 */
 	public function affected_rows()
 	{
-		return $this->mysqli->affected_rows;
+		if($this->result !== FALSE)
+		{
+			return $this->sqlite->changes();
+		}
+		return FALSE
 	}
 	
 /*
@@ -454,14 +383,18 @@ class Mysqli_driver
 | Function: num_rows()
 | ---------------------------------------------------------------
 |
-| The equivelant to mysqli_num_rows();
+| The equivelant to mysql_num_rows();
 |
 | @Return: (Int) Returns the number of rows in the last result
 |
 */
 	public function num_rows()
 	{
-		return $this->result->num_rows;
+		if($this->result !== FALSE)
+		{
+			return $this->result->numRows();
+		}
+		return FALSE;
 	}
 	
 /*
@@ -476,8 +409,8 @@ class Mysqli_driver
 	function trigger_error() 
 	{
 		$query = end($this->queries);
-		$msg  = $this->mysqli->error . "<br /><br />";
-		$msg .= "<b>MySql Error No:</b> ". $this->mysqli->errno ."<br />";
+		$msg  = sqlite_error_string( $this->sqlite->lastError() ). "<br /><br />";
+		$msg .= "<b>Sqlite Error No:</b> ". $this->sqlite->lastError() ."<br />";
 		$msg .= '<b>Query String:</b> ' . $query['query'];
 		show_error($msg, false, E_ERROR);
 	}

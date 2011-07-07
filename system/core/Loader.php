@@ -228,7 +228,7 @@ class Loader
 		}
 		
 		// Return the object!
-		return \Registry::singleton()->load("DBC_".$args);
+		return $Obj;
 	}
 	
 /*
