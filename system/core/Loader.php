@@ -183,30 +183,21 @@ class Loader
 			show_error('db_key_not_found', array($args), E_ERROR);
 		}
 		
-		// Uppercase the driver and add "_driver" to it
-		$info['driver'] = ucfirst($info['driver']."_driver");
-		
 		// Check for a DB class in the Application, and system core folder
-		if(file_exists(APP_PATH. DS . 'database' . DS . $info['driver'] . '.php')) 
+		if(file_exists(APP_PATH. DS . 'database' . DS . 'Driver.php')) 
 		{
-			require_once(APP_PATH. DS . 'database' . DS . $info['driver'] . '.php');
+			require_once(APP_PATH. DS . 'database' . DS . 'Driver.php');
 			$first = "Application\\";
 		}
 		else
 		{
-			require_once(SYSTEM_PATH. DS . 'database' . DS . $info['driver'] . '.php');
+			require_once(SYSTEM_PATH. DS . 'database' . DS . 'Driver.php');
 			$first = "System\\";
 		}
 		
 		// Not in the registry, so istablish a new connection
-		$dispatch = $first ."Database\\".$info['driver'];
-		$Obj = new $dispatch(
-			$info['host'],
-			$info['port'],
-			$info['username'],
-			$info['password'],
-			$info['database']
-		);
+		$dispatch = $first ."Database\\Driver";
+		$Obj = new $dispatch( $info );
 		
 		// Store the connection in the registry
 		\Registry::singleton()->store("DBC_".$args, $Obj);		

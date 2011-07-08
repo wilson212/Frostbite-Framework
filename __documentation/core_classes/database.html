@@ -28,8 +28,9 @@
 <div id="content">
 	<h1>Database Class</h1>
 	<p>
-		The Database class is there to make querying the database much easier. Be sure to also check the "Libraries -> Querybuilder" section. The querybuilder makes
-		it really simple to build sql statments that can be passed into the database query method.
+		The Database class is there to make querying the database much easier. The database class is an extension to the powerful <a href='http://www.php.net/manual/en/book.pdo.php'>
+		PHP PDO </a> library. You can use straight PDO methods (except "query") if you prefer, or use the etended (easier) methods. Be sure to also check the 
+		"Libraries -> Querybuilder" section. The querybuilder makes it really simple to build sql statments that can be passed into the database query method.
 	</p>
 
 	
@@ -42,7 +43,7 @@
 	<pre>
 		$DB_configs = array( 
 			'<var>$config_key</var>' => array(
-				'driver'	=> 'The database type (Ex: mysql, mysqli)'
+				'driver'	=> 'The database type' (Ex: mysql, sqlite. <a href='http://www.php.net/manual/en/pdo.drivers.php'>List of supported drivers</a>)
 				'hostname'	=> 'host IP';
 				'port'		=> 'mysql port #';
 				'username'	=> 'database username';
@@ -94,11 +95,11 @@
 		<!-- END variable: statistics -->
 		
 		<!-- variable: database -->
-		<h3>$database</h3>
-		<p>This is the current selected database name. <i>(Type: String)</i></p>
+		<h3>$result</h3>
+		<p>This is the current result object from the last query. You can chain off the result variable and access the PDO mehtods inside ( Ex: $connection->result->rowCount() ). <i>(Type: Object)</i></p>
 		<code>
-			Format: $database = '<i>Database name</i>'<br />
-			Access: $name = $connection->database;
+			Format: $result = '<i>Result Object</i>'<br />
+			Access: $name = $connection->result;
 		</code>
 		<!-- END variable: statistics -->
 		
@@ -111,6 +112,15 @@
 		</code>
 		<!-- END variable: statistics -->
 		
+		<!-- variable: Last Query -->
+		<h3>$last_query</h3>
+		<p>This variable holds the last query string. <i>(Type: String)</i></p>
+		<code>
+			Format: $last_query = '<i>Last Query String</i>'<br />
+			Access: $query = $connection->last_query;
+		</code>
+		<!-- END variable: Last Query -->
+		
 	</p>		
 	<!-- End Variables -->
 	
@@ -118,36 +128,108 @@
 	<!-- Querying the DB -->
 	<h2>Querying the Database</h2>
 	<p>
-		The example below shows how you would manually query the Database. This does not return the result.
+		There are mulitple ways of quering the database. You can use <a hre='http://www.php.net/manual/en/pdo.exec.php'>PDO's exec method</a>
+		( $connection->exec($query) ), <a href='http://www.php.net/manual/en/pdo.prepare.php'>PDO's Prepare / execute method</a> ( $object = $connection->prepare($query) ), 
+		or the built in methods shown below. Please note that if you use PDO's prepare / execute methods, The database class will be unable to get statistics on your queries.
 	</p>
 	
-	Instanced:
-	<code>
-		$this-><var>$database_key</var>->query('<var>$query</var>');<br />
-	</code>
-	
-	Not - Instanced:
-	<code>
-		$connection->query('<var>$query</var>');<br />
-	</code>	
-	<h5><u>Arguments:</u></h5>
-	<p>
-		<ol>
-			<li>
-				<var>$database_key</var>: The same as the <var>$config_key</var> in the Connection example.
-			</li>
-			<li>
-				<var>$query</var>: The query you are putting the in the Database.
-			</li>
-		</ol>
-	</p>
+		<!-- query: query -->
+		<h3>query()</h3>
+		Instanced:
+		<code>
+			$this-><var>$database_key</var>->query('<var>$query</var>', '<dfn>$replacements</dfn>');<br />
+		</code>
+		
+		Not - Instanced:
+		<code>
+			$connection->query('<var>$query</var>', '<dfn>$replacements</dfn>');<br />
+		</code>	
+		<h5><u>Arguments:</u></h5>
+		<p>
+			<ol>
+				<li>
+					<var>$database_key</var>: The same as the <var>$config_key</var> in the Connection example.
+				</li>
+				<li>
+					<var>$query</var>: The query you are putting the in the Database.
+				</li>
+				<li>
+					<dfn>$replacements</dfn>: An array of replacments of the "?" 's or ":var" 's. These "$key => $value" 's will be used in $PDO->bindParam($key, $value);
+				</li>
+			</ol>
+		</p>
+		<!-- END query: query -->
+		
+		<br />
+		<!-- query: insert -->
+		<h3>insert()</h3>
+		<p>This method makes it easy to insert data into the database.</p>
+		<code>
+			$connection->insert('<var>$table</var>', '<var>$data</var>');
+		</code>
+		<h5><u>Arguments:</u></h5>
+		<p>
+			<ol>
+				<li>
+					<var>$table</var>: The table name we are inserting into.
+				</li>
+				<li>
+					<var>$data</var>: An array of ( $coloumn_name => $column_value ).
+				</li>
+			</ol>
+		</p>
+		<!-- END query: insert -->
+		
+		<br />
+		<!-- query: update -->
+		<h3>update()</h3>
+		<p>This method makes it easy to update data in the database.</p>
+		<code>
+			$connection->update('<var>$table</var>', '<var>$data</var>', '<var>$where</var>');
+		</code>
+		<h5><u>Arguments:</u></h5>
+		<p>
+			<ol>
+				<li>
+					<var>$table</var>: The table name we are updating.
+				</li>
+				<li>
+					<var>$data</var>: An array of ( $coloumn_name => $column_value ).
+				</li>
+				<li>
+					<var>$where</var>: A string of the WHERE clause. ( "'token' = 'value'" ). Remember to escape your single qoutes( \' )!
+				</li>
+			</ol>
+		</p>
+		<!-- END query: update -->
+		
+		<br />
+		<!-- query: delete -->
+		<h3>delete()</h3>
+		<p>This method makes it easy to delete data in the database.</p>
+		<code>
+			$connection->delete('<var>$table</var>', '<var>$where</var>');
+		</code>
+		<h5><u>Arguments:</u></h5>
+		<p>
+			<ol>
+				<li>
+					<var>$table</var>: The table name we are deleting into.
+				</li>
+				<li>
+					<var>$where</var>: A string of the WHERE clause. ( "'token' = 'value'" ). Remember to escape your qoutes( \' )!
+				</li>
+			</ol>
+		</p>
+		<!-- END query: update -->
+		
 	<!-- END Querying -->
 	
 	
 	<!-- Fetching Results -->
 	<h2>Fetching Results</h2>
 	<p>
-		There is actually 3 ways of getting results from the query
+		There is actually 2 ways of getting results from the query
 	</p>
 	
 		<!-- Fetch_array() -->
@@ -160,56 +242,24 @@
 		<p>
 			<ol>
 				<li>
-					<dfn>$type</dfn>: Default = 'ASSOC' - The type of array that is to be fetched. It's a constant and can take the following values: 
-					'ASSOC', and 'BOTH'. By using 'BOTH', you'll get an array with both associative and number indices. Using 'ASSOC' (Default), 
-					you only get associative indices (just as if using mysql_fetch_assoc()). If you are not sure which to use, just leave it blank, as 'ASSOC'
-					is the most common array people want.
+					<dfn>$type</dfn>: Default = 'ASSOC' - This is the return type of the array. It uses the same constants as the PDO fetch() method
+					( <a href='http://www.php.net/manual/en/pdostatement.fetch.php'>Php PDO::Fetch</a> ). Just remember you just need the end of the fetch 
+					constant name ( PDO::FETCH_* ). For example: to use PDO::FECTH_BOTH, you query like this: $connection->fetch_array('BOTH'); <dfn>$type</dfn>
+					is not case sensitive.
 				</li>
 			</ol>
 		</p>
 		<!-- END Fetch_array -->
 		
-		<!-- Fetch_row -->
-		<h3>fetch_row()</h3>
-		<p>This method is great when you want a single row of data. Arrat keys will be in a number format based in table order.</p>
+		<!-- Fetch_column() -->
+		<h3>fetch_column()</h3>
+		<p>This method is perfect for COUNT() queries or queries where you need just need 1 value from a single cell.</p>
 		<code>
-			$result = $connection->fetch_row();
+			$result = $connection->fetch_column();
 		</code>
-		<!-- END Fetch_row -->
-		
-		<!-- Fetch_result() -->
-		<h3>fetch_result()</h3>
-		<p>This method is perfect for COUNT() queries. It returns a single variable.</p>
-		<code>
-			$result = $connection->fetch_result('<dfn>$offset</dfn>');
-		</code>
-		<h5><u>Arguments:</u></h5>
-		<p>
-			<ol>
-				<li>
-					<dfn>$offset</dfn>: Default = 0 - The row number from the result that's being retrieved. Row numbers start at 0. 
-				</li>
-			</ol>
-		</p>
 		<!-- END Fetch_result -->
 	
 	<!-- END Fetching results -->
-	
-	<!-- Selecting a new DB -->
-	<h2>Selecting a new database</h2>
-	<p>The frostbite database drivers allow switching between databases using the same connection as long as the database uses the same connection.</p>
-	<code>
-		$connection->select_db('<var>$name</var>');
-	</code>
-	<h5><u>Arguments:</u></h5>
-	<p>
-		<ol>
-			<li>
-				<var>$type</var>: The database name you wish to select.
-			</li>
-		</ol>
-	</p>
-	<!-- END selecting a new database -->
 	
 	
 	<!-- Resetting -->
@@ -227,23 +277,13 @@
 	<!-- Num Rows -->
 	<h2>Getting the number of rows</h2>
 	<p>
-		This method will return the number of rows from the last query. Equivelant to mysql_num_rows()
+		This method is quite unique. It will return the number of affected rows from the last Delete/Update/Insert query, or return the number (count) of rows
+		in the last queries result array, depending on the type of query.
 	</p>
 	<code>
 		$connection->num_rows();
 	</code>
 	<!-- END Num Rows -->
-	
-	
-	<!-- Affected Rows -->
-	<h2>Getting the number of affected rows</h2>
-	<p>
-		This method will return the number of affected rows from the last query. Equivelant to mysql_affected_rows()
-	</p>
-	<code>
-		$connection->affected_rows();
-	</code>
-	<!-- END Affected Rows -->
 	
 	<!-- Insert ID -->
 	<h2>Getting the last insert id</h2>
@@ -251,8 +291,17 @@
 		This method will return the insert id of the last Insert. Equivelant to mysql_insert_id()
 	</p>
 	<code>
-		$connection->insert_id();
+		$connection->last_insert_id('<dfn>$name</dfn>');
 	</code>
+	<h5><u>Arguments:</u></h5>
+		<p>
+			<ol>
+				<li>
+					<dfn>$name</dfn>: Default = NULL - this only applies If using a Postgre database. Please read more here
+					( <a href='http://www.php.net/manual/en/pdo.lastinsertid.php'>Php PDO::lastInsertId</a> )
+				</li>
+			</ol>
+		</p>
 	<!-- END Insert ID -->
 
 

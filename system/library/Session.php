@@ -246,7 +246,11 @@ class Session
 			}
 			
 			// Return the the result
-			return $this->DB->result(); 
+			if($this->DB->num_rows() > 0)
+			{
+				return TRUE;
+			}
+			return FALSE;
 		}
 	}
 
