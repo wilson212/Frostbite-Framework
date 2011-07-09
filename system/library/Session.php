@@ -121,7 +121,7 @@ class Session
 		}
 		
 		// Read cookie data
-		$cookie = unserialize($cookie);
+		$cookie = unserialize( stripslashes($cookie) );
 		
 		// Are we storing session data in the database?
 		if($this->session_use_db == TRUE)

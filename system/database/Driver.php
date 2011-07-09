@@ -108,7 +108,7 @@ class Driver extends \PDO
 		$bench['query'] = $this->last_query = $query;
 		
 		// Prepare the statement
-		$this->result = $this->prepare($query, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
+		$this->result = $this->prepare($query);
 		
 		// Process our sprints and bind parameters
 		if(is_array($sprints))
@@ -151,7 +151,7 @@ class Driver extends \PDO
 		$bench['time'] = round($end - $start, 5);
 		
 		// Get our number of rows
-		$this->num_rows = $this->result->rowCount();
+		$this->num_rows = $this->rowCount();
 
 		// Add the query to the list of queries
 		$this->queries[] = $bench;
@@ -203,6 +203,30 @@ class Driver extends \PDO
 		// Return
 		return $result;
     }
+
+/*
+| ---------------------------------------------------------------
+| Function: rowCount()
+| ---------------------------------------------------------------
+|
+| This method is a work around for getting the number of rows in
+| a SELECT statement as most Databases dont return this value.
+|
+*/	
+	public function rowCount() 
+	{
+		$regex = '/^SELECT (.*) FROM (.*)$/i';
+		if(preg_match($regex, $this->last_query, $output) != FALSE) 
+		{
+			$stmt = parent::query("SELECT COUNT(*) FROM ". $output[2], \PDO::FETCH_NUM);
+			++$this->statistics['count'];
+			return $stmt->fetchColumn();
+		}
+		else
+		{
+			return $this->result->rowCount();
+		}
+	}
 	
 /*
 | ---------------------------------------------------------------

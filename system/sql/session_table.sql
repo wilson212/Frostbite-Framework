@@ -7,7 +7,6 @@ DROP TABLE IF EXISTS `session_table`;
 CREATE TABLE `session_table` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `token` text,
-  `user_agent` text,
   `ip_address` varchar(50) DEFAULT NULL,
   `last_seen` varchar(50) DEFAULT NULL,
   `user_data` text,
