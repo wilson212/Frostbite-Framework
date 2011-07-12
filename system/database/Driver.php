@@ -76,11 +76,11 @@ class Driver extends \PDO
 			// So we caught an error, depending on our driver, is the info we spit out
 			if($driver == 'sqlite')
 			{
-				show_error('db_connect_error', array( $dsn, 'Localhost' ), E_ERROR);
+				show_error('db_connect_error', array( $database, $dsn, '' ), E_ERROR);
 			}
 			else
 			{
-				show_error('db_connect_error', array( $hostname, $port ), E_ERROR);
+				show_error('db_connect_error', array( $database, $hostname, $port ), E_ERROR);
 			}
 		}
 		
