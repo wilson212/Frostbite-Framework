@@ -45,10 +45,10 @@
 	<!-- Loading the config class -->
 	<h2>Loading the Config class</h2>
 	<p>
-		If you need to access the function manually, you will do so like this
+		If you need to access the function manually, you will do so like below. Please note that load_class() is the default way of loading Core Classes... but you can use the loader.
 	</p>
 	<code>
-		$this->load->library('Config');<br />
+		$this->config = load_class('Core\\Config');<br />
 	</code>
 	<!-- End Loading the config class -->
 	
@@ -65,14 +65,14 @@
 	<p>
 		<ol>
 			<li>
-				<var>$file_path</var>: This is the full path from the system root to the config file. File name and extension must be included.
+				<var>$file_path</var> [Type: String]: This is the full path from the system root to the config file. File name and extension must be included.
 			</li>
 			<li>
-				<var>$container_name</var>: This is the container key, that holds the config variables for a this config file. Must be unique. It will 
+				<var>$container_name</var> [Type: String]: This is the container key, that holds the config variables for a this config file. Must be unique. It will 
 				be needed to get config variables from this config file.
 			</li>
 			<li>
-				<dfn>$array_key</dfn>: If the config variables are stored in an array, then this is the variable name that the array is stored into.
+				<dfn>$array_key</dfn> [Type: String]: If the config variables are stored in an array, then this is the variable name that the array is stored into.
 			</li>
 		</ol>
 	</p>
@@ -90,11 +90,11 @@
 	<p>
 		<ol>
 			<li>
-				<var>$var_name</var>: The variable key that is stored in the config file. (Ex: data, would be "$data" in the config file). Also, if the config options are stored
+				<var>$var_name</var> [Type: String]: The variable key that is stored in the config file. (Ex: data, would be "$data" in the config file). Also, if the config options are stored
 				in an array, then it would be the key in the array (Ex: data, would be "$config['data']).
 			</li>
 			<li>
-				<dfn>$container_name</dfn>: Default "App" - This is the container key, that holds the config options for a particular config file. Each file has its own container.
+				<dfn>$container_name</dfn> [Type: String]: Default "App" - This is the container key, that holds the config options for a particular config file. Each file has its own container.
 			</li>
 		</ol>
 	</p>
@@ -110,14 +110,14 @@
 	<p>
 		<ol>
 			<li>
-				<var>$var_name</var>: The variable key that is stored in the config file. (Ex: data, would be "$data" in the config file). Also, if the config options are stored
+				<var>$var_name</var> [Type: String]: The variable key that is stored in the config file. (Ex: data, would be "$data" in the config file). Also, if the config options are stored
 				in an array, then it would be the key in the array (Ex: data, would be "$config['data']).
 			</li>
 			<li>
-				<var>$new_value</var>: The new value of <var>$var_name</var>
+				<var>$new_value</var> [Type: Mixed]: The new value of <var>$var_name</var>
 			</li>
 			<li>
-				<dfn>$container_name</dfn>: Default "App" - The container name that holds the <var>$var_name</var> that we are setting to value <var>$new_value</var>
+				<dfn>$container_name</dfn> [Type: String]: Default "App" - The container name that holds the <var>$var_name</var> that we are setting to value <var>$new_value</var>
 			</li>
 		</ol>
 	</p>
@@ -127,6 +127,7 @@
 	<!-- Saving -->
 	<h2>Saving all set config variables to the config file</h2>
 	<p>This method will save all the current variables and values in the containers config file.</p>
+	<p class="important"><strong>Note:</strong>&nbsp; Saving to a config file WILL remove all comments and special formatting you may have used.</p>
 	<code>
 		$this->config->Save('<var>$container_name</var>);
 	</code>
@@ -134,7 +135,7 @@
 	<p>
 		<ol>
 			<li>
-				<var>$container_name</var>: The container name that holds the variables we are saving. The filename and path are stored locally, so you dont need to provide this info
+				<var>$container_name</var> [Type: String]: The container name that holds the variables we are saving. The filename and path are stored locally, so you dont need to provide this info
 			</li>
 		</ol>
 	</p>

@@ -30,7 +30,7 @@ class Loader
 |
 | This method is used to call in a model
 |
-| @Param: (String) $name - The name of the model
+| @Param: (String) $name - The name of the model. You may also go path/to/$name
 | @Param: (Mixed) $instance_as - How you want to access it as in the 
 |	controller (IE: $instance_as = test; In controller: $this->test)
 | @Return: (Object) Returns the model
@@ -38,8 +38,17 @@ class Loader
 */
 	function model($name, $instance_as = NULL)
 	{
-		$class = ucfirst($name);
-		$name = strtolower($name);
+		// Check for path. We need to get the model file name
+		if(strpos($name, '/') !== FALSE)
+		{
+			$paths = explode('/', $name);
+			$class = ucfirst( end($paths) );
+		}
+		else
+		{
+			$class = ucfirst($name);
+			$name = strtolower($name);
+		}
 		
 		// Include the model page
 		if($GLOBALS['is_module'] == TRUE)
@@ -50,16 +59,20 @@ class Loader
 		{
 			require(APP_PATH . DS . 'models' . DS . $name .'.php');
 		}
+		
+		// Get our class into a variable
+		$Obj = new $class();
 
 		// Instnace the Model in the controller
 		if($instance_as !== NULL)
 		{
-			get_instance()->$instance_as = new $class();
+			get_instance()->$instance_as = $Obj;
 		}
 		else
 		{
-			get_instance()->$name = new $class();
+			get_instance()->$class = $Obj;
 		}
+		return $Obj;
 	}
 	
 /*
@@ -70,6 +83,7 @@ class Loader
 | This method is used to load the view file and display it
 |
 | @Param: (String) $name - The name of the controllers view file
+|	can also be path/to/view/$name
 | @Param: (Array) $data - an array of variables to be extracted
 | @Param: (Bool) $return - Return the page instead of echo it?
 |
@@ -89,11 +103,11 @@ class Loader
 		// Figure out our file path
 		if($GLOBALS['is_module'] == TRUE)
 		{
-			$file = APP_PATH . DS . 'modules' . DS . $GLOBALS['controller'] . DS . 'views' . DS . $name . '.php';
+			$file = APP_PATH . DS . 'modules' . DS .  'views' . DS . $name . '.php';
 		}
 		else
 		{
-			$file = APP_PATH . DS . 'views' . DS . $GLOBALS['controller'] . DS . $name . '.php';		 
+			$file = APP_PATH . DS . 'views' . DS . $name . '.php';		 
 		}
 
 		// Get our page contents

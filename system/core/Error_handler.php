@@ -57,7 +57,7 @@ class Error_Handler
 | @Param: (Array)	$backtrace - Backtrace information if any
 |
 */
-	function trigger_error($errno, $message = 'none', $file = "", $line = 0, $backtrace = NULL)
+	function trigger_error($errno, $message = '', $file = '', $line = 0, $backtrace = NULL)
 	{
 		// Language setup
 		$this->lang = strtolower( config('core_language', 'Core') );
@@ -190,7 +190,7 @@ class Error_Handler
 							$k = strtoupper($k);
 							
 							// If $v is an object, then go to next loop
-							if(is_object($v) OR is_resource($v)) continue;
+							if(is_object($v)) continue;
 							
 							// If $v is an array, we need to dump it
 							if(is_array($v))
@@ -222,7 +222,8 @@ class Error_Handler
 		$page = preg_replace('~{(.*)}~', '', $page);
 		
 		// Spit the page out
-		eval('?>'.$page.'<?');		
+		/* eval('?>'.$page.'<?');	*/
+		echo $page;		
 		die();
 	}
 
@@ -245,7 +246,7 @@ class Error_Handler
 		$err_message .= "| Message: ".$this->ErrorMessage ."\n"; 
 		$err_message .= "| Reporting File: ".$this->ErrorFile."\n";
 		$err_message .= "| Error Line: ".$this->ErrorLine."\n";
-		$err_message .= "| URL When Error Occured: ".BASE_URL . $url ."\n\n";
+		$err_message .= "| URL When Error Occured: ".BASE_URL . "/". $url ."\n\n";
 		$err_message .= "--------------------------------------------------------------------\n\n";
 
 		// Write in the log file, the very long message we made
@@ -319,9 +320,8 @@ class Error_Handler
 				break;
 				
 			case "Object":
-				$html .= "$indent$var_name <span style='color:#a2a2a2'>$type</span><br />$indent(<br />";
-				foreach($var as $name=>$value) $html .= $this->var_dump($value, "$name", $indent.$tab_line);
-				$html .= "$indent)<br />";
+				$type_color = "<span style='color:black'>";
+				$html .= "$indent$var_name = <span style='color:#a2a2a2'>$type</span><br />";
 				break;
 				
 			case "Resource":

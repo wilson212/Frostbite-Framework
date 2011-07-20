@@ -3,8 +3,6 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>Input Class :: Frostbite Framework Documentation</title>
-
-	<style type='text/css' media='all'>@import url('./userguide.css');</style>
 	<link rel='stylesheet' type='text/css' media='all' href='../doc_style/userguide.css' />
 </head>
 <body>
@@ -39,7 +37,7 @@
 		By default, the seInput class is not initiated, so you will need to set that up manually or enable in the config to autoload the class. To load the Input class:
 	</p>
 	<code>
-		$this->load->core('Input');
+		$this->input = load_class('Core\\Input');
 	</code>
 	
 	<!-- POST -->
@@ -50,9 +48,11 @@
 	<code>
 		$var = $this->input->post('<var>$key</var>', '<dfn>$sanatize</dfn>');
 	</code>
+	
+	<h5><u>Arguments:</u></h5>
 	<p>
-		<var>$key</var> - This is the name of the post variable you are trying to get.<br />
-		<dfn>$sanatize</dfn> - Use the XSS filter to sanatize the data?<br />
+		<var>$key</var> [Type: String]: This is the name of the post variable you are trying to get.<br />
+		<dfn>$sanatize</dfn> [Type: Bool, Default: FALSE]: Use the XSS filter to sanatize the data?<br />
 	</p>
 	
 	<!-- COOKIE -->
@@ -63,9 +63,11 @@
 	<code>
 		$var = $this->input->cookie('<var>$key</var>', '<dfn>$sanatize</dfn>');
 	</code>
+	
+	<h5><u>Arguments:</u></h5>
 	<p>
-		<var>$key</var> - This is the name of the cookie you are reading information from.<br />
-		<dfn>$sanatize</dfn> - Use the XSS filter to sanatize the data?<br />
+		<var>$key</var> [Type: String]: This is the name of the cookie you are reading information from.<br />
+		<dfn>$sanatize</dfn> [Type: Bool, Default: FALSE]: Use the XSS filter to sanatize the data?<br />
 	</p>
 
 	<!-- Setting a COOKIE -->
@@ -76,10 +78,12 @@
 	<code>
 		$this->input->set_cookie('<var>$name</var>', '<var>$data</var>', '<dfn>$expiration</dfn>');
 	</code>
+	
+	<h5><u>Arguments:</u></h5>
 	<p>
-		<var>$name</var> - This is the name of the cookie you are setting.<br />
-		<var>$data</var> - The data you are storing in the cookie<br />
-		<dfn>$expiration</dfn> - This is the expiration time in seconds, of when the cookie will expire. Default is one year ( 60 * 60 * 24 * 365 )<br />
+		<var>$name</var> [Type: String]: This is the name of the cookie you are setting.<br />
+		<var>$data</var> [Type: String]: The data you are storing in the cookie<br />
+		<dfn>$expiration</dfn> [Type: Int, Default: (60 * 60 * 24 * 365)]: This is the expiration time in seconds, of when the cookie will expire. Default is one year.<br />
 	</p>
 	
 	<!-- Browser Info -->
@@ -110,12 +114,14 @@
 	<code>
 		$var = $this->input->set_rules(<dfn>$tags</dfn>, <dfn>$attributes</dfn>, <dfn>$tag_method</dfn>, <dfn>$attr_method</dfn>, <dfn>$use_blacklist</dfn>);
 	</code>
+	
+	<h5><u>Arguments:</u></h5>
 	<p>
-		<dfn>$tags</dfn>: Default = array() - Depending on the method, this is an array of which tags you want to filter, or keep<br />
-		<dfn>$attributes</dfn>: Default = array() - Depending on the method, this is an array of which attributes you want to filter, or keep<br />
+		<dfn>$tags</dfn> [Type: Array, Default: empty Array]: Depending on the method, this is an array of which tags you want to filter, or keep<br />
+		<dfn>$attributes</dfn> [Type: Array, Default: empty Array]: Depending on the method, this is an array of which attributes you want to filter, or keep<br />
 		<dfn>$tag_method</dfn> - <var>0</var> = remove ALL BUT these <dfn>$tags</dfn> (default), <var>1</var> = remove ONLY these <dfn>$tags</dfn><br />
 		<dfn>$attr_method</dfn> - <var>0</var> = remove ALL BUT these <dfn>$attributes</dfn> (default), <var>1</var> = remove ONLY these <dfn>$attributes</dfn><br />
-		<dfn>$use_blacklist</dfn>: Default = 1 - Do we use the blacklist at all?
+		<dfn>$use_blacklist</dfn> [Type: Int, Default: 0]: Do we use the blacklist at all?
 	</p>
 	<p class="important">Note that none of these arguments are needed. You can reset the defaults just by going $this->input->set_rules(); </p>
 
@@ -144,9 +150,11 @@
 	<code>
 		$var = $this->input->is_clean('<var>$content</var>', '<dfn>$type</dfn>');
 	</code>
+	
+	<h5><u>Arguments:</u></h5>
 	<p> 
-		<var>$content</var> -  The content you are verifying.<br />
-		<dfn>$type</dfn>: Default = BASIC - One of the 3 types mentioned above.<br />
+		<var>$content</var> [Type: String]: The content you are verifying.<br />
+		<dfn>$type</dfn> [Type: String, Default: "BASIC"]: One of the 3 types mentioned above.<br />
 	</p>
 	
 </div>

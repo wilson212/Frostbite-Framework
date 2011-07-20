@@ -64,3 +64,40 @@ pre
 	line-height: 14px;
 	overflow:auto;
 }
+
+/*
+body
+{
+	background: #596978;
+	padding: 30px;
+	margin: 0;
+}
+#error-box
+ {
+	width: 800px;
+	background-color: #f8f8f8;
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0.19, #5F7D93),
+		color-stop(0.6, #88A2B4),
+		color-stop(0.8, #9CB5C5)
+	);
+	background-image: -moz-linear-gradient(
+		center bottom,
+		#5F7D93 19%,
+		#88A2B4 60%,
+		#9CB5C5 80%
+	);
+	margin-left: auto;
+	margin-right: auto;
+	border: 1px solid #111;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	-webkit-border-radius: 6px;	
+	-moz-box-shadow: 0 0 5px 5px #222;
+	-webkit-box-shadow: 0 0 5px 5px#222;
+	box-shadow: 0 0 5px 5px #222;
+}
+*/

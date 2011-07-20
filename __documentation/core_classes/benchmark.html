@@ -3,8 +3,6 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>Benchamrk Class :: Frostbite Framework Documentation</title>
-
-	<style type='text/css' media='all'>@import url('./userguide.css');</style>
 	<link rel='stylesheet' type='text/css' media='all' href='../doc_style/userguide.css' />
 </head>
 <body>
@@ -31,15 +29,18 @@
 	<p>
 		The Benhmark class is used to see how fast certain components are taking to load, as well as how much memory your script is using at any given point.
 	</p>
+	
+	<p class="important"><strong>Note:</strong>&nbsp; This class is loaded by default, and statically. Therfor you do not ever need to load the Benchamrk class manually.</p>
 
 	<!-- Start -->
-	<h2>Starting  new Benchmark</h2>
+	<h2>Starting a new Benchmark</h2>
 	<p>To initiate a new start time:</p>
 	<code>
 		Benchmark::startTimer('<var>$name</var>');
 	</code>
 	
-	<p><var>$name</var>: the name of your benchamrk, but remember it, you will need this later ;)</p>
+	<h5><u>Arguments:</u></h5>
+	<p><var>$name</var> [Type: String]: the name of your benchamrk, but remember it, you will need this later ;)</p>
 	
 	<!-- Stop -->
 	<h2>Stoping a Benchmark</h2>
@@ -48,16 +49,31 @@
 		Benchmark::stopTimer('<var>$name</var>');
 	</code>
 	
-	<p><var>$name</var>: the name of your benchamrk</p>
+	<h5><u>Arguments:</u></h5>
+	<p><var>$name</var> [Type: String]: the name of your benchamrk</p>
 	
 	<!-- Show -->
-	<h2>displaying a Benchmark time</h2>
-	<p>Please take note, if you do not stop your timer first, <b>It Will Be Stopped</b> after using this function.</p>
+	<h2>Displaying a Benchmark time</h2>
+	<p>This method will display the time in seconds it took from start to stop.</p>
 	<code>
-		Benchmark::showTimer('<var>$name</var>');
+		Benchmark::showTimer('<var>$name</var>', '<dfn>$round</dfn>', '<dfn>$stop</dfn>');
 	</code>
 	
-	<p><var>$name</var>: the name of your benchamrk</p>
+	<h5><u>Arguments:</u></h5>
+	<p>
+		<ol>
+			<li><var>$name</var> [Type: String]: the name of your benchamrk</li>
+			<li><dfn>$round</dfn> [Type: Int, Default: 3]: how many numbers after the decimal point? (Ex: 3 would look like this - 0.123)</li>
+			<li><dfn>$stop</dfn> [Type: Bool, Default: FALSE]: Do we stop the benchmark upon showing it?</li>
+		</ol>
+	</p>
+	
+	<!-- Memory Usage -->
+	<h2>Displaying Memory Usage</h2>
+	<p>This method shows how much memory usage the script is taking up at that current moment</p>
+	<code>
+		Benchmark::memory_usage();
+	</code>
 
 </div>
 <!-- END CONTENT -->

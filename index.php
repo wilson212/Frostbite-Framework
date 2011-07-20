@@ -20,7 +20,7 @@
 | to manually define the BASE_URL below. 
 */
 define('SITE_DIR', dirname( $_SERVER['PHP_SELF'] ));
-define('BASE_URL', 'http://'. $_SERVER['HTTP_HOST'] . SITE_DIR .'/');
+define('BASE_URL', 'http://'. $_SERVER['HTTP_HOST'] . SITE_DIR);
 
 // Define a smaller Directory seperater and ROOT path
 define('DS', DIRECTORY_SEPARATOR);

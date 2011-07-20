@@ -3,8 +3,6 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>Loader Class :: Frostbite Framework Documentation</title>
-
-	<style type='text/css' media='all'>@import url('./userguide.css');</style>
 	<link rel='stylesheet' type='text/css' media='all' href='../doc_style/userguide.css' />
 </head>
 <body>
@@ -29,10 +27,18 @@
 	<h1>Loader Class</h1>
 
 	<p>
-		The loader class makes it easy to load libraries, modules, helpers, and Database connections and instance them in the Main controller.
+		The loader does what its name says... It loads stuff. The loader class makes it easy to load libraries, modules, helpers, and Database connections and instance them in the Main controller.
 	</p>
-
+	
+	<!-- Init -->
+	<h2>Loading the Loader Class</h2>	
+	<p>
+		There will be times when you will need to manually load the loader class. This is explained below.
+	</p>	
 	<p class="important"><strong>Note:</strong>&nbsp; This class always loaded before the main controller is initialized, so you will not need to initialize it by default.</p>
+	<code>
+		$this->load = load_class('Core\\Loader');
+	</code>
 
 	
 	<!-- Library -->
@@ -45,13 +51,17 @@
 		$this->load->library('<var>$class_name</var>');
 	</code>
 	
-	<p>The above example shows the minimum to load a library. There are 2 more arguments that can be passed as shown below, but are not required:</p>
+	<p>The above example shows the minimum to load a library. There is 1 more argument that can be passed as shown below, but are not required:</p>
 	<code>
 		$this->load->library('<var>$class_name</var>', <dfn>$instance</dfn>');
 	</code>
 	
+	<h5><u>Arguments:</u></h5>
 	<p>
-		<dfn>$instance</dfn>: Default = <var>TRUE</var> - Do we instance the class in the controller?.
+		<ol>
+			<li><var>$classname</var> [Type: String]: The library class name.
+			<li><dfn>$instance</dfn> [Type: Bool, Default TRUE]: Do we instance the class in the controller?.</li>
+		</ol>
 	</p>
 	
 	
@@ -59,21 +69,13 @@
 	<!-- Database -->
 	<h2>Using the loader to establish a Database Connection</h2>
 	<p>
-		Before you establish a database connection, you need to enter the connection info in the "Application/config/database.config.php" file.
-		Below is an example of how to configure you DB connection:
+		Before you establish a database connection, you need to enter the connection info in the "Application/config/database.config.php" file. Please see 
+		<a href='database.html'>Database Class</a> for more details. Below is an example of how to configure you DB connection:
 	</p>
 	<pre>
 		$DB_configs = array( 
 			'<var>$config_key</var>' => array(
-				'hostname' => 'host IP';
-				'port' => 'mysql port #';
-				'username' => 'database username';
-				'password' => 'database password';
-				'database' => 'name of the database';
-			),
-			'<var>$config_key2</var>' => array(
-				'hostname' => .....
-		);
+				'hostname' => ...
 	</pre>
 	
 	<p>Now below, this how we load that very connection:
@@ -81,10 +83,15 @@
 		$connection = $this->load->database('<var>$config_key</var>', '<dfn>$instance</dfn>');
 	</code>
 	
+	<h5><u>Arguments:</u></h5>
 	<p>
-		<dfn>$instance</dfn>: Default = <font color="blue"><b>FALSE</b></font> - Do we instance this connection in the controller super object? <kbd>NOTE:</kbd> If <dfn>$instance</dfn>
-		is set to <font color='blue'><b>TRUE</b></font>, then <var>$connection = </var> is NOT needed as it will be instanced as "$this->$config_key" UNLESS you are using it outside the
-		controller.
+		<ol>
+			<li>
+				<dfn>$instance</dfn> [Type: Bool, Default: FALSE]: Do we instance this connection in the controller super object? <kbd>NOTE:</kbd> If <dfn>$instance</dfn>
+				is set to <font color='blue'><b>TRUE</b></font>, then <var>$connection = </var> is NOT needed as it will be instanced as "$this->$config_key" UNLESS you are using it outside the
+				controller.
+			</li>
+		</ol>
 	</p>
 	
 	
@@ -101,8 +108,13 @@
 		$this-><var>$name</var>->method();
 	</code>
 	
+	<h5><u>Arguments:</u></h5>
 	<p>
-		<dfn>$instance_as</dfn>: Default = Lowercase <var>$name</var> - Setting this will allow you to access the model using a different name then the class name:
+		<ol>
+			<li>
+				<dfn>$instance_as</dfn> [Type: String, Default: Lowercase <var>$name</var>]: Setting this will allow you to access the model using a different name then the class name
+			</li>
+		</ol>
 	</p>
 	<code>
 		$this-><dfn>$instance_as</dfn>->method();
@@ -114,6 +126,13 @@
 	<code>
 		$this->load->helper('<var>$name</var>');
 	</code>
+	
+	<h5><u>Arguments:</u></h5>
+	<p>
+		<ol>
+			<li><var>$name</var> [Type: String]: The name of the helper file, No extension</li>
+		</ol>
+	</p>
 
 </div>
 <!-- END CONTENT -->

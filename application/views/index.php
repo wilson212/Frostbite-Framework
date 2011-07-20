@@ -3,7 +3,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>FrostBite Framework Test Template</title>
-	<link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>application/views/welcome/style.css"/>
+	<link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>/application/views/welcome/style.css"/>
 </head>
 
 <body>

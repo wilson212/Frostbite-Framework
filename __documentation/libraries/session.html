@@ -30,8 +30,7 @@
 
 	<p>
 		The session class makes it easier to manage users login session information, and is more secure as it does not use the $_SESSION global. All session information is stored in the
-		database for easy and secure reach. If you have the session Database turned off, then custom information can be stored in the cookie instead, which is WAY less secure then storing 
-		info in the database.
+		database for easy and secure reach. If you have the session Database turned off, then session data will be serialized and stored in a file.
 	</p>
 	
 	<!-- Initalizing -->
@@ -44,6 +43,24 @@
 		$this->load->library('Session'); 
 	</code>
 	
+	
+	<!-- Class Variables -->
+	<h2>Public class variables</h2>
+	<p>
+		There are a few variables within the Session Class that can be accessed from the outside
+	</p>	
+	<p>
+		<!-- variable: statistics -->
+		<h3>$data</h3>
+		<p>The data variable is an array of variables you have set using the "set" method. <i>(Type: Array)</i></p>
+		<code>
+			Format: $data = array( 'key' => '<i>value</i>', 'key2' => '<i>value2</i>' ... etc etc);<br />
+			Access: $session_data = $this->session->data;
+		</code>
+		<!-- END variable: statistics -->
+	</p>
+	
+	
 	<!-- Setting -->
 	<h2>Setting a session variable</h2>
 	<p>
@@ -52,9 +69,16 @@
 	<code>
 		$this->session->set('<var>$key</var>', '<var>$value</var>');
 	</code>
+	<h5><u>Arguments:</u></h5>
 	<p>
-		<var>$key</var> - This is the name of the value your setting, such as "username = $value", the $key in this example is "username".<br />
-		<var>$value</var> - This is value you are setting to your key.
+		<ol>
+			<li>
+				<var>$key</var> [Type: String]: This is the name of the value your setting, such as "username = $value", the $key in this example is "username".<br />
+			</li>
+			<li>
+				<var>$value</var> [Type: Mixed]: This is value you are setting to your key.
+			</li>
+		</ol>
 	</p>
 	
 	<!-- Getting -->
@@ -65,8 +89,13 @@
 	<code>
 		$var = $this->session->get('<var>$key</var>');
 	</code>
+	<h5><u>Arguments:</u></h5>
 	<p>
-		<var>$key</var> - This is the name of the value your getting.<br />
+		<ol>
+			<li>
+				<var>$key</var> [Type: String]: This is the name of the value your getting.<br />
+			</li>
+		</ol>
 	</p>
 	
 	<!-- Saving -->
@@ -85,7 +114,7 @@
 
 <div id="footer">
 	<p>
-		Previous Topic:&nbsp;&nbsp;<a href="loader.html">Loader Class</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+		Previous Topic:&nbsp;&nbsp;<a href="#"> -- </a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
 		<a href="#top">Top of Page</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
 		<a href="../index.html">Return to Index</a> &nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;
 		Next Topic:&nbsp;&nbsp;<a href="#"> -- </a>

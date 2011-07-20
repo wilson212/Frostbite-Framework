@@ -26,7 +26,7 @@ class Welcome extends System\Core\Controller
 		| This array is the "No Contents In Body...." message you see 
 		| when you load this page in the browser.
 		*/
-		$data = $this->welcome_model->return_default_array();
+		$data = $this->Welcome_Model->return_default_array();
 		$data['key'] = array( 0 => array( 'name' => 'steve' ), 1 => array( 'name' => 'bob' ), 2 => array( 'name' => 'david' ));
 		
 		// Load the page, and we are done :)

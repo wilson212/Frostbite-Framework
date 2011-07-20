@@ -3,8 +3,6 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>Database Class :: Frostbite Framework Documentation</title>
-
-	<style type='text/css' media='all'>@import url('./userguide.css');</style>
 	<link rel='stylesheet' type='text/css' media='all' href='../doc_style/userguide.css' />
 </head>
 <body>
@@ -64,10 +62,10 @@
 	<p>
 		<ol>
 			<li>
-				<var>$config_key</var>: The array key containing your connection information.
+				<var>$config_key</var> [Type: String]: The array key containing your connection information.
 			</li>
 			<li>
-				<dfn>$instance</dfn>: Default = <font color="blue"><b>FALSE</b></font> - Do we instance this connection in the controller super object?
+				<dfn>$instance</dfn> [Type: String, Default: FALSE]: Do we instance this connection in the controller super object?
 			</li>
 		</ol>
 	</p>	
@@ -148,13 +146,13 @@
 		<p>
 			<ol>
 				<li>
-					<var>$database_key</var>: The same as the <var>$config_key</var> in the Connection example.
+					<var>$database_key</var> [Type: String]: The same as the <var>$config_key</var> in the Connection example.
 				</li>
 				<li>
-					<var>$query</var>: The query you are putting the in the Database.
+					<var>$query</var> [Type: String]: The query you are putting the in the Database.
 				</li>
 				<li>
-					<dfn>$replacements</dfn>: An array of replacments of the "?" 's or ":var" 's. These "$key => $value" 's will be used in $PDO->bindParam($key, $value);
+					<dfn>$replacements</dfn> [Type: Array]: An array of replacments of the "?" 's or ":var" 's. These "$key => $value" 's will be used in $PDO->bindParam($key, $value);
 				</li>
 			</ol>
 		</p>
@@ -171,10 +169,10 @@
 		<p>
 			<ol>
 				<li>
-					<var>$table</var>: The table name we are inserting into.
+					<var>$table</var> [Type: String]: The table name we are inserting into.
 				</li>
 				<li>
-					<var>$data</var>: An array of ( $coloumn_name => $column_value ).
+					<var>$data</var> [Type: Array]: An array of ( $coloumn_name => $column_value ).
 				</li>
 			</ol>
 		</p>
@@ -191,13 +189,13 @@
 		<p>
 			<ol>
 				<li>
-					<var>$table</var>: The table name we are updating.
+					<var>$table</var>[Type: String]: The table name we are updating.
 				</li>
 				<li>
-					<var>$data</var>: An array of ( $coloumn_name => $column_value ).
+					<var>$data</var> [Type: Array]: An array of ( $coloumn_name => $column_value ).
 				</li>
 				<li>
-					<var>$where</var>: A string of the WHERE clause. ( "'token' = 'value'" ). Remember to escape your single qoutes( \' )!
+					<var>$where</var> [Type: String]: A string of the WHERE clause. ( "'token' = 'value'" ). Remember to escape your single qoutes( \' )!
 				</li>
 			</ol>
 		</p>
@@ -214,10 +212,10 @@
 		<p>
 			<ol>
 				<li>
-					<var>$table</var>: The table name we are deleting into.
+					<var>$table</var> [Type: String]: The table name we are deleting into.
 				</li>
 				<li>
-					<var>$where</var>: A string of the WHERE clause. ( "'token' = 'value'" ). Remember to escape your qoutes( \' )!
+					<var>$where</var> [Type: String]: A string of the WHERE clause. ( "'token' = 'value'" ). Remember to escape your qoutes( \' )!
 				</li>
 			</ol>
 		</p>
@@ -242,7 +240,7 @@
 		<p>
 			<ol>
 				<li>
-					<dfn>$type</dfn>: Default = 'ASSOC' - This is the return type of the array. It uses the same constants as the PDO fetch() method
+					<dfn>$type</dfn> [Type: String, Default: "ASSOC"]: This is the return type of the array. It uses the same constants as the PDO fetch() method
 					( <a href='http://www.php.net/manual/en/pdostatement.fetch.php'>Php PDO::Fetch</a> ). Just remember you just need the end of the fetch 
 					constant name ( PDO::FETCH_* ). For example: to use PDO::FECTH_BOTH, you query like this: $connection->fetch_array('BOTH'); <dfn>$type</dfn>
 					is not case sensitive.
@@ -257,7 +255,7 @@
 		<code>
 			$result = $connection->fetch_column();
 		</code>
-		<!-- END Fetch_result -->
+		<!-- END Fetch_column() -->
 	
 	<!-- END Fetching results -->
 	
@@ -297,7 +295,7 @@
 		<p>
 			<ol>
 				<li>
-					<dfn>$name</dfn>: Default = NULL - this only applies If using a Postgre database. Please read more here
+					<dfn>$name</dfn> [Type: String]: Default = NULL - this only applies If using a Postgre database. Please read more here
 					( <a href='http://www.php.net/manual/en/pdo.lastinsertid.php'>Php PDO::lastInsertId</a> )
 				</li>
 			</ol>
