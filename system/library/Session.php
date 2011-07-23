@@ -59,6 +59,11 @@ class Session
 			$this->DB = $this->load->database( $this->session_db_id );
 			$this->db_session_exists = FALSE; // default
 		}
+		else
+		{
+			// load the Cache class for session file writting
+			$this->cache = $this->load->library('Cache');
+		}
 		
 		// Check for session data. If there is none, create it.
 		if(!$this->check())
@@ -116,65 +121,62 @@ class Session
 		// If the cookie doesnt exists, then neither does the session
 		if($cookie == FALSE)
 		{
-			// No cookie means we have nothing to go off of, return FALSE
 			return FALSE;
 		}
 		
-		// Read cookie data
-		$cookie = unserialize( stripslashes($cookie) );
+		// Read cookie data to get our token
+		$token = base64_decode( $cookie );
 		
 		// Are we storing session data in the database?
 		if($this->session_use_db == TRUE)
 		{				
 			// Get the database result
-			$query = "SELECT * FROM `". $this->session_table_name ."` WHERE `token` = '". $cookie['token'] ."'";
+			$query = "SELECT * FROM `". $this->session_table_name ."` WHERE `token` = '". $token ."'";
 			$result = $this->DB->query( $query )->fetch_array();
 			
-			// If we have a result, then data IS in the DB
+			// Unserialize the user_data array
 			if($result !== FALSE)
 			{
-				// check users IP address to prevent cookie stealing
-				if($result['ip_address'] == $this->input->ip_address() )
-				{	
-					$this->data['token'] = $result['token'];
-					$result['user_data'] = unserialize( $result['user_data'] );
-				
-					// Set data if we have any
-					if(count($result['user_data']) > 0)
-					{
-						foreach($result['user_data'] as $key => $value)
-						{
-							// Set the data in the session
-							$this->set($key, $value);
-						}
-					}
-				
-					// Update last seen
-					$this->data['last_seen'] = time();
-				
-					// Set our local variable to true and return
-					$this->db_session_exists = TRUE;
-					return TRUE;
-				}
+				$this->db_session_exists = TRUE;
+				$result['user_data'] = unserialize( $result['user_data'] );
 			}
-			
-			// If we are here, validation checks failed
-			return FALSE;
 		}
 		
-		// config says, No sessions in database, Load cookie manually
+		// config says, No sessions in database, Load from cache
 		else
 		{
 			// check users IP address to prevent cookie stealing
-			if($cookie['ip_address'] == $this->input->ip_address() )
-			{
-				$this->data['token'] = $cookie['token'];					
-				return $cooke['id'];
-			}
-			
-			// If we are here, the cookie is no good
-			return FALSE;			
+			$result = $this->cache->get('session_'. $token);		
 		}
+		
+		// If we have a result, then data IS in the DB
+		if($result !== FALSE)
+		{
+			// check users IP address to prevent cookie stealing
+			if($result['ip_address'] == $this->input->ip_address() )
+			{	
+				$this->data['token'] = $result['token'];
+			
+				// Set data if we have any
+				if(count($result['user_data']) > 0)
+				{
+					foreach($result['user_data'] as $key => $value)
+					{
+						// Set the data in the session
+						$this->set($key, $value);
+					}
+				}
+			
+				// Update last seen
+				$this->data['last_seen'] = time();
+			
+				// Return success
+				return TRUE;
+			}
+		}
+		
+		// The result was false, return FALSE
+		return FALSE;
 	}
 
 /*
@@ -185,57 +187,32 @@ class Session
 | Saves the current session token in a cookie, and in the DB for
 | things like "Remeber Me" etc etc.
 |
-| @Param: $id - Any kind of information you want stored in the 
-|	cookie such as a usename or userID. ONLY needed if user
-|	is not using a database session
-|
 */	
-	public function save($id = NULL)
+	public function save()
 	{
-		// Cant have an empty ID
-		if($id === NULL && $this->session_use_db == FALSE)
-		{
-			show_error('You need to set some information to be stored in the cookie, before saving a session.', false, E_WARNING);
-			return FALSE;
-		}
-		
-		// If we arent storing session Data in the DB, then we set a cookie only
-		if($this->session_use_db == FALSE)
-		{
-			// Combine the ID being set, and the session token
-			$stuff = array(
-				'id' => $id, 
-				'token' => $this->data['token'], 
-				'ip_address' => $this->input->ip_address()
-			);
-			$ID = serialize( $stuff );
-			
-			// Set the cookie
-			$this->input->set_cookie( $this->session_cookie_name, $ID );
-			
-			// Return
-			return TRUE;
-		}
-		
-		// If we are storing session data, then lets do that!
-		else
-		{	
-			// Set a cookie with the session token
-			$cookie_data = serialize( array('token' => $this->data['token']) );
-			
-			// Set the cookie
-			$this->input->set_cookie( $this->session_cookie_name, $cookie_data );
+		// Set a cookie with the session token
+		$cookie_data = base64_encode( $this->data['token'] );
 
-			// No session exists, insert new data
+		// Set the cookie
+		$this->input->set_cookie( $this->session_cookie_name, $cookie_data );
+		
+		// Create user data array
+		$data = array( 
+			'token' => $this->data['token'],  
+			'ip_address' => $this->input->ip_address(),
+			'last_seen' => time(),
+		);
+	
+		// If we are stroing session data in the DB, lets do that
+		if($this->session_use_db == TRUE)
+		{	
+			// Add session data to the DB only if it doesnt exists
 			if ($this->db_session_exists == FALSE)
-			{						
-				// Add session data to the DB only if it doesnt exists
-				$data = array( 
-					'token' => $this->data['token'],  
-					'ip_address' => $this->input->ip_address(),
-					'last_seen' => time(),
-					'user_data' => serialize( $this->data )
-				);
+			{	
+				// Add user data
+				$data['user_data'] = serialize( $this->data );
+			
+				// Insert
 				$this->DB->insert( $this->session_table_name, $data );
 			}
 			
@@ -252,6 +229,17 @@ class Session
 			}
 			return FALSE;
 		}
+		
+		// If we arent storing session Data in the DB, then we save to cache
+		else
+		{
+			// Add user data
+			$data['user_data'] = $this->data;
+			
+			// Users can manage thier own expire time... 1 year for here.
+			$expire = (60 * 60 * 24 * 365);
+			return $this->cache->save('session_'.$data['token'], $data, $expire);
+		}
 	}
 
 
@@ -264,21 +252,21 @@ class Session
 |
 */	
 	public function destroy()
-	{		
+	{	
+		// Expire the cookie
+		$ID = base64_encode( $this->data['token'] );
+		$time = time() - 1;
+		$this->input->set_cookie( $this->session_cookie_name, $ID,  $time);
+	
 		// Are we storing session data in the database? 
-		// If so then remove the session from the DB
+		// If so then remove the session from the DB, else remove cache data
 		if($this->session_use_db == TRUE)
 		{			
-			// Delete data
 			$this->DB->delete( $this->session_table_name, '`token` = \''. $this->data['token'] .'\'');
 		}
-		
-		// We must manually expire the cookie time
 		else
 		{
-			$ID = serialize( array( 'token' => $this->data['token'] ) );
-			$time = time() - 1;
-			$this->input->set_cookie( $this->session_cookie_name, $ID,  $time);
+			$this->cache->delete( 'session_'.$this->data['token'] );
 		}
 		
 		// Remove session variables and cookeis
@@ -361,7 +349,7 @@ class Session
 | Updates the the session data thats in the database
 |
 */
-	public function update()
+	protected function update()
 	{	
 		// Are we storing session data in the database? 
 		// If so then update the session last_seen

@@ -336,7 +336,7 @@ function redirect($url, $wait = 0)
 	// Check for a valid URL. If not then add our current BASE_URL to it.
 	if(!preg_match('|^http(s)?://|i', $url))
 	{
-		$url = BASE_URL . $url;
+		$url = BASE_URL .'/'. $url;
 	}
 
 	// Check for refresh or straight redirect
