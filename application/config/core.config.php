@@ -134,20 +134,4 @@ $config['session_table_name'] = 'session_table';
 
 $config['session_cookie_name'] = 'FB_session';
 
-
-/*
-| ---------------------------------------------------------------
-| Template: Use Parser?
-| ---------------------------------------------------------------
-|
-| Do we want to use the template parser to parse pseudo blocks?
-| WARNING: setting to false may break some templates that use
-| pseudo blocks. Only disable if you use plain php templates
-|
-| Format: TRUE or FALSE;
-|
-*/
-
-$config['enable_template_parser'] = TRUE;
-
 // EOF
