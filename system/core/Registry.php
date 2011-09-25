@@ -6,9 +6,9 @@
 |
 | --------------------------------------------------------------
 |
-| Author: 		Steven Wilson
-| Copyright:	Copyright (c) 2011, Steven Wilson
-| License: 		GNU GPL v3
+| Author:       Steven Wilson
+| Copyright:    Copyright (c) 2011, Steven Wilson
+| License:      GNU GPL v3
 |
 | ---------------------------------------------------------------
 | Class: Registry()
@@ -24,13 +24,13 @@ Class Registry
 
     // Registry array of objects  
     private static $objects = array();
-    
+
     // The instance of the registry 
     private static $instance;
 
     // prevent clone 
     public function __clone(){}
- 
+
 /*
 | ---------------------------------------------------------------
 | Method: singlton()
@@ -44,7 +44,7 @@ Class Registry
     {
         if(!isset(self::$instance))
         {
-			self::$instance = new self();
+            self::$instance = new self();
         }
         return self::$instance;
     }
@@ -60,7 +60,7 @@ Class Registry
 | @Return: (Object) Returns the class requested, or NULL
 |
 */
-	
+
     protected function get($key)
     {
         if(isset(self::$objects[$key]))

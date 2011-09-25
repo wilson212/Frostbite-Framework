@@ -6,9 +6,9 @@
 |
 | --------------------------------------------------------------
 |
-| Author: 		Steven Wilson
-| Copyright:	Copyright (c) 2011, Steven Wilson
-| License: 		GNU GPL v3
+| Author:       Steven Wilson
+| Copyright:    Copyright (c) 2011, Steven Wilson
+| License:      GNU GPL v3
 |
 | ---------------------------------------------------------------
 | Class: Model()
@@ -22,8 +22,8 @@ namespace System\Core;
 
 class Model
 {
-	function __construct() 
-	{
-		$this->load = load_class('Core\\Loader');
-	}
+    function __construct() 
+    {
+        $this->load = load_class('Loader');
+    }
 }

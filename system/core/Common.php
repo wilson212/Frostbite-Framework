@@ -11,34 +11,33 @@
 | @Return: (None)
 |
 */
+    function __autoload($className) 
+    {	
+        // We will need to lowercase everything except for the filename
+        $parts = explode('\\', strtolower($className));
 
-function __autoload($className) 
-{	
-	// We will need to lowercase everything except for the filename
-	$parts = explode('\\', strtolower($className));
-	
-	// Shave the first value if empty (it happens when going from the root 
-	// namespace "\\System\\Core...")
-	if( empty($parts[0]) ) $parts = array_shift($parts);
-	
-	// Upercase the filename
-	$last = count($parts) - 1;
-	$parts[$last] = ucfirst($parts[$last]);
-	
-	// Build our filepath
-	$class_path = implode(DS, $parts);
-	
-	// Lets make our file path from the root directory
-	$file = ROOT . DS . $class_path .'.php';
-	
-	// If the file exists, then include it, and return
-	if(!file_exists($file))
-	{
-		// Failed to load class all together.
-		show_error('autoload_failed', array( addslashes($className) ), E_ERROR);
-	}
-	include($file);
-}
+        // Shave the first value if empty (it happens when going from the root 
+        // namespace "\\System\\Core...")
+        if( empty($parts[0]) ) $parts = array_shift($parts);
+
+        // Upercase the filename
+        $last = count($parts) - 1;
+        $parts[$last] = ucfirst($parts[$last]);
+
+        // Build our filepath
+        $class_path = implode(DS, $parts);
+
+        // Lets make our file path from the root directory
+        $file = ROOT . DS . $class_path .'.php';
+
+        // If the file exists, then include it, and return
+        if(!file_exists($file))
+        {
+            // Failed to load class all together.
+            show_error('autoload_failed', array( addslashes($className) ), E_ERROR);
+        }
+        include($file);
+    }
 
 /*
 | ---------------------------------------------------------------
@@ -53,34 +52,34 @@ function __autoload($className)
 | @Return: (None)
 |
 */	
-	function show_error($err_message = 'none', $args = NULL, $lvl = E_ERROR)
-	{
-		// Let get a backtrace for deep debugging
-		$backtrace = debug_backtrace();
-		$calling = $backtrace[0];
-		
-		// Load language
-		$lang = load_class('Core.Language');
-		$lang->set_language( config('core_language', 'Core') );
-		$lang->load('core_errors');
-		$message = $lang->get($err_message);
-		
-		// Allow custom messages
-		if($message === FALSE)
-		{
-			$message = $err_message;
-		}
-		
-		// do replacing
-		if(is_array($args))
-		{
-			$message = vsprintf($message, $args);
-		}
-		
-		// Init and spit the error
-		$E = new \System\Core\Error_Handler();
-		$E->trigger_error($lvl, $message, $calling['file'], $calling['line'], $backtrace);
-	}
+    function show_error($err_message = 'none', $args = NULL, $lvl = E_ERROR)
+    {
+        // Let get a backtrace for deep debugging
+        $backtrace = debug_backtrace();
+        $calling = $backtrace[0];
+        
+        // Load language
+        $lang = load_class('Core.Language');
+        $lang->set_language( config('core_language', 'Core') );
+        $lang->load('core_errors');
+        $message = $lang->get($err_message);
+        
+        // Allow custom messages
+        if($message === FALSE)
+        {
+            $message = $err_message;
+        }
+        
+        // do replacing
+        if(is_array($args))
+        {
+            $message = vsprintf($message, $args);
+        }
+        
+        // Init and spit the error
+        $E = new \System\Core\Error_Handler();
+        $E->trigger_error($lvl, $message, $calling['file'], $calling['line'], $backtrace);
+    }
 	
 /*
 | ---------------------------------------------------------------
@@ -92,12 +91,12 @@ function __autoload($className)
 | @Return: (None)
 |
 */	
-	function show_404()
-	{		
-		// Init and spit the error
-		$E = new \System\Core\Error_Handler();
-		$E->trigger_error(404);
-	}
+    function show_404()
+    {		
+        // Init and spit the error
+        $E = new \System\Core\Error_Handler();
+        $E->trigger_error(404);
+    }
 
 /*
 | ---------------------------------------------------------------
@@ -113,12 +112,11 @@ function __autoload($className)
 | @Return: (Mixed) - Returns the config vaule of $item
 |
 */
-
-function config($item, $type = 'App')
-{
-	$Config = load_class('Core\\Config');		
-	return $Config->get($item, $type);
-}
+    function config($item, $type = 'App')
+    {
+        $Config = load_class('Config');		
+        return $Config->get($item, $type);
+    }
 
 /*
 | ---------------------------------------------------------------
@@ -134,12 +132,11 @@ function config($item, $type = 'App')
 | @Return: (None)
 |
 */
-
-function config_set($item, $value, $name = 'App')
-{
-	$Config = load_class('Core\\Config');	
-	$Config->set($item, $value, $name);
-}
+    function config_set($item, $value, $name = 'App')
+    {
+        $Config = load_class('Config');	
+        $Config->set($item, $value, $name);
+    }
 
 /*
 | ---------------------------------------------------------------
@@ -153,12 +150,11 @@ function config_set($item, $value, $name = 'App')
 | @Return: (None)
 |
 */
-
-function config_save($name)
-{
-	$Config = load_class('Core\\Config');	
-	$Config->Save($name);
-}
+    function config_save($name)
+    {
+        $Config = load_class('Config');	
+        return $Config->Save($name);
+    }
 
 /*
 | ---------------------------------------------------------------
@@ -176,35 +172,11 @@ function config_save($name)
 | @Return: (None)
 |
 */
-
-function load_config($file, $name, $array = FALSE)
-{	
-	$Config = load_class('Core\\Config');	
-	$Config->Load($file, $name, $array);
-}	
-
-/*
-| ---------------------------------------------------------------
-| Method: load_module_config()
-| ---------------------------------------------------------------
-|
-| This function is used to load a modules config file, and add
-| those config values to the site config.
-|
-| @Param: (String) $module - Name of the module
-| @Param: (String) $filename - name of the file if not 'config.php'
-| @Param: (String) $array - If the config vars are stored in an array, whats
-|	the array variable name?
-| @Return: (None)
-|
-*/
-
-function load_module_config($module, $filename = 'config.php', $array = FALSE)
-{	
-	// Get our filename and use the load_config method
-	$file = APP_PATH . DS .'modules' . DS . $module . DS . 'config' . DS . $filename;
-	load_config($file, 'mod', $array);
-}	
+    function load_config($file, $name, $array = FALSE)
+    {	
+        $Config = load_class('Config');	
+        $Config->Load($file, $name, $array);
+    }
 
 /*
 | ---------------------------------------------------------------
@@ -216,14 +188,21 @@ function load_module_config($module, $filename = 'config.php', $array = FALSE)
 | @Return: (Object) - Return the instnace of the Controller
 |
 */	
-	function get_instance()
-	{
-		if(class_exists('Application\\Core\\Controller', FALSE))
-		{
-			return Application\Core\Controller::get_instance();
-		}
-		return System\Core\Controller::get_instance();
-	}
+    function get_instance()
+    {
+        if(class_exists('Application\\Core\\Controller', FALSE))
+        {
+            return Application\Core\Controller::get_instance();
+        }
+        elseif(class_exists('System\\Core\\Controller', FALSE))
+        {
+            return System\Core\Controller::get_instance();
+        }
+        else
+        {
+            return FALSE;
+        }
+    }
 
 /*
 | ---------------------------------------------------------------
@@ -235,88 +214,86 @@ function load_module_config($module, $filename = 'config.php', $array = FALSE)
 | is called.
 |
 | @Param: (String) $className - Class needed to be loaded / returned
+| @Param: (String) $type - Basically the folder name where the class
+|   is stored
 | @Return: (Object) - Returns the loaded class
 |
 */
+    function load_class($className, $type = 'Core')
+    {
+        // Make sure periods are replaced with slahes
+        if(strpos($className, '.'))
+        {
+            $className = str_replace('.', '\\', $className);
+        }
 
-function load_class($className)
-{
-	// Make sure periods are replaced with slahes
-	if(strpos($className, '.'))
-	{
-		$className = str_replace('.', '\\', $className);
-	}
-	
-	// Now we need to make sure the user supplied some sort of path
-	if(!strpos($className, '\\'))
-	{
-		show_error('autoload_failed', array( addslashes($className) ), E_ERROR);
-	}
-	
-	// Inititate the Registry singleton into a variable
-	$Obj = Registry::singleton();
+        // Now we need to make sure the user supplied some sort of path
+        if(strpos($className, '\\') === FALSE)
+        {
+            $className = $type .'\\'. $className;
+        }
 
-	// Make a lowercase version, and a storage name
-	$class = strtolower($className);
-	$store_name = str_replace('\\', '_', $class);
+        // Make a lowercase version, and a storage name
+        $class = strtolower($className);
+        $store_name = str_replace('\\', '_', $class);
 
-	// Check the registry for the class, If its there, then return the class
-	$loaded = $Obj->load($store_name);
-	if($loaded !== NULL)
-	{
-		return $loaded;
-	}
+        // Check the registry for the class, If its there, then return the class
+        $loaded = \Registry::singleton()->load($store_name);
+        if($loaded !== NULL)
+        {
+            return $loaded;
+        }
 
-	// ---------------------------------------------------------
-	// Class not in Registry, So we load it manually and then  |
-	// store it in the registry for future static use          |
-	// ---------------------------------------------------------
+        // ---------------------------------------------------------
+        // Class not in Registry, So we load it manually and then  |
+        // store it in the registry for future static use          |
+        // ---------------------------------------------------------
 
-	// We need to find the file the class is stored in. Good thing the
-	// Namespaces are pretty much paths to the class ;)
-	$parts = explode('\\', $class);
-	
-	// Uppercase the filename
-	$last = count($parts) - 1;
-	$parts[$last] = ucfirst($parts[$last]);
-	
-	// Build our filepath
-	$file = str_replace('\\', DS, implode('\\', $parts));
-	
-	// If we dont have the full path, create it
-	if($parts[0] !== 'system' && $parts[0] !== 'application')
-	{
-		// Check for needed classes from the Application library folder
-		if(file_exists(APP_PATH. DS . $file . '.php')) 
-		{
-			$file = APP_PATH . DS . $file .'.php';
-			$className = '\\Application\\'. $className;
-		}
-		else 
-		{
-			$file = SYSTEM_PATH . DS . $file .'.php';
-			$className = '\\System\\'. $className;
-		}
-	}
-	else
-	{
-		$file = ROOT . DS . $file .'.php';
-	}
-	
-	// Include our file. If it doesnt exists, class is un-obtainable.
-	require($file);
+        // We need to find the file the class is stored in. Good thing the
+        // Namespaces are pretty much paths to the class ;)
+        $parts = explode('\\', $class);
 
-	// -----------------------------------------
-	//  Initiate the new class into a variable |
-	// -----------------------------------------
-	$dispatch = new $className();
+        // Uppercase the filename
+        $last = count($parts) - 1;
+        $parts[$last] = ucfirst($parts[$last]);
 
-	// Store this new object in the registery
-	$Obj->store($store_name, $dispatch); 
+        // Build our filepath
+        $file = str_replace('\\', DS, implode('\\', $parts));
 
-	// return dispatched class.
-	return $dispatch;
-}
+        // If we dont have the full path, create it
+        if($parts[0] !== 'system' && $parts[0] !== 'application')
+        {
+            // Check for needed classes from the Application library folder
+            if(file_exists(APP_PATH. DS . $file . '.php')) 
+            {
+                $file = APP_PATH . DS . $file .'.php';
+                $className = '\Application\\'. $className;
+            }
+            else 
+            {
+                $file = SYSTEM_PATH . DS . $file .'.php';
+                $className = '\System\\'. $className;
+            }
+        }
+        else
+        {
+            $file = ROOT . DS . $file .'.php';
+        }
+
+        // Include our file. If it doesnt exists, class is un-obtainable.
+        require($file);
+
+        // -----------------------------------------
+        //  Initiate the new class into a variable |
+        // -----------------------------------------
+        $dispatch = new $className();
+
+        // Store this new object in the registery
+        \Registry::singleton()->store($store_name, $dispatch); 
+
+        // return dispatched class.
+        return $dispatch;
+    }
 
 /*
 | ---------------------------------------------------------------
@@ -330,23 +307,22 @@ function load_class($className)
 | @Return: (None)
 |
 */
+    function redirect($url, $wait = 0)
+    {
+        // Check for a valid URL. If not then add our current BASE_URL to it.
+        if(!preg_match('@^(mailto|ftp|http(s)?)://@i', $url))
+        {
+            $url = BASE_URL .'/'. $url;
+        }
 
-function redirect($url, $wait = 0)
-{
-	// Check for a valid URL. If not then add our current BASE_URL to it.
-	if(!preg_match('|^http(s)?://|i', $url))
-	{
-		$url = BASE_URL .'/'. $url;
-	}
-
-	// Check for refresh or straight redirect
-	if($wait >= 1)
-	{
-		header("Refresh:". $wait .";url=". $url);
-	}
-	else
-	{
-		header("Location: ".$url);
-	}
-}
+        // Check for refresh or straight redirect
+        if($wait >= 1)
+        {
+            header("Refresh:". $wait .";url=". $url);
+        }
+        else
+        {
+            header("Location: ".$url);
+        }
+    }
 // EOF

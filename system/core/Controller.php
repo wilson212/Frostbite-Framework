@@ -6,9 +6,9 @@
 |
 | --------------------------------------------------------------
 |
-| Author: 		Steven Wilson
-| Copyright:	Copyright (c) 2011, Steven Wilson
-| License: 		GNU GPL v3
+| Author:       Steven Wilson
+| Copyright:    Copyright (c) 2011, Steven Wilson
+| License:      GNU GPL v3
 |
 | ---------------------------------------------------------------
 | Class: Controller
@@ -22,14 +22,17 @@ namespace System\Core;
 
 class Controller
 {
-	// Our controller name
-	public $_controller;
-	
-	// Our action (sub page)
-	public $_action;
-	
-	// The instance of this class
-	private static $instance;
+    // Our controller name
+    public $controller;
+
+    // Our action (sub page)
+    public $action;
+    
+    // Our queryString
+    public $queryString;
+
+    // The instance of this class
+    private static $instance;
 
 
 /*
@@ -42,45 +45,44 @@ class Controller
 | puts it, a "superobject"
 |
 */
-	function __construct() 
-	{		
-		// Set the instance here
-		self::$instance = $this;
-		
-		// Initiate the loader
-		$this->load = load_class('Core\\Loader');
-		
-		// --------------------------------------
-		// Autoload the config autoload_helpers |
-		// --------------------------------------
-		$libs = config('autoload_helpers', 'Core');
-		if(count($libs) > 0)
-		{
-			foreach($libs as $lib)
-			{
-				$this->load->helper($lib);
-			}
-		}
-		
-		//-----------------------------------------
-		// Autoload the config autoload_libraries |
-		//-----------------------------------------
-		$libs = config('autoload_libraries', 'Core');
-		if(count($libs) > 0)
-		{
-			foreach($libs as $lib)
-			{
-				$this->load->library($lib);
-			}
-		}
-		
-		// load module config file if there is one
-		if($GLOBALS['is_module'] == TRUE)
-		{
-			load_module_config($GLOBALS['controller']);
-		}
-	}
-	
+    public function __construct() 
+    {		
+        // Set the instance here
+        self::$instance = $this;
+        
+        // Set our Controller and Action
+        $this->controller = $GLOBALS['controller'];
+        $this->action = $GLOBALS['action'];
+        $this->queryString = $GLOBALS['queryString'];
+        
+        // Initiate the loader
+        $this->load = load_class('Loader');
+        
+        // --------------------------------------
+        // Autoload the config autoload_helpers |
+        // --------------------------------------
+        $libs = config('autoload_helpers', 'Core');
+        if(count($libs) > 0)
+        {
+            foreach($libs as $lib)
+            {
+                $this->load->helper($lib);
+            }
+        }
+        
+        //-----------------------------------------
+        // Autoload the config autoload_libraries |
+        //-----------------------------------------
+        $libs = config('autoload_libraries', 'Core');
+        if(count($libs) > 0)
+        {
+            foreach($libs as $lib)
+            {
+                $this->load->library($lib);
+            }
+        }
+    }
+
 /*
 | ---------------------------------------------------------------
 | Function: get_instance()
@@ -90,11 +92,11 @@ class Controller
 |
 | @Return: (Object) Returns the instance of this class
 |
-*/	
-	public static function get_instance()
-	{
-		return self::$instance;
-	}
+*/
+    public static function get_instance()
+    {
+        return self::$instance;
+    }
 
 /*
 | ---------------------------------------------------------------
@@ -103,8 +105,8 @@ class Controller
 |
 | Mini hook of code to be called right before the action
 |
-*/	
-	function _beforeAction() {}
+*/
+    public function _beforeAction() {}
 
 /*
 | ---------------------------------------------------------------
@@ -113,8 +115,8 @@ class Controller
 |
 | Mini hook of code to be called right after the action
 |
-*/	
-	function _afterAction() {}
-	
+*/
+    public function _afterAction() {}
+
 }
 // EOF

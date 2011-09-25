@@ -6,6 +6,7 @@ return array(
 	'db_empty_query' => "Query was empty. Please build a query before calling the 'query' method!",
 	'db_key_not_found' => "Database connection info for key \"%s\" not found in the database configuration file.",
 	'db_select_error' => "Cant connect to database: %s",
+	'fetal_error' => 'Fetal Error! Please contact an administrator.',
 	'missing_page_view' => "Template engine was unable to locate the view file for this page. Please make sure a view page is created and is correctly named.",
 	'none' => 'No Message Specifed',
 	'non_array' => "Variable \$%s passed in a non-array format in method %s",

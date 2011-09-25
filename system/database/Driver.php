@@ -15,26 +15,29 @@ namespace System\Database;
 
 class Driver extends \PDO
 {
-	// Holds our driver name
-	public $driver;
-	
-	// The most recen query
-	public $last_query = '';
+    // Holds our driver name
+    public $driver;
 
-	// All sql statement that have been ran
-	public $queries = array();
-	
-	// result of the last query
-	public $result;
-	
-	// Our last queries number of rows / affected rows
-	public $num_rows;
-	
-	// Queries statistics.
-	public $statistics = array(
-		'time'  => 0,
-		'count' => 0,
-	);
+    // The most recen query
+    public $last_query = '';
+
+    // All sql statement that have been ran
+    public $queries = array();
+    
+    // Replacments for the last query
+    public $sprints;
+
+    // result of the last query
+    public $result;
+
+    // Our last queries number of rows / affected rows
+    public $num_rows;
+
+    // Queries statistics.
+    public $statistics = array(
+        'time'  => 0,
+        'count' => 0,
+    );
 
 /*
 | ---------------------------------------------------------------
@@ -44,49 +47,49 @@ class Driver extends \PDO
 | Creates the connection to the database using PDO
 |
 */
-	public function __construct($info)
-	{
-		// Fill Atributes
-		$hostname = $info['host'];
-		$port = $info['port'];
-		$user = $info['username'];
-		$pass = $info['password'];
-		$database = $info['database'];
-		$this->driver = $driver = $info['driver'];
-		
-		// Create our DSN based off our driver
-		if($driver == 'sqlite')
-		{
-			$filepath = ROOT . DS . $database;
-			$dsn = 'sqlite:dbname='.$filepath;
-		}
-		else
-		{
-			$dsn = $driver .':dbname='.$database .';host='.$hostname .';port='.$port;
-		}
-		
-		// Try and Connect to the database
-		try 
-		{
-			// Connect using the PDO constructer
-			parent::__construct($dsn, $user, $pass);
-		}
-		catch (\PDOException $e)
-		{
-			// So we caught an error, depending on our driver, is the info we spit out
-			if($driver == 'sqlite')
-			{
-				show_error('db_connect_error', array( $database, $dsn, '' ), E_ERROR);
-			}
-			else
-			{
-				show_error('db_connect_error', array( $database, $hostname, $port ), E_ERROR);
-			}
-		}
-		
-		// Connection was a sucess, set our error attributes
-		$this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-	}
+    public function __construct($info)
+    {
+        // Fill Atributes
+        $hostname = $info['host'];
+        $port = $info['port'];
+        $user = $info['username'];
+        $pass = $info['password'];
+        $database = $info['database'];
+        $this->driver = $driver = $info['driver'];
+        
+        // Create our DSN based off our driver
+        if($driver == 'sqlite')
+        {
+            $filepath = ROOT . DS . $database;
+            $dsn = 'sqlite:dbname='.$filepath;
+        }
+        else
+        {
+            $dsn = $driver .':dbname='.$database .';host='.$hostname .';port='.$port;
+        }
+        
+        // Try and Connect to the database
+        try 
+        {
+            // Connect using the PDO constructer
+            parent::__construct($dsn, $user, $pass);
+        }
+        catch (\PDOException $e)
+        {
+            // So we caught an error, depending on our driver, is the info we spit out
+            if($driver == 'sqlite')
+            {
+                show_error('db_connect_error', array( $database, $dsn, '' ), E_ERROR);
+            }
+            else
+            {
+                show_error('db_connect_error', array( $database, $hostname, $port ), E_ERROR);
+            }
+        }
+        
+        // Connection was a sucess, set our error attributes and get server info
+        $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+    }
 
  
 /*
@@ -104,66 +107,69 @@ class Driver extends \PDO
 */
     public function query($query, $sprints = NULL)
     {
-		// Add query to the last query and benchmark
-		$bench['query'] = $this->last_query = $query;
-		
-		// Prepare the statement
-		$this->result = $this->prepare($query);
-		
-		// Process our sprints and bind parameters
-		if(is_array($sprints))
-		{
-			foreach($sprints as $key => $value)
-			{
-				// Get our param type
-				if(is_int($value)) 
-				{ 
-					$type = \PDO::PARAM_INT; 
-				}
-				else
-				{ 
-					$type = \PDO::PARAM_STR; 
-				}
-				
-				// Check key type
-				if(is_numeric($key))
-				{
-					$this->result->bindParam(++$key, $value, $type);
-				}
-				else
-				{
-					$this->result->bindParam($key, $value, $type);
-				}
-			}
-		}
+        // Add query to the last query and benchmark
+        $bench['query'] = $this->last_query = $query;
+        
+        // Set our sprints, and bindings to false
+        $this->sprints = $sprints;
+        $bound = FALSE;
+        
+        // Prepare the statement
+        $this->result = $this->prepare($query);
+        
+        // Process our sprints and bind parameters
+        if(is_array($sprints))
+        {
+            foreach($sprints as $key => $value)
+            {
+                // Kill the binding if we are using ?'s
+                if($key === 0) break;
+                
+                // Set that we are binding
+                $bound = TRUE;
+                
+                // Get our PDO param type
+                if($value == NULL)
+                {
+                    $type = \PDO::PARAM_NULL; 
+                }
+                else
+                {
+                    (is_int($value)) ? $type = \PDO::PARAM_INT : $type = \PDO::PARAM_STR;
+                }
+                
+                // Bind the param
+                $this->result->bindParam($key, $value, $type);
+            }
+        }
 
-		// Time our query
-		$start = microtime();
-		try {
-			$this->result->execute($sprints);
-		}
-		catch (\PDOException $e) { 
-			$this->trigger_error();
-		}
-		$end = microtime();
+        // Time our query
+        $start = microtime(true);
+        try {
+            ($bound == TRUE) ? $this->result->execute() : $this->result->execute($sprints);
+        }
+        catch (\PDOException $e) { 
+            $this->trigger_error();
+        }
+        $end = microtime(true);
 
-		// Get our benchmark time
-		$bench['time'] = round($end - $start, 5);
-		
-		// Get our number of rows
-		$this->num_rows = $this->rowCount();
+        // Get our benchmark time
+        $bench['time'] = round($end - $start, 5);
+        
+        // Get our number of rows
+        $this->num_rows = $this->result->rowCount();
 
-		// Add the query to the list of queries
-		$this->queries[] = $bench;
+        // Add the query to the list of queries
+        $this->queries[] = $bench;
 
-		// Up our statistic count
-		$this->statistics['count']++;
-		$this->statistics['time'] = ($this->statistics['time'] + $bench['time']);
+        // Up our statistic count
+        $this->statistics['count']++;
+        $this->statistics['time'] = ($this->statistics['time'] + $bench['time']);
 
-		// Return
-		return $this;
+        // Return
+        return $this;
     }
-	
+
 /*
 | ---------------------------------------------------------------
 | Function: exec()
@@ -177,128 +183,84 @@ class Driver extends \PDO
 */
     public function exec($query)
     {
-		// Add query to the last query and benchmark
-		$bench['query'] = $this->last_query = $query;
+        // Add query to the last query and benchmark
+        $bench['query'] = $this->last_query = $query;
 
-		// Time our query
-		$start = microtime();
-		try {
-			$result = parent::exec($query);
-		}
-		catch (\PDOException $e) { 
-			$this->trigger_error();
-		}
-		$end = microtime();
+        // Time our query
+        $start = microtime(true);
+        try {
+            $result = parent::exec($query);
+        }
+        catch (\PDOException $e) { 
+            $this->trigger_error();
+        }
+        $end = microtime(true);
 
-		// Get our benchmark time
-		$bench['time'] = round($end - $start, 5);
+        // Get our benchmark time
+        $bench['time'] = round($end - $start, 5);
 
-		// Add the query to the list of queries
-		$this->queries[] = $bench;
+        // Add the query to the list of queries
+        $this->queries[] = $bench;
 
-		// Up our statistic count
-		$this->statistics['count']++;
-		$this->statistics['time'] = ($this->statistics['time'] + $bench['time']);
+        // Up our statistic count
+        $this->statistics['count']++;
+        $this->statistics['time'] = ($this->statistics['time'] + $bench['time']);
 
-		// Return
-		return $result;
+        // Return
+        return $result;
     }
 
 /*
 | ---------------------------------------------------------------
-| Function: rowCount()
+| Function: fetch_array()
 | ---------------------------------------------------------------
 |
-| This method is a work around for getting the number of rows in
-| a SELECT statement as most Databases dont return this value.
-|
-*/	
-	public function rowCount() 
-	{
-		$regex = '/^SELECT (.*) FROM (.*)$/i';
-		if(preg_match($regex, $this->last_query, $output) != FALSE) 
-		{
-			$stmt = parent::query("SELECT COUNT(*) FROM ". $output[2], \PDO::FETCH_NUM);
-			++$this->statistics['count'];
-			return $stmt->fetchColumn();
-		}
-		else
-		{
-			return $this->result->rowCount();
-		}
-	}
-	
-/*
-| ---------------------------------------------------------------
-| Function: fetch()
-| ---------------------------------------------------------------
-|
-| fetch_row is equivilent to mysql_fetch_row()
+| fetch_array fetches a multi demensional array (multiple rows)
+|   of data from the database.
 |
 */
-    public function fetch_array($type = 'ASSOC')
-    {	
-		// Make sure we dont have a false return
-		if($this->result == FALSE) return FALSE;
-		
-		// Get our real type if we dont already have it
-		if(strpos($type, '::') == FALSE)
-		{
-			$type = strtoupper($type);
-			switch($type)
-			{
-				case "ASSOC":
-					$type = \PDO::FETCH_ASSOC;
-					break;
-				case "NUM":
-					$type = \PDO::FETCH_NUM;
-					break;
-				case "BOTH":
-					$type = \PDO::FETCH_BOTH;
-					break;
-				case "COLUMN":
-					$type = \PDO::FETCH_COLUMN;
-					$argument = 0;
-					break;
-				case "CLASS":
-					$type = \PDO::FETCH_CLASS;
-					break;
-				case "LAZY":
-					$type = \PDO::FETCH_LAZY;
-					break;
-				case "INTO":
-					$type = \PDO::FETCH_INTO;
-					break;
-				case "OBJ":
-					$type = \PDO::FETCH_OBJ;
-					break;
-			}
-		}
-		
-		// Get our row count
-		$rows = $this->num_rows();
-		
-		// Check out our row count
-		if($rows == 0)
-		{
-			// No rows
-			return FALSE;
-		}
-		
-		// Fetch the result array
-		$result = $this->result->fetchAll($type);
-		
-		// Do we return just 1 row. or a multi-dem. array?
-		if($rows == 1)
-		{
-			// Just 1 row, send a 1 dem. array
-			return $result[0];
-		}
-		
-		// Otheewise, return the whole array
-		return $result;
+    public function fetch_array($type = 'ASSOC', $param = NULL)
+    {
+        // Make sure we dont have a false return
+        if($this->result == FALSE || $this->result == NULL) return FALSE;
+        
+        // Get our real type if we dont already have it
+        if(!is_int($type))
+        {
+            $type = $this->get_fetch_type($type);
+        }
+        
+        // Fetch the result array
+        if($param !== NULL)
+        {
+            return $this->result->fetchAll($type, $param);
+        }
+        return $this->result->fetchAll($type);
     }
-	
+
+/*
+| ---------------------------------------------------------------
+| Function: fetch_row()
+| ---------------------------------------------------------------
+|
+| fetch_row return just 1 row of data
+|
+*/
+    public function fetch_row($type = 'ASSOC', $row = 0)
+    {
+        // Make sure we dont have a false return
+        if($this->result == FALSE || $this->result == NULL) return FALSE;
+        
+        // Get our real type if we dont already have it
+        if(!is_numeric($type))
+        {
+            $type = $this->get_fetch_type($type);
+        }
+        
+        // Fetch the result array
+        return $this->result->fetch($type, $row);
+    }
+
 /*
 | ---------------------------------------------------------------
 | Function: fetch_column()
@@ -307,14 +269,54 @@ class Driver extends \PDO
 | fetchs the first column from the last array.
 |
 */
-    public function fetch_column()
-    {		
-		// Make sure we dont have a false return
-		if($this->result == FALSE) return FALSE;
-		
-		return $this->result->fetch(\PDO::FETCH_COLUMN);
+    public function fetch_column($col = 0)
+    {
+        // Make sure we dont have a false return
+        if($this->result == FALSE || $this->result == NULL) return FALSE;
+        
+        return $this->result->fetchColumn($col);
     }
-	
+
+/*
+| ---------------------------------------------------------------
+| Function: fetch_column()
+| ---------------------------------------------------------------
+|
+| Return the PDO fetch type
+|
+*/
+    public function get_fetch_type($type)
+    {
+        $type = strtoupper($type);
+        switch($type)
+        {
+            case "ASSOC":
+                return \PDO::FETCH_ASSOC;
+
+            case "NUM":
+                return \PDO::FETCH_NUM;
+
+            case "BOTH":
+                return \PDO::FETCH_BOTH;
+
+            case "COLUMN":
+                return \PDO::FETCH_COLUMN;
+
+            case "CLASS":
+                return \PDO::FETCH_CLASS;
+
+            case "LAZY":
+                return \PDO::FETCH_LAZY;
+
+            case "INTO":
+                return \PDO::FETCH_INTO;
+
+            case "OBJ":
+                return \PDO::FETCH_OBJ;
+
+        }
+    }
+
 /*
 | ---------------------------------------------------------------
 | Function: insert()
@@ -327,37 +329,31 @@ class Driver extends \PDO
 | @Return: (Bool) Returns TRUE on success of FALSE on error
 |
 */
-	public function insert($table, $data)
-	{
-		// enclose the column names in grave accents
-		$cols = '`' . implode('`,`', array_keys($data)) . '`';
-		$values = '';
+    public function insert($table, $data)
+    {
+        // enclose the column names in grave accents
+        $cols = '`' . implode('`,`', array_keys($data)) . '`';
+        $values = '';
 
-		// question marks for escaping values later on
-		foreach(array_values($data) as $value)
-		{
-			if(is_numeric($value))
-			{
-				$values .= $value .", ";
-				continue;
-			}
-			$values .= "'".$value ."', ";
-		}
-		
-		// Remove the last comma
-		$values = rtrim($values, ', ');
+        // question marks for escaping values later on
+        $count = count($data);
+        for($i = 0; $i < $count; $i++)
+        {
+            $values .= "?, ";
+        }
+        
+        // Remove the last comma
+        $values = rtrim($values, ', ');
 
-		// run the query
-		$this->num_rows = $this->exec('INSERT INTO ' . $table . '(' . $cols . ') VALUES (' . $values . ')');
+        // run the query
+        $query = 'INSERT INTO ' . $table . '(' . $cols . ') VALUES (' . $values . ')';
 
-		// Return TRUE or FALSE
-		if($this->num_rows > 0)
-		{
-			return TRUE;
-		}
-		return FALSE;
-	}
-	
+        // Prepare the statment
+        $this->query( $query, array_values($data) );
+        
+        return $this->num_rows; 
+    }
+
 /*
 | ---------------------------------------------------------------
 | Function: update()
@@ -370,40 +366,33 @@ class Driver extends \PDO
 | @Param: (String) $where - The where statement Ex: "id = 5"
 | @Return: (Bool) Returns TRUE on success of FALSE on error
 |
-*/	
-	public function update($table, $data, $where = '')
+*/
+    public function update($table, $data, $where = '')
     {
-		// Our string of columns
-		$cols = '';
-		
-		// Do we have a where tp process?
-		($where != '') ? $where = ' WHERE ' . $where : '';
+        // Our string of columns
+        $cols = '';
+        
+        // Do we have a where tp process?
+        ($where != '') ? $where = ' WHERE ' . $where : '';
 
-		// start creating the SQL string and enclose field names in `
-		foreach($data as $key => $value) 
-		{
-			if(is_numeric($value))
-			{
-				$cols .= ', `' . $key . '` = '. $value;
-				continue;
-			}
-			$cols .= ', `' . $key . '` = \''.$value.'\'';
-		}
+        // start creating the SQL string and enclose field names in `
+        foreach($data as $key => $value) 
+        {
+            $cols .= ', `' . $key . '` = ?';
+        }
 
-		// Trim the first comma, dont worry. ltrim is really quick :)
-		$cols = ltrim($cols, ', ');
+        // Trim the first comma, dont worry. ltrim is really quick :)
+        $cols = ltrim($cols, ', ');
+        
+        // Build our query
+        $query = 'UPDATE ' . $table . ' SET ' . $cols . $where;
 
-		// run the query
-		$this->num_rows = $this->exec('UPDATE ' . $table . ' SET ' . $cols . $where);
-
-		// Return TRUE or FALSE
-		if($this->num_rows > 0)
-		{
-			return TRUE;
-		}
-		return FALSE;
+        // Execute the query
+        $this->query( $query, array_values($data) );
+        
+        return $this->num_rows;
     }
-	
+
 /*
 | ---------------------------------------------------------------
 | Function: delete()
@@ -416,19 +405,19 @@ class Driver extends \PDO
 | @Return: (Bool) Returns TRUE on success of FALSE on error
 |
 */
-	public function delete($table, $where = '')
-	{
-		// run the query
-		$this->num_rows = $this->exec('DELETE FROM ' . $table . ($where != '' ? ' WHERE ' . $where : ''));
+    public function delete($table, $where = '')
+    {
+        // run the query
+        $this->num_rows = $this->exec('DELETE FROM ' . $table . ($where != '' ? ' WHERE ' . $where : ''));
 
-		// Return TRUE or FALSE
-		if($this->num_rows > 0)
-		{
-			return TRUE;
-		}
-		return FALSE;
-	}
-	
+        // Return TRUE or FALSE
+        if($this->num_rows > 0)
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
+
 /*
 | ---------------------------------------------------------------
 | Function: reset()
@@ -441,11 +430,11 @@ class Driver extends \PDO
 */
     public function reset()
     {
-		$this->queries = array();
-		$this->statistics = array(
-			'time'  => 0,
-			'count' => 0
-		);
+        $this->queries = array();
+        $this->statistics = array(
+            'time'  => 0,
+            'count' => 0
+        );
     }
 
 /*
@@ -459,11 +448,11 @@ class Driver extends \PDO
 | @Return: (Int) Returns the insert id of the last insert
 |
 */
-	public function last_insert_id($colname = NULL)
-	{
-		return $this->lastInsertId($colname);
-	}
-	
+    public function last_insert_id($colname = NULL)
+    {
+        return $this->lastInsertId($colname);
+    }
+
 /*
 | ---------------------------------------------------------------
 | Function: num_rows()
@@ -473,14 +462,62 @@ class Driver extends \PDO
 | affected rows during the last insert/delete/update query. Or
 | B) The number of rows (count) in the result array.
 |
+| @Param: (Bool) $real - Setting this to TRUE will return The
+|   real number of rows. This is not needed unless the last
+|   query was a SELECT query.
 | @Return: (Int) Returns the number of rows in the last query
 |
 */
-	public function num_rows()
-	{
-		return $this->num_rows;
-	}
-	
+    public function num_rows($real = FALSE)
+    {
+        // If we are getting a real count, we need to query the
+        // DB again as some DB's dont return the correct selected
+        // amount of rows in a SELECT query result
+        if($real == TRUE)
+        {
+            $regex = '/^SELECT (.*) FROM (.*)$/i';
+            
+            // Make sure this is a SELECT statement we are dealing with
+            if(preg_match($regex, $this->last_query, $output) != FALSE) 
+            { 
+                // Query and get our count
+                $this->last_query = $bench['query'] = "SELECT COUNT(*) FROM ". $output[2];
+                
+                // Get our sprints
+                $sprints = $this->sprints;
+                
+                // Prepar1 the statment
+                $stmt = $this->prepare( $this->last_query );
+
+                // Time our query
+                $start = microtime(true);
+                try {
+                    $stmt->execute($sprints);
+                }
+                catch (\PDOException $e) { 
+                    $this->trigger_error();
+                }
+                $end = microtime(true);
+                
+                // Get our benchmark time
+                $bench['time'] = round($end - $start, 5);
+
+                // Add the query to the list of queries
+                $this->queries[] = $bench;
+            
+                ++$this->statistics['count'];
+                $this->statistics['time'] = ($this->statistics['time'] + $bench['time']);
+                return $stmt->fetchColumn();
+            }
+        }
+        return $this->num_rows;
+    }
+    
+    function server_version()
+    {
+        return \PDO::getAttribute( \PDO::ATTR_SERVER_VERSION );
+    }
+
 /*
 | ---------------------------------------------------------------
 | Function: trigger_error()
@@ -490,14 +527,14 @@ class Driver extends \PDO
 |
 */
 
-	protected function trigger_error() 
-	{
-		$errInfo = $this->result->errorInfo();
-		$msg  = $errInfo[2] . "<br /><br />";
-		$msg .= "<b>PDO Error No:</b> ". $errInfo[0] ."<br />";
-		$msg .= "<b>". ucfirst($this->driver) ." Error No:</b> ". $errInfo[1] ."<br />";
-		$msg .= "<b>Query String: </b> ". $this->last_query ."<br />";
-		show_error($msg, false, E_ERROR);
-	}
+    protected function trigger_error() 
+    {
+        $errInfo = $this->result->errorInfo();
+        $msg  = $errInfo[2] . "<br /><br />";
+        $msg .= "<b>PDO Error No:</b> ". $errInfo[0] ."<br />";
+        $msg .= "<b>". ucfirst($this->driver) ." Error No:</b> ". $errInfo[1] ."<br />";
+        $msg .= "<b>Query String: </b> ". $this->last_query ."<br />";
+        show_error($msg, false, E_ERROR);
+    }
 }
 // EOF

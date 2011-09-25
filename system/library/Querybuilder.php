@@ -6,24 +6,21 @@
 |
 | --------------------------------------------------------------
 |
-| Author: 		Steven Wilson
-| Copyright:	Copyright (c) 2011, Steven Wilson
-| License: 		GNU GPL v3
+| Author:       Steven Wilson
+| Copyright:    Copyright (c) 2011, Steven Wilson
+| License:      GNU GPL v3
 |
 */
 namespace System\Library;
 
 class Querybuilder
 {
-	// Our queryType
-	public $queryType;
-	
-	// Our Sql Statement
-	public $sql;
-	
-	// Columns and Vaules of those columns for queries
-	protected $columns = array(); 
-	protected $values  = array();
+    // Our Sql Statement
+    public $sql;
+
+    // Columns and Vaules of those columns for queries
+    protected $columns = array(); 
+    protected $values  = array();
 
 /*
 | ---------------------------------------------------------------
@@ -35,215 +32,213 @@ class Querybuilder
 | @Param: $data - the columns being selected
 |
 */
-	public function select($data) 
-	{	
-		// Empty out the old junk
-		$this->clear();
-		
-		// Define our query type
-		$this->queryType = "SELECT";
-		if(is_array($data))
-		{
-			if(count($data) > 1)
-			{
-				$this->sql = "SELECT ". mysql_real_escape_string( implode(',', $data) );
-			}
-			else
-			{
-				$this->sql = "SELECT ". mysql_real_escape_string($data[0]);
-			}
-		}
-		else
-		{
-			$this->sql = "SELECT ". mysql_real_escape_string($data);
-		}
-		return $this;
-	}
-	
+    public function select($data = '*') 
+    {	
+        // Empty out the old junk
+        $this->clear();
+        
+        // Process our columns, if array, we need to implode to a string
+        if(is_array($data))
+        {
+            if(count($data) > 1)
+            {
+                $this->sql = "SELECT ". $this->clean( implode(', ', $data) );
+            }
+            else
+            {
+                $this->sql = "SELECT ". $this->clean($data[0]);
+            }
+        }
+        else
+        {
+            $this->sql = "SELECT ". $this->clean($data);
+        }
+        return $this;
+    }
+
 /*
 | ---------------------------------------------------------------
-| Function: select_max()
+| Function: max()
 | ---------------------------------------------------------------
 |
-| select_max is used to initiate a SELECT MAX($col) query
+| max is used to initiate a SELECT MAX($col) query
 |
-| @Param: $col - the columns being selected
+| @Param: $col - the column being selected
+| @Param: $as - The array variable key would like the count returned 
+|   as in the query result.
 |
 */
-	public function select_max($col) 
-	{
-		$col = mysql_real_escape_string($col);
-		
-		// Empty out the old junk
-		$this->clear();
-		
-		// Define our query type
-		$this->queryType = "COUNT";
-		$this->sql = "SELECT MAX(". $col .")";
-		return $this;
-	}
-	
+    public function max($col = '*', $as = NULL) 
+    {
+        $col = $this->clean($col);
+        
+        // Empty out the old junk
+        $this->clear();
+        
+        // Build our sql statement
+        $as = ($as !== NULL) ? " AS ".$as : "";
+        $this->sql = "SELECT MAX(". $col .")". $as;
+        return $this;
+    }
+
 /*
 | ---------------------------------------------------------------
-| Function: select_min()
+| Function: min()
 | ---------------------------------------------------------------
 |
-| select_min is used to initiate a SELECT MIN($col) query
+| min is used to initiate a SELECT MIN($col) query
 |
-| @Param: $col - the columns being selected
+| @Param: $col - the column being selected
+| @Param: $as - The array variable key would like the count returned 
+|   as in the query result.
 |
 */
-	public function select_min($col) 
-	{
-		$col = mysql_real_escape_string($col);
-		
-		// Empty out the old junk
-		$this->clear();
-		
-		// Define our query type
-		$this->queryType = "COUNT";
-		$this->sql = "SELECT MIN(". $col .")";
-		return $this;
-	}
-	
+    public function min($col = '*', $as = NULL) 
+    {
+        $col = $this->clean($col);
+        
+        // Empty out the old junk
+        $this->clear();
+        
+        // Build our sql statement
+        $as = ($as !== NULL) ? " AS ".$as : "";
+        $this->sql = "SELECT MIN(". $col .")". $as;
+        return $this;
+    }
+
 /*
 | ---------------------------------------------------------------
-| Function: select_avg()
+| Function: avg()
 | ---------------------------------------------------------------
 |
-| select_avg is used to initiate a SELECT AVG($col) query
+| avg is used to initiate a SELECT AVG($col) query
 |
-| @Param: $col - the columns being selected
+| @Param: $col - the column being selected
+| @Param: $as - The array variable key would like the count returned 
+|   as in the query result.
 |
 */
-	public function select_avg($col) 
-	{
-		$col = mysql_real_escape_string($col);
-		
-		// Empty out the old junk
-		$this->clear();
-		
-		// Define our query type
-		$this->queryType = "COUNT";
-		$this->sql = "SELECT AVG(". $col .")";
-		return $this;
-	}
-	
+    public function avg($col = '*', $as = NULL) 
+    {
+        $col = $this->clean($col);
+        
+        // Empty out the old junk
+        $this->clear();
+        
+        // Build our sql statement
+        $as = ($as !== NULL) ? " AS ".$as : "";
+        $this->sql = "SELECT AVG(". $col .")". $as;
+        return $this;
+    }
+
 /*
 | ---------------------------------------------------------------
-| Function: select_sum()
+| Function: sum()
 | ---------------------------------------------------------------
 |
-| select_sum is used to initiate a SELECT SUM($col) query
+| sum is used to initiate a SELECT SUM($col) query
 |
-| @Param: $col - the columns being selected
+| @Param: $col - the column being selected
+| @Param: $as - The array variable key would like the count returned 
+|   as in the query result.
 |
 */
-	public function select_sum($col) 
-	{
-		$col = mysql_real_escape_string($col);
-		
-		// Empty out the old junk
-		$this->clear();
-		
-		// Define our query type
-		$this->queryType = "COUNT";
-		$this->sql = "SELECT SUM(". $col .")";
-		return $this;
-	}
-	
+    public function sum($col = '*', $as = NULL) 
+    {
+        $col = $this->clean($col);
+        
+        // Empty out the old junk
+        $this->clear();
+        
+        // Build our sql statement
+        $as = ($as !== NULL) ? " AS ".$as : "";
+        $this->sql = "SELECT SUM(". $col .")". $as;
+        return $this;
+    }
+
 /*
 | ---------------------------------------------------------------
-| Function: select_count()
+| Function: count()
 | ---------------------------------------------------------------
 |
-| select_sum is used to initiate a SELECT COUNT($col) query
+| count is used to initiate a SELECT COUNT($col) query
 |
-| @Param: $col - the columns being selected
+| @Param: $col - the column being selected
+| @Param: $as - The array variable key would like the count returned 
+|   as in the query result.
 |
 */
-	public function select_count($col) 
-	{
-		$col = mysql_real_escape_string($col);
-		
-		// Empty out the old junk
-		$this->clear();
-		
-		// Define our query type
-		$this->queryType = "COUNT";
-		$this->sql = "SELECT COUNT(". $col .")";
-		return $this;
-	}
+    public function count($col = '*', $as = NULL) 
+    {
+        $col = $this->clean($col);
+        
+        // Empty out the old junk
+        $this->clear();
+        
+        // Build our sql statement
+        $as = ($as !== NULL) ? " AS ".$as : "";
+        $this->sql = "SELECT COUNT(". $col .")". $as;
+        return $this;
+    }
 
 /*
 | ---------------------------------------------------------------
 | Function: insert()
 | ---------------------------------------------------------------
 |
-| insert is used to initiate an INSERT query
+| Insert is used to initiate an INSERT query
 |
 | @Param: $table - the table we are inserting into
 | @Param: $data - an array of ( column => value )
 |
-*/	
-	public function insert($table, $data) 
-	{
-		// Empty out the old junk
-		$this->clear();
-		
-		// Define our query type
-		$this->queryType = "INSERT";
-		$this->table = mysql_real_escape_string($table);
-		
-		// Make sure our data is in an array format
-		if(!is_array($data))
-		{
-			show_error(2, 'non_array', array('data', 'Database::insert'));
-			$data = array();
-		}
-		
-		// Loop through if we need to
-		if(count($data) > 1)
-		{
-			foreach($data as $key => $value)
-			{
-				// Check to see if the key is numeric, if not, then escape it
-				if(!is_numeric($key))
-				{
-					$this->columns[] = mysql_real_escape_string($key);
-				}
-				
-				// Also Check to see if the value is numeric, if not, add quotes around the value
-				if(!is_numeric($value))
-				{
-					$this->values[] = "'". mysql_real_escape_string($value) ."'";
-				}
-				else
-				{
-					$this->values[] = mysql_real_escape_string($value);
-				}
-			}
-			
-			// If we entered columns, then we use them, otherwise we do a plain insert
-			if(count($this->columns) >= 1)
-			{
-				$this->sql = "INSERT INTO ". $table ." (". implode(',', $this->columns) .") VALUES (". implode(',', $this->values) .")";
-			}
-			else
-			{
-				$this->sql = "INSERT INTO ". $table ." VALUES (". implode(',', $this->values) .")";
-			}
-		}
-		
-		// No Loop needed, a simple insert of 1 key / value
-		else
-		{
-			$key = mysql_real_escape_string( key($data) );
-			$value = mysql_real_escape_string($data[$key]);
-			$this->sql = "INSERT INTO ". $this->table ." (". $key .") VALUES (". $value.")";
-		}
-		return $this;
-	}
+*/
+    public function insert($table, $data) 
+    {
+        // Empty out the old junk
+        $this->clear();
+        
+        // Define our table
+        $this->table = $this->clean($table);
+        
+        // Make sure our data is in an array format
+        if(!is_array($data))
+        {
+            show_error(2, 'non_array', array('data', 'Querybuilder::insert'));
+            $data = array();
+        }
+        
+        // Loop through, and seperate the array into 2 arrays
+        foreach($data as $key => $value)
+        {
+            // Check to see if the key is numeric, if not, then escape it
+            if(!is_numeric($key))
+            {
+                $this->columns[] = $this->clean($key);
+            }
+            
+            // Also Check to see if the value is numeric, if not, add quotes around the value
+            if(!is_numeric($value))
+            {
+                $this->values[] = "'". $this->clean($value) ."'";
+            }
+            else
+            {
+                $this->values[] = $this->clean($value);
+            }
+        }
+        
+        // If we entered columns, then we use them, otherwise we do a plain insert
+        if(count($this->columns) > 0)
+        {
+            $this->sql = "INSERT INTO ". $this->table ." (". implode(',', $this->columns) .") VALUES (". implode(',', $this->values) .")";
+        }
+        else
+        {
+            $this->sql = "INSERT INTO ". $this->table ." VALUES (". implode(',', $this->values) .")";
+        }
+
+        return $this;
+    }
 
 /*
 | ---------------------------------------------------------------
@@ -256,339 +251,482 @@ class Querybuilder
 | @Param: $data - an array of ( column => value )
 |
 */	
-	public function update($table, $data) 
-	{
-		// Empty out the old junk
-		$this->clear();
-		
-		// Define our query type
-		$this->queryType = "UPDATE";
-		$this->table = mysql_real_escape_string($table);
-		
-		// Make sure our data is in an array format
-		if(!is_array($data))
-		{
-			show_error(2, 'non_array', array('data', 'Database::update'));
-			$data = array();
-		}
-		
-		// Add the column and values to 2 seperate arrays
-		if(count($data) > 1)
-		{
-			foreach($data as $key => $value)
-			{
-				$this->columns[] = mysql_real_escape_string($key);
-				$this->values[] = mysql_real_escape_string($value);
-			}
-		}
-		else
-		{
-			$key = key($data);
-			$this->columns[] = mysql_real_escape_string( $key );
-			$this->values[] = mysql_real_escape_string( $data[$key] );
-		}
-		
-		// Init the SQL statement
-		$this->sql = "UPDATE ". $this->table ." SET ";
-	
-		// Start the loop of $keys = $values
-		$count = count($this->columns);
-		for($i = 0; $i < $count; $i++) 
-		{
-			// If the number is numeric, we do not add single quotes to the value
-			if(is_numeric($this->values[$i]))
-			{
-				$this->sql .= "`".$this->columns[$i] ."` = ". $this->values[$i];
-			}
-			else
-			{
-				$this->sql .= "`".$this->columns[$i] ."` = '". $this->values[$i] ."'";
-			}
-			
-			// If we have more to go, add a ","
-			if($i < ($count - 1)) 
-			{
-				$this->sql.= ", ";
-			}
-		}
-		return $this;
-	}
+    public function update($table, $data) 
+    {
+        // Empty out the old junk
+        $this->clear();
+        
+        // Make sure our data is in an array format
+        if(!is_array($data))
+        {
+            show_error(2, 'non_array', array('data', 'Querybuilder::update'));
+            $data = array();
+        }
+        
+        // Define our table and Init the SQL statement
+        $this->table = $this->clean($table);
+        $this->sql = "UPDATE ". $this->table ." SET ";
+
+        // Start the loop of $keys = $values
+        $count = count($data);
+        $i = 1;
+        
+        // Add the column and values to 2 seperate arrays
+        foreach($data as $key => $value)
+        {
+            $key = $this->clean($key);
+            $value = $this->clean($value);
+            
+            // If the number is numeric, we do not add single quotes to the value
+            if(is_numeric($value))
+            {
+                $this->sql .= "`".$key ."` = ". $value;
+            }
+            else
+            {
+                $this->sql .= "`".$key ."` = '". $value ."'";
+            }
+            
+            // If we have more to go, add a ","
+            if($i < $count) 
+            {
+                $this->sql .= ", ";
+            }
+            ++$i;
+        }
+
+        return $this;
+    }
 
 /*
 | ---------------------------------------------------------------
 | Function: delete_from()
 | ---------------------------------------------------------------
 |
-| delete is used to delete from a table
+| Delete is used to delete from a table
 |
 | @Param: $table - the table we are deleting data from
 |
-*/	
-	public function delete_from($table) 
-	{
-		// Empty out the old junk
-		$this->clear();
-		
-		// Define our query type
-		$this->queryType = "DELETE";
-		$this->table = mysql_real_escape_string($table);
-		$this->sql = "DELETE FROM ". $this->table;
-		return $this;
-	}
-	
-/*
-| ---------------------------------------------------------------
-| Function: where()
-| ---------------------------------------------------------------
-|
-| Querybuilder: Adds "WHERE $col = $val" to the query being built
-|
-| @Param: $col - the column
-| @Param: $val - value of the column
-|
 */
-	public function where($col, $val) 
-	{
-		$col = mysql_real_escape_string($col);
-		$val = mysql_real_escape_string($val);
-		
-		if(!is_numeric($val))
-		{
-			$val = "'". $val ."'";
-		}
-		$this->sql .= " WHERE ". $col ." = ". $val;	
-		return $this;
-	}
-	
-/*
-| ---------------------------------------------------------------
-| Function: and_where()
-| ---------------------------------------------------------------
-|
-| Querybuilder: Adds "AND $col = $val" to the query being built
-|
-| @Param: $col - the column
-| @Param: $val - value of the column
-|
-*/
-	public function and_where($col, $val) 
-	{
-		$col = mysql_real_escape_string($col);
-		$val = mysql_real_escape_string($val);
-		
-		if(!is_numeric($val))
-		{
-			$val = "'". $val ."'";
-		}
-		$this->sql .= " AND ". $col ." = ". $val;	
-		return $this;
-	}
-	
-/*
-| ---------------------------------------------------------------
-| Function: or_where()
-| ---------------------------------------------------------------
-|
-| Querybuilder: Adds "OR $col = $val" to the query being built
-|
-| @Param: $col - the column
-| @Param: $val - value of the column
-|
-*/
-	public function or_where($col, $val) 
-	{
-		$col = mysql_real_escape_string($col);
-		$val = mysql_real_escape_string($val);
-		
-		if(!is_numeric($val))
-		{
-			$val = "'". $val ."'";
-		}
-		$this->sql .= " OR ". $col ." = ". $val;	
-		return $this;
-	}
+    public function delete_from($table) 
+    {
+        // Empty out the old junk
+        $this->clear();
+        
+        // Define our table, build our query
+        $this->table = $this->clean($table);
+        $this->sql = "DELETE FROM ". $this->table;
+        return $this;
+    }
 
 /*
 | ---------------------------------------------------------------
 | Function: from()
 | ---------------------------------------------------------------
 |
-| Querybuilder: Adds "FROM $table" to the query being built
+| Adds "FROM $table" to the query being built
 |
 | @Param: $table - the table name
 |
-*/	
-	public function from($table) 
-	{
-		$this->table = mysql_real_escape_string($table);
-		$this->sql .= " FROM ". $this->table;
-		return $this;		
-	}
-	
+*/
+    public function from($table) 
+    {
+        $this->table = $this->clean($table);
+        $this->sql .= " FROM ". $this->table;
+        return $this;
+    }
+
 /*
 | ---------------------------------------------------------------
-| Function: where_like()
+| Function: where()
 | ---------------------------------------------------------------
 |
-| Querybuilder: Adds "WHERE $col LIKE $like" to the query being built
+| Adds "WHERE $col ($opp) $val" to the query being built
 |
-| @Param: $col- the column we are selecting
-| @Param: $like - what we are comparing to
+| @Param: $col - the column, or an array of columns
+| @Param: $val - value of the column, or an array of columns
+| @Param: $opp - The operator, such as equals, greater then etc.
+|   if $col and $val are arrays, this must be an array as well.
 |
-*/	
-	public function where_like($col, $like) 
-	{
-		$like = mysql_real_escape_string($like);
-		$col = mysql_real_escape_string($col);
-		
-		$this->sql .=  " WHERE". $col ." LIKE ". $like;
-		return $this;
-	}
-	
+*/
+    public function where($col, $val, $opp = '=') 
+    {
+        // Check for an array
+        if(is_array($col))
+        {
+            // Add quotes on non-numeric values
+            if(!is_numeric($val[0]))
+            {
+                $val[0] = "'". $val[0] ."'";
+            }
+            
+            // Start the where clause
+            $this->sql .= " WHERE ". $col[0] . $opp[0] . $val[0];
+            
+            // Unset the first col and value as we used those already.
+            // Combine arrays, set our array pointer to 1
+            unset($col[0], $val[0]);
+            $array = array_combine($col, $val);
+            $i = 1;
+            
+            // Loop through and add each if we have any
+            if(count($array) > 0)
+            {
+                foreach($array as $key => $value)
+                {
+                    // Some light cleaning
+                    $this->and_where($key, $value, $opp[$i]);
+                    ++$i;
+                }
+            }
+        }
+        else
+        {
+            // Some light cleaning
+            $col = $this->clean($col);
+            $val = $this->clean($val);
+            
+            // Add quotes on non-numeric values
+            if(!is_numeric($val))
+            {
+                $val = "'". $val ."'";
+            }
+            $this->sql .= " WHERE ". $col . $opp . $val;
+        }
+        return $this;
+    }
+
 /*
 | ---------------------------------------------------------------
-| Function: not_like()
+| Function: and_where()
 | ---------------------------------------------------------------
 |
-| Querybuilder: Adds "WHERE $col NOT LIKE $like" to the query being built
+| Adds "AND $col ($opp) $val" to the query being built
 |
-| @Param: $col- the column we are selecting
-| @Param: $like - what we are comparing to
+| @Param: $col - the column, or an array of columns
+| @Param: $val - value of the column, or an array of columns
+| @Param: $opp - The operator, such as equals, greater then etc.
+|   if $col and $val are arrays, this must be an array as well.
 |
-*/	
-	public function where_not_like($col, $like) 
-	{
-		$like = mysql_real_escape_string($like);
-		$col = mysql_real_escape_string($col);
-		
-		$this->sql .= "WHERE ". $col ." NOT LIKE ". $like;
-		return $this;
-	}
-	
+*/
+    public function and_where($col, $val, $opp = '=') 
+    {
+        // Check for an array
+        if(is_array($col))
+        {
+            // Combine arrays, set our array pointer to 1
+            $array = array_combine($col, $val);
+            $i = 0;
+            
+            // Loop through and add each if we have any
+            if(count($array) > 0)
+            {
+                foreach($array as $key => $value)
+                {
+                    // Some light cleaning
+                    $this->and_where($key, $value, $opp[$i]);
+                    ++$i;
+                }
+            }
+        }
+        else
+        {
+            // Some light cleaning
+            $col = $this->clean($col);
+            $val = $this->clean($val);
+            
+            // Add quotes on non-numeric values
+            if(!is_numeric($val))
+            {
+                $val = "'". $val ."'";
+            }
+            $this->sql .= " AND ". $col . $opp . $val;
+        }
+        return $this;
+    }
+
 /*
 | ---------------------------------------------------------------
-| Function: and_like()
+| Function: or_where()
 | ---------------------------------------------------------------
 |
-| Querybuilder: Adds "AND $sub LIKE $like" to the query being built
+| Adds "OR $col ($opp) $val" to the query being built
 |
-| @Param: $like - what we are comparing to
+| @Param: $col - the column
+| @Param: $val - value of the column
 |
-*/	
-	public function and_like($sub, $like) 
-	{
-		$sub = mysql_real_escape_string($sub);
-		$like = mysql_real_escape_string($like);
-		
-		$this->sql .= " AND ". $sub ." LIKE ". $like;
-		return $this;
-	}
-	
+*/
+    public function or_where($col, $val, $opp = '=') 
+    {
+        // Check for an array
+        if(is_array($col))
+        {
+            // Combine arrays, set our array pointer to 1
+            $array = array_combine($col, $val);
+            $i = 0;
+            
+            // Loop through and add each if we have any
+            if(count($array) > 0)
+            {
+                foreach($array as $key => $value)
+                {
+                    // Some light cleaning
+                    $this->or_where($key, $value, $opp[$i]);
+                    ++$i;
+                }
+            }
+        }
+        else
+        {
+            // Some light cleaning
+            $col = $this->clean($col);
+            $val = $this->clean($val);
+            
+            // Add quotes on non-numeric values
+            if(!is_numeric($val))
+            {
+                $val = "'". $val ."'";
+            }
+            $this->sql .= " OR ". $col . $opp . $val;
+        }
+        return $this;
+    }
+
 /*
 | ---------------------------------------------------------------
-| Function: and_not_like()
+| Function: join()
 | ---------------------------------------------------------------
 |
-| Querybuilder: Adds "AND $sub NOT LIKE $like" to the query being built
+| A simple join method that adds " $type JOIN table1.col ON table2.col "
+| to the query being built
 |
-| @Param: $like - what we are comparing to
+| @Param: $type - the join type (inner, left, right, full)
+| @Param: $col1 - the first "table.colname" in the query
+| @Param: $col2 - the second "table2.colname2" in the query
 |
-*/	
-	public function and_not_like($sub, $like) 
-	{
-		$sub = mysql_real_escape_string($sub);
-		$like = mysql_real_escape_string($like);
-		
-		$this->sql .= " AND ". $sub ." NOT LIKE ". $like;
-		return $this;
-	}
-	
+*/
+    public function join($type, $col1, $col2) 
+    {
+        // Make sure we have a valid type
+        $type = strtoupper( " ".$type );
+        switch($type)
+        {
+            case " INNER":
+            case " LEFT":
+            case " RIGHT":
+            case " FULL":
+                break;
+            default:
+                $type = " INNER";
+                break;
+        }
+        
+        // Build our statement
+        $this->sql .= $type ." JOIN `". $col1 ."` ON `". $col2 ."`";
+        return $this;
+    }
+
 /*
 | ---------------------------------------------------------------
-| Function: groupBy()
+| Function: between()
 | ---------------------------------------------------------------
 |
-| Querybuilder: Adds "GROUP BY $groupby" to the query being built
+| Adds a between statment into the current sql
 |
-| @Param: $groupBy - What we are grouping by
+| @Param: $val1 - the start of between
+| @Param: $val2 - the end of between
 |
-*/	
-	public function groupBy($groupBy, $type) 
-	{
-		$this->sql .= " GROUP BY ". mysql_real_escape_string($groupBy);
-		return $this;
-	}
+*/
+    public function between($val1, $val2) 
+    {
+        // Alittle cleaning
+        $val1 = $this->clean($val1);
+        $val2 = $this->clean($val2);
+        
+        // Build our statement
+        $this->sql .= " BETWEEN `". $val1 ."` AND `". $val2 ."`";
+        return $this;	
+    }
+
+/*
+| ---------------------------------------------------------------
+| Function: not_between()
+| ---------------------------------------------------------------
+|
+| Adds a not between statment into the current sql
+|
+| @Param: $val1 - the start of between
+| @Param: $val2 - the end of between
+|
+*/
+    public function not_between($val1, $val2) 
+    {
+        // Alittle cleaning
+        $val1 = $this->clean($val1);
+        $val2 = $this->clean($val2);
+        
+        // Build our statement
+        $this->sql .= " NOT BETWEEN `". $val1 ."` AND `". $val2 ."`";
+        return $this;	
+    }
 
 /*
 | ---------------------------------------------------------------
 | Function: having()
 | ---------------------------------------------------------------
 |
-| Querybuilder: Adds "HAVING $having" to the query being built
+| Adds "HAVING $having" to the query being built
 |
 | @Param: $having - what the table needs to have
 |
-*/	
-	public function having($having) 
-	{
-		$this->sql .= " HAVING ". mysql_real_escape_string($having);
-		return $this;
-	}
+*/
+    public function having($having) 
+    {
+        $this->sql .= " HAVING ". $this->clean($having);
+        return $this;
+    }
 
 /*
 | ---------------------------------------------------------------
-| Function: orderBy()
+| Function: not_having()
 | ---------------------------------------------------------------
 |
-| Querybuilder: Adds "ORDER BY $orderBy" to the query being built
+| Adds "NOT HAVING $having" to the query being built
+|
+| @Param: $having - what the table needs to"not" have
+|
+*/
+    public function not_having($having) 
+    {
+        $this->sql .= " NOT HAVING ". $this->clean($having);
+        return $this;
+    }
+
+/*
+| ---------------------------------------------------------------
+| Function: group_by()
+| ---------------------------------------------------------------
+|
+| Adds "GROUP BY $groupby" to the query being built
+|
+| @Param: $groupBy - What we are grouping by
+|
+*/
+    public function group_by($groupBy) 
+    {
+        $this->sql .= " GROUP BY ". $this->clean($groupBy);
+        return $this;
+    }
+
+/*
+| ---------------------------------------------------------------
+| Function: order_by()
+| ---------------------------------------------------------------
+|
+| Adds "ORDER BY $orderBy" to the query being built
 |
 | @Param: $orderBy - How we are ording the result
 | @Param: $type - How we order, for example: ASC, or DESC
 |
-*/	
-	public function orderBy($orderBy, $type = 'ASC') 
-	{
-		$order = mysql_real_escape_string($orderBy);
-		$type = mysql_real_escape_string($type);
-		
-		$this->sql .= " ORDER BY ". $order ." ". $type ;
-		return $this;
-	}
+*/
+    public function order_by($orderBy, $type = 'ASC') 
+    {
+        $order = $this->clean($orderBy);
+        $type = $this->clean($type);
+        
+        $this->sql .= " ORDER BY ". $order ." ". $type ;
+        return $this;
+    }
 
 /*
 | ---------------------------------------------------------------
 | Function: limit()
 | ---------------------------------------------------------------
 |
-| Querybuilder: Adds "LIMIT $limit" to the query being built
+| Adds "LIMIT $x OFFSET $y" to the query being built
 |
 | @Param: $x - the Limit
 | @Param: $y - the result number to start on
 |
 */
-	public function limit($x, $y = 0) 
-	{
-		$x = mysql_real_escape_string($x);
-		$y = mysql_real_escape_string($y);
-			
-		$this->sql .= " LIMIT ". $y .",". $x;
-		return $this;
-	}
-	
-	
+    public function limit($x, $y = 0)
+    {
+        // Alittle cleaning
+        $x = $this->clean($x);
+        $y = $this->clean($y);
+        
+        // Creat an offset if we have one, then build the sql statement
+        $offset = ($y != 0) ? " OFFSET ". $y : "";
+        $this->sql .= " LIMIT ". $x . $offset;
+        return $this;
+    }
+
+/*
+| ---------------------------------------------------------------
+| Function: alias()
+| ---------------------------------------------------------------
+|
+| Adds an alias (Ex: AS $as )
+|
+| @Param: $as - the alias
+|
+*/
+    public function alias($as) 
+    {
+        // Build our statement
+        $this->sql .= " AS ". $this->clean($as);
+        return $this;	
+    }
+
+/*
+| ---------------------------------------------------------------
+| Function: add()
+| ---------------------------------------------------------------
+|
+| Adds a custom string to the sql statment
+|
+| @Param: $string - The custom string to be added to the sql statement
+|
+*/
+    public function add($string) 
+    {
+        // Build our statement
+        $this->sql .= " ".$this->clean($string);
+        return $this;	
+    }
+
 /*
 | ---------------------------------------------------------------
 | Function: clear()
 | ---------------------------------------------------------------
 |
-| clears out the query. Not really needed to be honest as a new
+| Clears out the query. Not really needed to be honest as a new
 | query will automatically call this method.
 |
 */
     public function clear()
     {
-		$this->sql = '';
-		$this->columns = array();
-		$this->values = array();
+        $this->sql = '';
+        $this->columns = array();
+        $this->values = array();
+    }
+
+/*
+| ---------------------------------------------------------------
+| Function: clean()
+| ---------------------------------------------------------------
+|
+| Clean the string using mysql_real_escape_string
+|
+*/
+    public function clean($string)
+    {
+        // Mysql will convert int's to a string, we dont want that
+        if(is_numeric($string))
+        {
+            return $string;
+        }
+        return mysql_real_escape_string($string);
     }
 }
+// EOF

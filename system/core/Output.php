@@ -6,9 +6,9 @@
 |
 | --------------------------------------------------------------
 |
-| Author: 		Steven Wilson
-| Copyright:	Copyright (c) 2011, Steven Wilson
-| License: 		GNU GPL v3
+| Author:       Steven Wilson
+| Copyright:    Copyright (c) 2011, Steven Wilson
+| License:      GNU GPL v3
 |
 | ---------------------------------------------------------------
 | Class: Output
@@ -20,7 +20,7 @@
 namespace System\Core;
 
 class Output 
-{	
+{
 
 /*
 | ---------------------------------------------------------------
@@ -35,23 +35,23 @@ class Output
 |
 */
 
-	function send($page, $data = array()) 
-	{
-		// Make sure our data is in an array format
-		if(!is_array($data))
-		{
-			show_error('non_array', array('data', 'Output::send'), E_ERROR);
-			$data = array();
-		}
-		
-		// extract variables
-		if(count($data) > 0)
-		{
-			extract($data);
-		}
-		
-		// Spit out the page
-		eval('?>'.$page.'<?');
-	}
+    function send($page, $data = array()) 
+    {
+        // Make sure our data is in an array format
+        if(!is_array($data))
+        {
+            show_error('non_array', array('data', 'Output::send'), E_ERROR);
+            $data = array();
+        }
+        
+        // extract variables
+        if(count($data) > 0)
+        {
+            extract($data);
+        }
+        
+        // Spit out the page
+        eval('?>'.$page.'<?');
+    }
 }
 // EOF

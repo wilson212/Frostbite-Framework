@@ -6,9 +6,9 @@
 |
 | --------------------------------------------------------------
 |
-| Author: 		Steven Wilson
-| Copyright:	Copyright (c) 2011, Steven Wilson
-| License: 		GNU GPL v3
+| Author:       Steven Wilson
+| Copyright:    Copyright (c) 2011, Steven Wilson
+| License:      GNU GPL v3
 |
 | ---------------------------------------------------------------
 | Class: Paypal
@@ -22,8 +22,8 @@
 class Paypal 
 {
 
-	var $isTest = FALSE;
-	var $button = '<input type="submit" value="Submit">';
+    var $isTest = FALSE;
+    var $button = '<input type="submit" value="Submit">';
 
 /*
 | ---------------------------------------------------------------
@@ -37,10 +37,10 @@ class Paypal
 |
 */
 
-	function add_var($key, $value)
-	{
-		$this->vars[$key] = $value;
-	}
+    function add_var($key, $value)
+    {
+        $this->vars[$key] = $value;
+    }
 
 /*
 | ---------------------------------------------------------------
@@ -53,11 +53,11 @@ class Paypal
 |
 */
 
-	function set_button_image($button_image = "")
-	{
-		$this->button = '<input type="image" src="'.$button_image.'" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">';
-		$this->button .= "\n";
-	}
+    function set_button_image($button_image = "")
+    {
+        $this->button = '<input type="image" src="'.$button_image.'" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">';
+        $this->button .= "\n";
+    }
 
 /*
 | ---------------------------------------------------------------
@@ -70,18 +70,18 @@ class Paypal
 |
 */
 
-	function show_form()
-	{
-		$url = $this->get_address();
-		$form  = '<form action="https://'.$url.'/cgi-bin/webscr" method="post" target="_blank" style="display:inline;">'."\n";
-		foreach($this->vars as $key => $value)
-		{
-			$form .= '<input type="hidden" name="'.$key.'" value="'.$value.'">'."\n";
-		}				
-		$form .= $this->button;    
-		$form .= '</form>';
-		echo $form;
-	}
+    function show_form()
+    {
+        $url = $this->get_address();
+        $form  = '<form action="https://'.$url.'/cgi-bin/webscr" method="post" target="_blank" style="display:inline;">'."\n";
+        foreach($this->vars as $key => $value)
+        {
+            $form .= '<input type="hidden" name="'.$key.'" value="'.$value.'">'."\n";
+        }				
+        $form .= $this->button;    
+        $form .= '</form>';
+        echo $form;
+    }
 
 /*
 | ---------------------------------------------------------------
@@ -94,10 +94,10 @@ class Paypal
 |
 */
 
-	function set_log_file($logFile)
-	{
-		$this->logFile = $logFile;
-	}
+    function set_log_file($logFile)
+    {
+        $this->logFile = $logFile;
+    }
 
 /*
 | ---------------------------------------------------------------
@@ -110,15 +110,15 @@ class Paypal
 |
 */
 
-	private function write_log($msg)
-	{
-		$outmsg = date('Y-m-d H:i:s')." : ".$msg."<br />\n";
-		
-		$file = fopen($this->logFile,'a');
-		fwrite($file,$outmsg);
-		fclose($file);
-	}
-	
+    private function write_log($msg)
+    {
+        $outmsg = date('Y-m-d H:i:s')." : ".$msg."<br />\n";
+        
+        $file = fopen($this->logFile,'a');
+        fwrite($file,$outmsg);
+        fclose($file);
+    }
+
 /*
 | ---------------------------------------------------------------
 | Function: check_payment
@@ -127,72 +127,72 @@ class Paypal
 | Used to check payment status
 |
 */
-	function check_payment()
-	{
-		$req = 'cmd=_notify-validate';
-		foreach($_POST as $key => $value) 
-		{
-			$value = urlencode(stripslashes($value));
-			$req .= "&$key=$value";
-		}		
-		$url = $this->get_address();
-		
-		// Headers to post back to paypal
-		$header .= "POST /cgi-bin/webscr HTTP/1.0\r\n";
-		$header .= "Content-Type: application/x-www-form-urlencoded\r\n";
-		$header .= "Content-Length: " . strlen($req) . "\r\n\r\n";
-		$fp = fsockopen('ssl://'.$url, 443, $errno, $errstr, 30);
-		
-		// $fp = fsockopen ($url, 80, $errno, $errstr, 30);
-	
-		// If we cant open socket, we have an error
-		if (!$fp) 
-		{
-			return FALSE;
-		} 
-		else 
-		{
-			fputs($fp, $header . $req);
-			
-			// Common mistake by people is ending the loop on the first run
-			// around, which only gives the header line. There for we are going
-			// to wait until the loop is ended before returning anything.
-			$loop = FALSE; # Start by saying the loop is false on a verified return
-			while(!feof($fp)) 
-			{
-				$res = fgets($fp, 1024);
-				if(strcmp($res, "VERIFIED") == 0) # If line result length matches VERIFIED
-				{				
-					$loop = TRUE; # Define the loop contained VERIFIED
-				} 
-			}
-			if($loop == TRUE)
-			{
-				return TRUE;
-			}
-			else 
-			{
-				if($this->logFile != NULL) # If user defined a log file
-				{
-					$err = array();
-					$err[] = '--- Start Transaction ---';
-					foreach($_POST as $var)
-					{
-						$err[] = $var;
-					}
-					$err[] = '--- End Transaction ---';
-					$err[] = '';
-					foreach($err as $logerror)
-					{
-						$this->write_log($logerror); # Log for error checking
-					}
-				}
-				return FALSE;
-			}
-			fclose ($fp);
-		}
-		return false;
-	}
+    function check_payment()
+    {
+        $req = 'cmd=_notify-validate';
+        foreach($_POST as $key => $value) 
+        {
+            $value = urlencode(stripslashes($value));
+            $req .= "&$key=$value";
+        }		
+        $url = $this->get_address();
+        
+        // Headers to post back to paypal
+        $header .= "POST /cgi-bin/webscr HTTP/1.0\r\n";
+        $header .= "Content-Type: application/x-www-form-urlencoded\r\n";
+        $header .= "Content-Length: " . strlen($req) . "\r\n\r\n";
+        $fp = fsockopen('ssl://'.$url, 443, $errno, $errstr, 30);
+        
+        // $fp = fsockopen ($url, 80, $errno, $errstr, 30);
+
+        // If we cant open socket, we have an error
+        if (!$fp) 
+        {
+            return FALSE;
+        } 
+        else 
+        {
+            fputs($fp, $header . $req);
+            
+            // Common mistake by people is ending the loop on the first run
+            // around, which only gives the header line. There for we are going
+            // to wait until the loop is ended before returning anything.
+            $loop = FALSE; # Start by saying the loop is false on a verified return
+            while(!feof($fp)) 
+            {
+                $res = fgets($fp, 1024);
+                if(strcmp($res, "VERIFIED") == 0) # If line result length matches VERIFIED
+                {				
+                    $loop = TRUE; # Define the loop contained VERIFIED
+                } 
+            }
+            if($loop == TRUE)
+            {
+                return TRUE;
+            }
+            else 
+            {
+                if($this->logFile != NULL) # If user defined a log file
+                {
+                    $err = array();
+                    $err[] = '--- Start Transaction ---';
+                    foreach($_POST as $var)
+                    {
+                        $err[] = $var;
+                    }
+                    $err[] = '--- End Transaction ---';
+                    $err[] = '';
+                    foreach($err as $logerror)
+                    {
+                        $this->write_log($logerror); # Log for error checking
+                    }
+                }
+                return FALSE;
+            }
+            fclose ($fp);
+        }
+        return false;
+    }
 
 /*
 | ---------------------------------------------------------------
@@ -205,11 +205,11 @@ class Paypal
 |
 */
 
-	function test_mode($value)
-	{
-		$this->isTest = $value;
-	}
-	
+    function test_mode($value)
+    {
+        $this->isTest = $value;
+    }
+
 /*
 | ---------------------------------------------------------------
 | Function: get_address
@@ -219,16 +219,16 @@ class Paypal
 |
 */
 
-	function get_address()
-	{
-		if($this->isTest == TRUE)
-		{
-			return 'www.sandbox.paypal.com';
-		} 
-		else 
-		{
-			return 'www.paypal.com';
-		}
-	}
+    function get_address()
+    {
+        if($this->isTest == TRUE)
+        {
+            return 'www.sandbox.paypal.com';
+        } 
+        else 
+        {
+            return 'www.paypal.com';
+        }
+    }
 }
 // EOF
