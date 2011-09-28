@@ -18,71 +18,52 @@
 | forms to paypal for processing.
 |
 */
+namespace System\Library;
 
 class Paypal 
 {
-
+    // Set our local variables
     var $isTest = FALSE;
-    var $button = '<input type="submit" value="Submit">';
+    var $logFile;
 
+    
 /*
 | ---------------------------------------------------------------
-| Function: genertate_string()
+| Function: test_mode
 | ---------------------------------------------------------------
 |
-| Adds a hidden POST field
+| Sets the mode.
 |
-| @Param: $key - Name of the post field
-| @Param: $value - Value of the post field
+| @Param: $value - Set to true for test mode
 |
 */
 
-    function add_var($key, $value)
+    function test_mode($value)
     {
-        $this->vars[$key] = $value;
+        $this->isTest = $value;
     }
 
 /*
 | ---------------------------------------------------------------
-| Function: set_button_image
+| Function: get_address
 | ---------------------------------------------------------------
 |
-| Creates a button for users to push
-|
-| @Param: $button_image - URL to a paypal submit button
+| Used to get the URL based off the test_mode
 |
 */
 
-    function set_button_image($button_image = "")
+    function get_address()
     {
-        $this->button = '<input type="image" src="'.$button_image.'" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">';
-        $this->button .= "\n";
-    }
-
-/*
-| ---------------------------------------------------------------
-| Function: show_form
-| ---------------------------------------------------------------
-|
-| Shows the paypa form with all the add_vars you created
-|
-| @Param: $button_image - URL to a paypal submit button
-|
-*/
-
-    function show_form()
-    {
-        $url = $this->get_address();
-        $form  = '<form action="https://'.$url.'/cgi-bin/webscr" method="post" target="_blank" style="display:inline;">'."\n";
-        foreach($this->vars as $key => $value)
+        if($this->isTest == TRUE)
         {
-            $form .= '<input type="hidden" name="'.$key.'" value="'.$value.'">'."\n";
-        }				
-        $form .= $this->button;    
-        $form .= '</form>';
-        echo $form;
+            return 'www.sandbox.paypal.com';
+        } 
+        else 
+        {
+            return 'www.paypal.com';
+        }
     }
-
+ 
 /*
 | ---------------------------------------------------------------
 | Function: set_log_file
@@ -112,11 +93,16 @@ class Paypal
 
     private function write_log($msg)
     {
+        // Add a timestamp to our message
         $outmsg = date('Y-m-d H:i:s')." : ".$msg."<br />\n";
         
-        $file = fopen($this->logFile,'a');
-        fwrite($file,$outmsg);
-        fclose($file);
+        // Dont log anything if we dont have a log file
+        if($this->logFile != NULL)
+        {
+            $file = fopen($this->logFile,'a');
+            fwrite($file,$outmsg);
+            fclose($file);
+        }
     }
 
 /*
@@ -192,43 +178,6 @@ class Paypal
             fclose ($fp);
         }
         return false;
-    }
-
-/*
-| ---------------------------------------------------------------
-| Function: test_mode
-| ---------------------------------------------------------------
-|
-| Sets the mode.
-|
-| @Param: $value - Set to true for test mode
-|
-*/
-
-    function test_mode($value)
-    {
-        $this->isTest = $value;
-    }
-
-/*
-| ---------------------------------------------------------------
-| Function: get_address
-| ---------------------------------------------------------------
-|
-| Used to get the URL based off the test_mode
-|
-*/
-
-    function get_address()
-    {
-        if($this->isTest == TRUE)
-        {
-            return 'www.sandbox.paypal.com';
-        } 
-        else 
-        {
-            return 'www.paypal.com';
-        }
     }
 }
 // EOF

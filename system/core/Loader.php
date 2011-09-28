@@ -51,14 +51,7 @@ class Loader
         }
         
         // Include the model page
-        if($GLOBALS['is_module'] == TRUE)
-        {
-            require(APP_PATH . DS .'modules'. DS . $GLOBALS['controller'] . DS .'models'. DS . $name .'.php');
-        }
-        else
-        {
-            require(APP_PATH . DS . 'models' . DS . $name .'.php');
-        }
+        require(APP_PATH . DS . 'models' . DS . $name .'.php');
         
         // Get our class into a variable
         $Obj = new $class();
@@ -98,21 +91,11 @@ class Loader
         }
 
         // extract variables
-        extract($data);
-
-        // Figure out our file path
-        if($GLOBALS['is_module'] == TRUE)
-        {
-            $file = APP_PATH . DS . 'modules' . DS .  'views' . DS . $name . '.php';
-        }
-        else
-        {
-            $file = APP_PATH . DS . 'views' . DS . $name . '.php';		 
-        }
+        extract($data);	 
 
         // Get our page contents
         ob_start();
-        include($file);
+        include( APP_PATH . DS . 'views' . DS . $name . '.php' );
         $page = ob_get_contents();
         ob_end_clean();
         
@@ -182,20 +165,38 @@ class Loader
 */
     function database($args, $instance = TRUE)
     {
-        // Check our registry to see if we already loaded this connection
-        $Obj = \Registry::singleton()->load("DBC_".$args);
-        if($Obj != NULL)
+        // Load our connection settings. We can allow custom connection arguments
+        if(!is_array($args))
         {
-            // Skip to the instancing part unless we set instance to FALSE
-            if($instance != FALSE) goto Instance;
-            return $Obj;
-        }
+            // Check our registry to see if we already loaded this connection
+            $Obj = \Registry::singleton()->load("DBC_".$args);
+            if($Obj != NULL)
+            {
+                // Skip to the instancing part unless we set instance to FALSE
+                if($instance != FALSE) goto Instance;
+                return $Obj;
+            }
         
-        // Get the DB connection information
-        $info = config($args, 'DB');
-        if($info === NULL)
+            // Get the DB connection information
+            $info = config($args, 'DB');
+            if($info === NULL)
+            {
+                show_error('db_key_not_found', array($args), E_ERROR);
+            }
+        }
+        else
         {
-            show_error('db_key_not_found', array($args), E_ERROR);
+            // Assign our $info variable, and set our connection name to $instance (unless it equals true or 1)
+            $info = $args;
+            if(is_bool($instance) || is_numeric($instance))
+            {
+                $instance = FALSE;
+                $args = 'custom_database';
+            }
+            else
+            {
+                $args = $instance;
+            }
         }
         
         // Check for a DB class in the Application, and system core folder

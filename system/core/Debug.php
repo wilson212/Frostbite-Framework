@@ -11,7 +11,7 @@
 | License:      GNU GPL v3
 |
 | ---------------------------------------------------------------
-| Class: Error_Handler
+| Class: Debug
 | ---------------------------------------------------------------
 |
 | Main error handler for the Core.
@@ -19,7 +19,7 @@
 */
 namespace System\Core;
 
-class Error_Handler
+class Debug
 {
     // The instance of this class 
     private static $instance;
@@ -57,7 +57,7 @@ class Error_Handler
 | @Param: (Array)   $backtrace - Backtrace information if any
 |
 */
-    function trigger_error($errno, $message = '', $file = '', $line = 0, $backtrace = NULL)
+    public function trigger_error($errno, $message = '', $file = '', $line = 0, $backtrace = NULL)
     {
         // Language setup
         $this->lang = strtolower( config('core_language', 'Core') );
@@ -106,10 +106,6 @@ class Error_Handler
                 $this->ErrorLevel = 'Strict';
                 $severity = 1;
                 break;
-                
-            case 404:
-                include(SYSTEM_PATH . DS . 'pages' . DS . $this->lang . DS . '404.php');
-                die();
 
             default:
                 $this->ErrorLevel = 'Error Code: '.$errno;
@@ -130,6 +126,37 @@ class Error_Handler
             $this->build_error_page();
         }
     }
+    
+/*
+| ---------------------------------------------------------------
+| Function: show_error()
+| ---------------------------------------------------------------
+|
+| Shows a special error page like a 503 (Forbidden) of 404 page
+|
+| @Param: (Numeric) $type - The type of error page such as 404.
+|
+*/
+    public function show_error($type)
+    {
+        // Clear out all the old junk so we don't get 2 pages all fused together
+        if(ob_get_level() != 0) ob_end_clean();
+        
+        // Language setup
+        $lang = strtolower( config('core_language', 'Core') );
+        
+        // See if there is a custom page in the app folder
+        if(file_exists( APP_PATH . DS . 'pages' . DS . $this->lang . DS . $lang . DS . $type .'.php' ))
+        {
+            include(APP_PATH . DS . 'pages' . DS . $this->lang . DS . $lang . DS . $type .'.php');
+            die();
+        }
+        else
+        {
+            include(SYSTEM_PATH . DS . 'pages' . DS . $this->lang . DS . $lang . DS . $type .'.php');
+            die();
+        }
+    }
 
 /*
 | ---------------------------------------------------------------
@@ -139,14 +166,10 @@ class Error_Handler
 | Builds the error page and displays it
 |
 */
-    function build_error_page()
+    protected function build_error_page()
     {
-        // Clear out all the old junk so we don't get 2 pages
-        // all fused together
-        if(ob_get_level() != 0)
-        {
-            ob_end_clean();
-        }
+        // Clear out all the old junk so we don't get 2 pages all fused together
+        if(ob_get_level() != 0) ob_end_clean();
         
         // Capture the template using Output Buffering, file depends on Environment
         ob_start();
@@ -246,7 +269,7 @@ class Error_Handler
         $err_message .= "| Message: ".$this->ErrorMessage ."\n"; 
         $err_message .= "| Reporting File: ".$this->ErrorFile."\n";
         $err_message .= "| Error Line: ".$this->ErrorLine."\n";
-        $err_message .= "| URL When Error Occured: ".BASE_URL . "/". $url ."\n\n";
+        $err_message .= "| URL When Error Occured: ".SITE_URL . "/". $url ."\n\n";
         $err_message .= "--------------------------------------------------------------------\n\n";
 
         // Write in the log file, the very long message we made
@@ -257,7 +280,7 @@ class Error_Handler
 
 /*
 | ---------------------------------------------------------------
-| Function: var_html_dump()
+| Function: var_dump()
 | ---------------------------------------------------------------
 |
 | Creates a nice looking dump of an array. Thanks to Highstrike

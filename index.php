@@ -20,7 +20,7 @@
 | to manually define the BASE_URL below. 
 */
 define('SITE_DIR', dirname( $_SERVER['PHP_SELF'] ));
-define('BASE_URL', 'http://'. $_SERVER['HTTP_HOST'] . SITE_DIR);
+define('SITE_URL', 'http://'. $_SERVER['HTTP_HOST'] . SITE_DIR);
 
 // Define a smaller Directory seperater and ROOT path
 define('DS', DIRECTORY_SEPARATOR);
@@ -31,22 +31,21 @@ define('APP_PATH', ROOT . DS . 'application');
 define('SYSTEM_PATH', ROOT . DS . 'system');
 
 /*
-| Lets speed to core up by not using the autoloader 
-| to load these system files, that are NEEDED :p
+| Lets speed to core up by manually loading these system files,
 | These classes are not extendable, or replacable
 */
 require (SYSTEM_PATH . DS . 'core' . DS . 'Benchmark.php');
 require (SYSTEM_PATH . DS . 'core' . DS . 'Common.php');
-require (SYSTEM_PATH . DS . 'core' . DS . 'Error_handler.php');
+require (SYSTEM_PATH . DS . 'core' . DS . 'Debug.php');
 require (SYSTEM_PATH . DS . 'core' . DS . 'Registry.php');
 
 // Initiate the system start time
 Benchmark::startTimer('system');
  
 // Register the Core to process errors with the custom_error_handler method 
-set_error_handler( array( 'System\\Core\\Error_Handler', 'php_error_handler' ), E_ALL | E_STRICT );
+set_error_handler( array( 'System\\Core\\Debug', 'php_error_handler' ), E_ALL | E_STRICT );
 
 // Initiate the framework and let it do the rest ;)
-$Frostbite = load_class('Core\\Frostbite');
+$Frostbite = load_class('Frostbite');
 $Frostbite->Init();
 ?>

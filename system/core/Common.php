@@ -77,7 +77,7 @@
         }
         
         // Init and spit the error
-        $E = new \System\Core\Error_Handler();
+        $E = new System\Core\Debug;
         $E->trigger_error($lvl, $message, $calling['file'], $calling['line'], $backtrace);
     }
 	
@@ -94,8 +94,8 @@
     function show_404()
     {		
         // Init and spit the error
-        $E = new \System\Core\Error_Handler();
-        $E->trigger_error(404);
+        $E = new System\Core\Debug;
+        $E->show_error(404);
     }
 
 /*
@@ -309,10 +309,10 @@
 */
     function redirect($url, $wait = 0)
     {
-        // Check for a valid URL. If not then add our current BASE_URL to it.
+        // Check for a valid URL. If not then add our current SITE_URL to it.
         if(!preg_match('@^(mailto|ftp|http(s)?)://@i', $url))
         {
-            $url = BASE_URL .'/'. $url;
+            $url = SITE_URL .'/'. $url;
         }
 
         // Check for refresh or straight redirect

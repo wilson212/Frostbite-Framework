@@ -30,7 +30,7 @@ class Frostbite
 | @Return: (None)
 |
 */
-    function Init()
+    public function Init()
     {
         // Initialize the router
         $this->Router = load_class('Router');
@@ -46,7 +46,11 @@ class Frostbite
         // -----------------------------------------
         // Lets include the application controller.|
         // -----------------------------------------		
-        if( !$this->loadApplication() )
+        if(file_exists(APP_PATH . DS . 'controllers' . DS . strtolower($controller) . '.php')) 
+        {
+            include (APP_PATH . DS . 'controllers' . DS . strtolower($controller) . '.php');
+        }
+        else
         {
             show_404();
         }
@@ -92,48 +96,12 @@ class Frostbite
 |
 */
 
-    function performAction($controller, $action, $queryString = null) 
+    protected function performAction($controller, $action, $queryString = null) 
     {
         if(method_exists($controller, $action)) 
         {
             return call_user_func_array( array($this->dispatch, $action), $queryString );
         }
-        return FALSE;
-    }
-
-/*
-| ---------------------------------------------------------------
-| Method: loadApplication()
-| ---------------------------------------------------------------
-|
-| Checks the controller and Module folders for a the controller
-| and then loads them
-|
-| @Return: (Bool) - If the controller exists, it returns TRUE
-|
-*/
-    function loadApplication()
-    {
-        // Make this a bit easier
-        $name = $GLOBALS['controller'];
-        
-        // Check the App controllers folder
-        if(file_exists(APP_PATH . DS . 'controllers' . DS . strtolower($name) . '.php')) 
-        {
-            $GLOBALS['is_module'] = FALSE;
-            include (APP_PATH . DS . 'controllers' . DS . strtolower($name) . '.php');
-            return TRUE;
-        }
-        
-        // Check the App modules folder
-        elseif(file_exists(APP_PATH . DS . 'modules' . DS . strtolower($name) . DS . 'controller.php'))
-        {
-            $GLOBALS['is_module'] = TRUE;
-            include (APP_PATH . DS . 'modules' . DS . strtolower($name) . DS . 'controller.php');
-            return TRUE;
-        }
-        
-        // Neither exists, then no controller found.
         return FALSE;
     }
 }
