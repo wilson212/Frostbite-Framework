@@ -36,7 +36,7 @@ class Loader
 | @Return: (Object) Returns the model
 |
 */
-    function model($name, $instance_as = NULL)
+    public function model($name, $instance_as = NULL)
     {
         // Check for path. We need to get the model file name
         if(strpos($name, '/') !== FALSE)
@@ -75,37 +75,49 @@ class Loader
 |
 | This method is used to load the view file and display it
 |
-| @Param: (String) $name - The name of the controllers view file
-|   can also be path/to/view/$name
-| @Param: (Array) $data - an array of variables to be extracted
-| @Param: (Bool) $return - Return the page instead of echo it?
+| @Param: (String) $_view_name - The name of the controllers view file
+|   can also be path/to/view/$_view_name
+| @Param: (Array) $_data - an array of variables to be extracted
+| @Param: (Bool) $_return_view - Return the page instead of echo it?
 |
 */
-    function view($name, $data, $return = FALSE)
+    public function view($_view_name, $_data, $_return_view = FALSE)
     {
         // Make sure our data is in an array format
-        if(!is_array($data))
+        if(!is_array($_data))
         {
             show_error('non_array', array('data', 'Loader::view'), E_WARNING);
-            $data = array();
+            $_data = array();
         }
+        
+        // To prevent overwriting a variable, we give it a funky name
+        $_file_path = APP_PATH . DS . 'views' . DS . $_view_name . '.php';
 
         // extract variables
-        extract($data);	 
+        extract($_data);	 
 
         // Get our page contents
-        ob_start();
-        include( APP_PATH . DS . 'views' . DS . $name . '.php' );
-        $page = ob_get_contents();
-        ob_end_clean();
+        if(file_exists( $_file_path ))
+        {
+            ob_start();
+            include( $_file_path );
+            $page = ob_get_contents();
+            ob_end_clean();
         
-        // Replace some Global values
-        $page = str_replace('{PAGE_LOAD_TIME}', \Benchmark::showTimer('system', 4), $page);
-        $page = str_replace('{MEMORY_USAGE}', \Benchmark::memory_usage(), $page);
+            // Replace some Global values
+            $Benchmark = load_class('Benchmark');
+            $page = str_replace('{ELAPSED_TIME}', $Benchmark->elapsed_time('system', 4), $page);
+            $page = str_replace('{MEMORY_USAGE}', $Benchmark->memory_usage(), $page);
 
-        // Spit out the page
-        if($return == FALSE) echo $page;
-        return $page;
+            // Spit out the page
+            if($_return_view == FALSE) echo $page;
+            return $page;
+        }
+        else
+        {
+            show_error('missing_page_view', array($_view_name), E_ERROR);
+            return FALSE;
+        }
     }
 
 /*
@@ -122,7 +134,7 @@ class Loader
 | @Return: (Object) Returns the library class
 |
 */
-    function library($name, $instance = TRUE)
+    public function library($name, $instance = TRUE)
     {
         // Make sure periods are replaced with slahes if there is any
         if(strpos($name, ".") !== FALSE)
@@ -163,7 +175,7 @@ class Loader
 | @Return: (Object) Returns the database object / connection
 |
 */
-    function database($args, $instance = TRUE)
+    public function database($args, $instance = TRUE)
     {
         // Load our connection settings. We can allow custom connection arguments
         if(!is_array($args))
@@ -251,7 +263,7 @@ class Loader
 | @Return: (None)
 |
 */
-    function helper($name)
+    public function helper($name)
     {
         // Check the application/helpers folder
         if(file_exists(APP_PATH . DS .  'helpers' . DS . $name . '.php')) 

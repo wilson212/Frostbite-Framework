@@ -7,7 +7,7 @@ class Welcome_Model extends System\Core\Model
 		parent::__construct();
 	}
 	
-	function return_default_array()
+	function test_array()
 	{
 		return array('test_var' => 'This is a dynamically loaded page using the Frostbite MVC Framework!');
 	}

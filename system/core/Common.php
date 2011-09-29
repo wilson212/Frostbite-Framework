@@ -59,7 +59,7 @@
         $calling = $backtrace[0];
         
         // Load language
-        $lang = load_class('Core.Language');
+        $lang = load_class('Language');
         $lang->set_language( config('core_language', 'Core') );
         $lang->load('core_errors');
         $message = $lang->get($err_message);

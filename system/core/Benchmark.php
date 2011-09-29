@@ -11,16 +11,17 @@
 | License:      GNU GPL v3
 |
 */
+namespace System\Core;
 
 class Benchmark
 {
     // Start and stop timers
-    public static $start = array(); 
-    public static $stop = array();
+    public $start = array(); 
+    public $stop = array();
 
 /*
 | ---------------------------------------------------------------
-| Function: startTimer()
+| Function: start()
 | ---------------------------------------------------------------
 |
 | Starts a new timer
@@ -28,14 +29,14 @@ class Benchmark
 | @Param: (String) $key - Name of this start time
 |
 */
-    public static function startTimer($key)
+    public function start($key)
     {
-        self::$start[$key] = microtime(true);
+        $this->start[$key] = microtime(true);
     }
 
 /*
 | ---------------------------------------------------------------
-| Function: stopTimer()
+| Function: stop()
 | ---------------------------------------------------------------
 |
 | Stops a defined timer
@@ -43,17 +44,17 @@ class Benchmark
 | @Param: (String) $key - Name of this timer to be stopped
 |
 */
-    public static function stopTimer($key)
+    public function stop($key)
     {
-        self::$stop[$key] = microtime(true);
+        $this->stop[$key] = microtime(true);
     }
 
 /*
 | ---------------------------------------------------------------
-| Function: showTimer()
+| Function: elapsed_time()
 | ---------------------------------------------------------------
 |
-| Displays the final time from start to finish
+| Returns the final time from start to finish
 |
 | @Param: (String) $key - Name of this timer to be shown
 | @Param: (Int) $round - How many numbers after the "." do we show?
@@ -62,20 +63,20 @@ class Benchmark
 |	if no timer was set in the first place.
 |
 */
-    public static function showTimer($key, $round = 3, $stop = FALSE)
+    public function elapsed_time($key, $round = 3, $stop = FALSE)
     {
-        if(!isset(self::$start[$key]))
+        if(!isset($this->start[$key]))
         {
             show_error('benchmark_key_not_found', array($key), E_WARNING);
             return FALSE;
         }
         else
         {
-            if(!isset(self::$stop[$key]) && $stop == TRUE)
+            if(!isset($this->stop[$key]) && $stop == TRUE)
             {
-                self::$stop[$key] = microtime(true);
+                $this->stop[$key] = microtime(true);
             }
-            return round( (microtime(true) - self::$start[$key]), $round );
+            return round( (microtime(true) - $this->start[$key]), $round );
         }
     }
     
@@ -87,7 +88,7 @@ class Benchmark
 | Returns the amount of memory the system has used to load the page
 |
 */
-    public static function memory_usage() 
+    public function memory_usage() 
     {
         $usage = '';	 
         $mem_usage = memory_get_usage(true); 

@@ -16,7 +16,7 @@
 			<p>
 				You can edit this page by going here:
 				<pre>
-					application/views/welcome/index.php
+					application/views/welcome.php
 				</pre>
 				
 				<br />
@@ -34,7 +34,7 @@
 		</div>
 		<div id="footer">
 			<center>
-				Page rendered in {PAGE_LOAD_TIME} seconds, using {MEMORY_USAGE}
+				Page rendered in {ELAPSED_TIME} seconds, using {MEMORY_USAGE}
 				<br />
 				<small>Frostbite Framework &copy 2011, Steven Wilson</small>
 			</center>
