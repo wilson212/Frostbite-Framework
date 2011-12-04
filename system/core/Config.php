@@ -57,13 +57,13 @@ class Config
     protected function Init() 
     {
         // Load the APP config.php and add the defined vars
-        $this->Load($this->files['app']['file_path'], 'app');
+        $this->load($this->files['app']['file_path'], 'app');
         
         // Load the core.config.php and add the defined vars
-        $this->Load($this->files['core']['file_path'], 'core', 'config');
+        $this->load($this->files['core']['file_path'], 'core', 'config');
         
         // Load the database.config.php and add the defined vars
-        $this->Load($this->files['db']['file_path'], 'db', 'DB_configs');
+        $this->load($this->files['db']['file_path'], 'db', 'DB_configs');
     }
 
 /*
@@ -164,7 +164,7 @@ class Config
 | @Return: (None)
 |
 */
-    public function Load($_file, $_name, $_array = FALSE) 
+    public function load($_file, $_name, $_array = FALSE) 
     {
         // Lowercase the $name
         $_name = strtolower($_name);
@@ -208,7 +208,7 @@ class Config
 | @Return: (Bool) TRUE on success, FALSE otherwise
 |
 */
-    public function Save($name) 
+    public function save($name) 
     {
         // Lowercase the $name
         $name = strtolower($name);
@@ -276,7 +276,7 @@ class Config
 | @Return: (Bool) TRUE on success, FALSE otherwise
 |
 */
-    public function Restore($name) 
+    public function restore($name) 
     {
         // Copy the backup config file nd write the config values to the current config
         return copy($this->files[$name]['file_path'].'bak', $this->files[$name]['file_path']);

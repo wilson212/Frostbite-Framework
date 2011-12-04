@@ -38,12 +38,12 @@ require (SYSTEM_PATH . DS . 'core' . DS . 'Common.php');
 require (SYSTEM_PATH . DS . 'core' . DS . 'Debug.php');
 require (SYSTEM_PATH . DS . 'core' . DS . 'Registry.php');
 
+// Register the Core to process errors with the custom_error_handler method 
+set_error_handler( array( 'System\\Core\\Debug', 'php_error_handler' ), E_ALL | E_STRICT );
+
 // Initiate the system start time
 $Benchmark = load_class('Benchmark');
 $Benchmark->start('system');
- 
-// Register the Core to process errors with the custom_error_handler method 
-set_error_handler( array( 'System\\Core\\Debug', 'php_error_handler' ), E_ALL | E_STRICT );
 
 // Initiate the framework and let it do the rest ;)
 $Frostbite = load_class('Frostbite');

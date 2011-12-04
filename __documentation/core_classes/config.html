@@ -48,7 +48,7 @@
 		If you need to access the function manually, you will do so like below. Please note that load_class() is the default way of loading Core Classes... but you can use the loader.
 	</p>
 	<code>
-		$this->config = load_class('Core\\Config');<br />
+		$this->config = load_class('Config');<br />
 	</code>
 	<!-- End Loading the config class -->
 	
@@ -59,7 +59,7 @@
 		You can load as many config files as you please using this method below
 	</p>
 	<code>
-		$this->config->Load('<var>$file_path</var>', '<var>$container_name</var>', '<dfn>$array_key</dfn>');<br />
+		$this->config->load('<var>$file_path</var>', '<var>$container_name</var>', '<dfn>$array_key</dfn>');<br />
 	</code>
 	<h5><u>Arguments:</u></h5>
 	<p>
@@ -99,6 +99,23 @@
 		</ol>
 	</p>
 	<!-- End getting a variable -->
+    
+    <!-- Getting all Variables -->
+	<h2>Getting all variable from the a config file</h2>
+	<p>The method below will show you how to get an array of all the config variables. The default container names are <var>"app"</var> (config.php), <var>"core"</var> (core.config.php), 
+		<var>"db"</var> (database.config.php), and If there is a module, default is <var>"mod"</var>
+	<code>
+		$array = $this->config->get_all('<dfn>$container_name</dfn>');
+	</code>
+	<h5><u>Arguments:</u></h5>
+	<p>
+		<ol>
+			<li>
+				<dfn>$container_name</dfn> [Type: String]: Default "App" - This is the container key, that holds the config options for a particular config file. Each file has its own container.
+			</li>
+		</ol>
+	</p>
+	<!-- End getting all variables -->
 
 	
 	<!-- Setting a variable -->
@@ -129,7 +146,7 @@
 	<p>This method will save all the current variables and values in the containers config file.</p>
 	<p class="important"><strong>Note:</strong>&nbsp; Saving to a config file WILL remove all comments and special formatting you may have used.</p>
 	<code>
-		$this->config->Save('<var>$container_name</var>);
+		$this->config->save('<var>$container_name</var>);
 	</code>
 	<h5><u>Arguments:</u></h5>
 	<p>

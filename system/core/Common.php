@@ -153,7 +153,7 @@
     function config_save($name)
     {
         $Config = load_class('Config');	
-        return $Config->Save($name);
+        return $Config->save($name);
     }
 
 /*
@@ -175,7 +175,7 @@
     function load_config($file, $name, $array = FALSE)
     {	
         $Config = load_class('Config');	
-        $Config->Load($file, $name, $array);
+        $Config->load($file, $name, $array);
     }
 
 /*
