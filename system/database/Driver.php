@@ -15,9 +15,6 @@ namespace System\Database;
 
 class Driver extends \PDO
 {
-    // Holds our driver name
-    public $driver;
-
     // The most recen query
     public $last_query = '';
 
@@ -47,48 +44,36 @@ class Driver extends \PDO
 | Creates the connection to the database using PDO
 |
 */
-    public function __construct($info)
+    public function __construct($i)
     {
-        // Fill Atributes
-        $hostname = $info['host'];
-        $port = $info['port'];
-        $user = $info['username'];
-        $pass = $info['password'];
-        $database = $info['database'];
-        $this->driver = $driver = $info['driver'];
-        
         // Create our DSN based off our driver
-        if($driver == 'sqlite')
+        if($i['driver'] == 'sqlite')
         {
-            $filepath = ROOT . DS . $database;
-            $dsn = 'sqlite:dbname='.$filepath;
+            $dsn = 'sqlite:dbname='. ROOT . DS . $i['database'];
         }
         else
         {
-            $dsn = $driver .':dbname='.$database .';host='.$hostname .';port='.$port;
+            $dsn = $i['driver'] .':dbname='.$i['database'] .';host='.$i['host'] .';port='.$i['port'];
         }
         
         // Try and Connect to the database
         try 
         {
             // Connect using the PDO constructer
-            parent::__construct($dsn, $user, $pass);
+            parent::__construct($dsn, $i['username'], $i['password'], array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION));
         }
         catch (\PDOException $e)
         {
             // So we caught an error, depending on our driver, is the info we spit out
-            if($driver == 'sqlite')
+            if($i['driver'] == 'sqlite')
             {
-                show_error('db_connect_error', array( $database, $dsn, '' ), E_ERROR);
+                show_error('db_sqlite_connect_error', array( $dsn ), E_ERROR);
             }
             else
             {
-                show_error('db_connect_error', array( $database, $hostname, $port ), E_ERROR);
+                show_error('db_connect_error', array( $i['database'], $i['host'], $i['port'] ), E_ERROR);
             }
         }
-        
-        // Connection was a sucess, set our error attributes and get server info
-        $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     }
 
  
@@ -143,7 +128,7 @@ class Driver extends \PDO
             }
         }
 
-        // Time our query
+        // Time, and process our query
         $start = microtime(true);
         try {
             ($bound == TRUE) ? $this->result->execute() : $this->result->execute($sprints);
@@ -273,13 +258,12 @@ class Driver extends \PDO
     {
         // Make sure we dont have a false return
         if($this->result == FALSE || $this->result == NULL) return FALSE;
-        
         return $this->result->fetchColumn($col);
     }
 
 /*
 | ---------------------------------------------------------------
-| Function: fetch_column()
+| Function: get_fetch_type()
 | ---------------------------------------------------------------
 |
 | Return the PDO fetch type
@@ -313,7 +297,9 @@ class Driver extends \PDO
 
             case "OBJ":
                 return \PDO::FETCH_OBJ;
-
+                
+            default:
+                return \PDO::FETCH_ASSOC;
         }
     }
 
@@ -512,10 +498,21 @@ class Driver extends \PDO
         }
         return $this->num_rows;
     }
-    
-    function server_version()
+ 
+/*
+| ---------------------------------------------------------------
+| Function: server_info()
+| ---------------------------------------------------------------
+|
+| Returns the DB server information
+|
+*/ 
+    public function server_info()
     {
-        return \PDO::getAttribute( \PDO::ATTR_SERVER_VERSION );
+        return array(
+            'driver' => \PDO::getAttribute( \PDO::ATTR_DRIVER_NAME ),
+            'version' => \PDO::getAttribute( \PDO::ATTR_SERVER_VERSION )
+        );
     }
 
 /*
@@ -529,10 +526,14 @@ class Driver extends \PDO
 
     protected function trigger_error() 
     {
+        // Get our driver name and error information
         $errInfo = $this->result->errorInfo();
+        $driver = \PDO::getAttribute( \PDO::ATTR_DRIVER_NAME );
+        
+        // Build our error message
         $msg  = $errInfo[2] . "<br /><br />";
         $msg .= "<b>PDO Error No:</b> ". $errInfo[0] ."<br />";
-        $msg .= "<b>". ucfirst($this->driver) ." Error No:</b> ". $errInfo[1] ."<br />";
+        $msg .= "<b>". ucfirst($driver) ." Error No:</b> ". $errInfo[1] ."<br />";
         $msg .= "<b>Query String: </b> ". $this->last_query ."<br />";
         show_error($msg, false, E_ERROR);
     }
