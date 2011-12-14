@@ -80,45 +80,17 @@
 	<!-- Class Variables -->
 	<h2>Public class variables</h2>
 	<p>
-		There are a few variables within the Database Driver that can be accessed from the outside
+		There are aone variable within the Database Driver that can be accessed from the outside
 	</p>	
 	<p>
-		<!-- variable: statistics -->
-		<h3>$statistics</h3>
-		<p>The statistics variable keeps track of how many queries have been ran in this connection, as well as the total amount of time it took to query all of them. <i>(Type: Array)</i></p>
-		<code>
-			Format: $statistics = array( 'count' => '<i>Query count</i>', 'time' => '<i>Total queries time</i>');<br />
-			Access: $stats = $connection->statistics;
-		</code>
-		<!-- END variable: statistics -->
-		
-		<!-- variable: database -->
+		<!-- variable: result -->
 		<h3>$result</h3>
 		<p>This is the current result object from the last query. You can chain off the result variable and access the PDO mehtods inside ( Ex: $connection->result->rowCount() ). <i>(Type: Object)</i></p>
 		<code>
 			Format: $result = '<i>Result Object</i>'<br />
 			Access: $name = $connection->result;
 		</code>
-		<!-- END variable: statistics -->
-		
-		<!-- variable: queries -->
-		<h3>$queries</h3>
-		<p>This is a multi-dimensional array of each individual query. Each row supplies the query as a sting, and query benchmark time.</i></p>
-		<code>
-			Format: $queries = array( 0 => array('query' => '<i>The query as a string</i>', 'time' => '<i>Queries load time</i>'));<br />
-			Access: $queries_array = $connection->queries;
-		</code>
-		<!-- END variable: statistics -->
-		
-		<!-- variable: Last Query -->
-		<h3>$last_query</h3>
-		<p>This variable holds the last query string. <i>(Type: String)</i></p>
-		<code>
-			Format: $last_query = '<i>Last Query String</i>'<br />
-			Access: $query = $connection->last_query;
-		</code>
-		<!-- END variable: Last Query -->
-		
+		<!-- END variable: result -->
 	</p>		
 	<!-- End Variables -->
 	
@@ -258,19 +230,7 @@
 		<!-- END Fetch_column() -->
 	
 	<!-- END Fetching results -->
-	
-	
-	<!-- Resetting -->
-	<h2>Reseting database statics</h2>
-	<p>
-		The frostbite database drivers keep an array of all the queries, as well as benchmarks while the script is loading. At any given time you can call the
-		reset() method to reset the statistics.
-	</p>
-	<code>
-		$connection->reset();
-	</code>
-	<!-- END Resetting -->
-	
+
 	
 	<!-- Num Rows -->
 	<h2>Getting the number of rows</h2>
@@ -301,6 +261,37 @@
 			</ol>
 		</p>
 	<!-- END Insert ID -->
+    
+    <!-- Getting Statistics -->
+	<h2>Getting DB statistics</h2>
+	<p>
+		Returns an array of statistics for the current connection. (Format: array('total_queries', 'total_time'))
+	</p>
+	<code>
+		$connection->statistics();
+	</code>
+	<!-- END Getting Statistics -->
+    
+    <!-- Resetting -->
+	<h2>Reseting DB statistics</h2>
+	<p>
+		The frostbite database drivers keep an array of all the queries, as well as benchmarks while the script is loading. At any given time you can call the
+		reset() method to reset the statistics.
+	</p>
+	<code>
+		$connection->reset();
+	</code>
+	<!-- END Resetting -->
+    
+    <!-- Getting Queries -->
+	<h2>Getting all queuries</h2>
+	<p>
+		Returns an array of all the queries ran on the current connection. (Format: array( $key => array('time', 'query')))
+	</p>
+	<code>
+		$connection->get_all_queries();
+	</code>
+	<!-- END Getting Queries -->
 
 
 </div>

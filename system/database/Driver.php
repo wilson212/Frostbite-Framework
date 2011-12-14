@@ -16,25 +16,25 @@ namespace System\Database;
 class Driver extends \PDO
 {
     // The most recen query
-    public $last_query = '';
+    protected $last_query = '';
 
     // All sql statement that have been ran
-    public $queries = array();
+    protected $queries = array();
     
     // Replacments for the last query
-    public $sprints;
-
-    // result of the last query
-    public $result;
+    protected $sprints;
 
     // Our last queries number of rows / affected rows
-    public $num_rows;
+    protected $num_rows;
 
     // Queries statistics.
-    public $statistics = array(
-        'time'  => 0,
-        'count' => 0,
+    protected $statistics = array(
+        'total_time' => 0,
+        'total_queries' => 0,
     );
+    
+    // result of the last query
+    public $result;
 
 /*
 | ---------------------------------------------------------------
@@ -97,41 +97,14 @@ class Driver extends \PDO
         
         // Set our sprints, and bindings to false
         $this->sprints = $sprints;
-        $bound = FALSE;
         
         // Prepare the statement
         $this->result = $this->prepare($query);
-        
-        // Process our sprints and bind parameters
-        if(is_array($sprints))
-        {
-            foreach($sprints as $key => $value)
-            {
-                // Kill the binding if we are using ?'s
-                if($key === 0) break;
-                
-                // Set that we are binding
-                $bound = TRUE;
-                
-                // Get our PDO param type
-                if($value == NULL)
-                {
-                    $type = \PDO::PARAM_NULL; 
-                }
-                else
-                {
-                    (is_int($value)) ? $type = \PDO::PARAM_INT : $type = \PDO::PARAM_STR;
-                }
-                
-                // Bind the param
-                $this->result->bindParam($key, $value, $type);
-            }
-        }
 
         // Time, and process our query
         $start = microtime(true);
         try {
-            ($bound == TRUE) ? $this->result->execute() : $this->result->execute($sprints);
+            $this->result->execute($sprints);
         }
         catch (\PDOException $e) { 
             $this->trigger_error();
@@ -148,8 +121,8 @@ class Driver extends \PDO
         $this->queries[] = $bench;
 
         // Up our statistic count
-        $this->statistics['count']++;
-        $this->statistics['time'] = ($this->statistics['time'] + $bench['time']);
+        $this->statistics['total_queries']++;
+        $this->statistics['total_time'] = ($this->statistics['total_time'] + $bench['time']);
 
         // Return
         return $this;
@@ -188,8 +161,8 @@ class Driver extends \PDO
         $this->queries[] = $bench;
 
         // Up our statistic count
-        $this->statistics['count']++;
-        $this->statistics['time'] = ($this->statistics['time'] + $bench['time']);
+        $this->statistics['total_queries']++;
+        $this->statistics['total_time'] = ($this->statistics['total_time'] + $bench['time']);
 
         // Return
         return $result;
@@ -406,25 +379,6 @@ class Driver extends \PDO
 
 /*
 | ---------------------------------------------------------------
-| Function: reset()
-| ---------------------------------------------------------------
-|
-| Clears out and resets the query statistics
-|
-| @Return: (None)
-|
-*/
-    public function reset()
-    {
-        $this->queries = array();
-        $this->statistics = array(
-            'time'  => 0,
-            'count' => 0
-        );
-    }
-
-/*
-| ---------------------------------------------------------------
 | Function: last_insert_id()
 | ---------------------------------------------------------------
 |
@@ -505,6 +459,7 @@ class Driver extends \PDO
 | ---------------------------------------------------------------
 |
 | Returns the DB server information
+| @Return: (Array)
 |
 */ 
     public function server_info()
@@ -512,6 +467,55 @@ class Driver extends \PDO
         return array(
             'driver' => \PDO::getAttribute( \PDO::ATTR_DRIVER_NAME ),
             'version' => \PDO::getAttribute( \PDO::ATTR_SERVER_VERSION )
+        );
+    }
+    
+/*
+| ---------------------------------------------------------------
+| Function: statistics()
+| ---------------------------------------------------------------
+|
+| Returns the statistic information of this connection
+| @Return: (Array)
+|
+*/ 
+    public function statistics()
+    {
+        return $this->statistics;
+    }
+    
+/*
+| ---------------------------------------------------------------
+| Function: get_all_queries()
+| ---------------------------------------------------------------
+|
+| Returns an array of all queries thus far and each quesries
+|   statistical data such as query time.
+| @Return: (Array)
+|
+*/ 
+    public function get_all_queries()
+    {
+        return $this->queries;
+    }
+    
+
+/*
+| ---------------------------------------------------------------
+| Function: reset()
+| ---------------------------------------------------------------
+|
+| Clears out and resets the query statistics
+|
+| @Return: (None)
+|
+*/
+    public function reset()
+    {
+        $this->queries = array();
+        $this->statistics = array(
+            'total_time'  => 0,
+            'total_queries' => 0
         );
     }
 
