@@ -45,6 +45,29 @@ $config['core_language'] = 'english';
 
 /*
 | ---------------------------------------------------------------
+| Default_controller
+| ---------------------------------------------------------------
+|
+| This is the default controller that loads when no path is givin
+|
+*/
+
+$config['default_controller'] = 'welcome';
+
+
+/*
+| ---------------------------------------------------------------
+| Default_controller
+| ---------------------------------------------------------------
+|
+| This is the default action that loads when no action is givin
+|
+*/
+$config['default_action'] = 'index';
+
+
+/*
+| ---------------------------------------------------------------
 | Auto load Libraries
 | ---------------------------------------------------------------
 |
@@ -118,7 +141,7 @@ $config['session_database_id'] = 'DB';
 |
 */
 
-$config['session_table_name'] = 'session_table';
+$config['session_table_name'] = 'sessions_table_name';
 
 
 /*
