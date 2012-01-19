@@ -65,6 +65,23 @@ $config['default_controller'] = 'welcome';
 */
 $config['default_action'] = 'index';
 
+/*
+| ---------------------------------------------------------------
+| Qeury Strings
+| ---------------------------------------------------------------
+|
+| 'enable_query_strings' - When enabled, you can use a normal query 
+|   string using the set triggers ( example.com/?c=controller&m=function ),
+|   addition params in the query string are passed in order to the
+|   functions arguments. by default (FALSE), Frostbite will use pretty
+|   urls ( example.com/controller/action/param1/param2 ). Servers lacking 
+|   mod_rewrite support will need this set to TRUE
+|
+*/
+$config['enable_query_strings'] = FALSE;
+$config['controller_param'] = 'c';
+$config['action_param'] = 'm';
+
 
 /*
 | ---------------------------------------------------------------
