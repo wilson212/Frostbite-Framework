@@ -28,6 +28,9 @@ class Welcome extends System\Core\Controller
         */
         $data = $this->Welcome_Model->test_array();
         
+        // Load the Url helper
+        $this->load->helper('Url');
+        
         // Define the base site url
         $url = get_url_info();
         $data['site_url'] = $url['site_url'];

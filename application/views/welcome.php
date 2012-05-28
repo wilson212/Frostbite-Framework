@@ -36,7 +36,7 @@
             <center>
                 Page rendered in {ELAPSED_TIME} seconds, using {MEMORY_USAGE}
                 <br />
-                <small>Frostbite Framework &copy 2011, Steven Wilson</small>
+                <small>Frostbite Framework &copy 2011-2012, Steven Wilson</small>
             </center>
         </div>
     </div>
