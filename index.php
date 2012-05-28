@@ -22,15 +22,9 @@ define('ROOT', dirname(__FILE__));
 define('APP_PATH', ROOT . DS . 'application');
 define('SYSTEM_PATH', ROOT . DS . 'system');
 
-/*
-| Lets speed to core up by manually loading these system files,
-| The Common functions file, and The Registry Class
-*/
+// Include required scripts to run the system
 require (SYSTEM_PATH . DS . 'core' . DS . 'Common.php');
 require (SYSTEM_PATH . DS . 'core' . DS . 'Registry.php');
- 
-// Register the Core to process errors with the custom_error_handler method
-set_error_handler( 'php_error_handler' , E_ALL | E_STRICT );
 
 // Initiate the system start time
 $Benchmark = load_class('Benchmark');

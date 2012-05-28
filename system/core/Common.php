@@ -36,7 +36,7 @@
             // Failed to load class all together.
             show_error('autoload_failed', array( addslashes($className) ), E_ERROR);
         }
-        require_once($file);
+        require $file;
     }
 
 /*
@@ -64,6 +64,31 @@
 
         // Don't execute PHP internal error handler
         return true;
+    }
+    
+/*
+| ---------------------------------------------------------------
+| Function: shutdown()
+| ---------------------------------------------------------------
+|
+| Method for catching fetal and parse errors
+|
+*/
+    function shutdown()
+    {
+        $error = error_get_last();
+        if(is_array($error) && config('catch_fetal_errors', 'Core') == 1)
+        {
+            if($error['type'] == E_ERROR || $error['type'] == E_PARSE)
+            {
+                // Get singleton
+                $Debug = load_class('Debug');	
+            
+                // Trigger
+                $Debug->trigger_error($error['type'], $error['message'], $error['file'], $error['line']);
+            }
+            // Otherwise ignore
+        }
     }
 
 /*
@@ -236,11 +261,11 @@
     {
         if(class_exists('Application\\Core\\Controller', FALSE))
         {
-            return Application\Core\Controller::get_instance();
+            return \Application\Core\Controller::get_instance();
         }
         elseif(class_exists('System\\Core\\Controller', FALSE))
         {
-            return System\Core\Controller::get_instance();
+            return \System\Core\Controller::get_instance();
         }
         else
         {
@@ -275,10 +300,12 @@
 | @Param: (String) $className - Class needed to be loaded / returned
 | @Param: (String) $type - Basically the folder name where the class
 |   is stored
+| @Param: (Bool) $surpress - set to TRUE to bypass the error screen
+|   if the class fails to initiate, and return false instead
 | @Return: (Object) - Returns the loaded class
 |
 */
-    function load_class($className, $type = 'Core')
+    function load_class($className, $type = 'Core', $surpress = FALSE)
     {
         // Now we need to make sure the user supplied some sort of path
         if(strpos($className, '\\') === FALSE)
@@ -292,10 +319,7 @@
 
         // Check the registry for the class, If its there, then return the class
         $loaded = \Registry::singleton()->load($store_name);
-        if($loaded !== NULL)
-        {
-            return $loaded;
-        }
+        if($loaded !== NULL) return $loaded;
 
         // ---------------------------------------------------------
         // Class not in Registry, So we load it manually and then  |
@@ -311,7 +335,7 @@
         $parts[$last] = ucfirst($parts[$last]);
 
         // Build our filepath
-        $file = str_replace('\\', DS, implode('\\', $parts));
+        $file = implode(DS, $parts);
 
         // If we dont have the full path, create it
         if($parts[0] !== 'system' && $parts[0] !== 'application')
@@ -337,13 +361,25 @@
         require($file);
 
         //  Initiate the new class into a variable
-        $dispatch = new $className();
+        try{
+            $Obj = new $className();
+        }
+        catch(\Exception $e) {
+            $message = $e->getMessage();
+            $Obj = FALSE;
+        }
+        
+        // Display error?
+        if($Obj == FALSE && $surpress == FALSE)
+        {
+            show_error('class_init_failed', array($className, $message), E_ERROR);
+        }
 
         // Store this new object in the registery
-        \Registry::singleton()->store($store_name, $dispatch); 
+        \Registry::singleton()->store($store_name, $Obj); 
 
-        // return dispatched class.
-        return $dispatch;
+        // return the object.
+        return $Obj;
     }
 
 /*
@@ -377,4 +413,8 @@
             die();
         }
     }
+
+// Register the Core to process errors with the custom_error_handler method
+set_error_handler('php_error_handler', E_ALL | E_STRICT);
+register_shutdown_function('shutdown');
 // EOF

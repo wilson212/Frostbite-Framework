@@ -15,6 +15,9 @@ namespace System\Database;
 
 class Driver extends \PDO
 {
+    // Driver
+    protected $driver;
+    
     // The most recen query
     protected $last_query = '';
 
@@ -49,11 +52,11 @@ class Driver extends \PDO
         // Create our DSN based off our driver
         if($i['driver'] == 'sqlite')
         {
-            $dsn = 'sqlite:dbname='. ROOT . DS . $i['database'];
+            $dsn = 'sqlite:dbname='. $i['database'];
         }
         else
         {
-            $dsn = $i['driver'] .':dbname='.$i['database'] .';host='.$i['host'] .';port='.$i['port'];
+            $dsn = $i['driver'] .':host='.$i['host'] .';port='.$i['port'] .';dbname='.$i['database'];
         }
         
         // Try and Connect to the database
@@ -64,15 +67,7 @@ class Driver extends \PDO
         }
         catch (\PDOException $e)
         {
-            // So we caught an error, depending on our driver, is the info we spit out
-            if($i['driver'] == 'sqlite')
-            {
-                show_error('db_sqlite_connect_error', array( $dsn ), E_ERROR);
-            }
-            else
-            {
-                show_error('db_connect_error', array( $i['database'], $i['host'], $i['port'] ), E_ERROR);
-            }
+            throw new \Exception( $e->getMessage() );
         }
     }
 
@@ -557,15 +552,18 @@ class Driver extends \PDO
             return $this->$name;
         }
         
+        // Create our classname
+        $class = ucfirst($name);
+        
         // Check for the extension
-        if(file_exists(APP_PATH. DS . 'database' . DS . 'extensions' . DS . $name .'.php')) 
+        if(file_exists(APP_PATH. DS . 'database' . DS . 'extensions' . DS . $class .'.php')) 
         {
-            require_once(APP_PATH. DS . 'database' . DS . 'extensions' . DS . $name .'.php');
+            require_once(APP_PATH. DS . 'database' . DS . 'extensions' . DS . $class .'.php');
             $prefix = "\\Application";
         }
-        elseif(file_exists(SYSTEM_PATH. DS . 'database' . DS . 'extensions' . DS . $name .'.php'))
+        elseif(file_exists(SYSTEM_PATH. DS . 'database' . DS . 'extensions' . DS . $class .'.php'))
         {
-            require_once(SYSTEM_PATH. DS . 'database' . DS . 'extensions' . DS . $name .'.php');
+            require_once(SYSTEM_PATH. DS . 'database' . DS . 'extensions' . DS . $class .'.php');
             $prefix = "\\System";
         }
         else
@@ -576,7 +574,6 @@ class Driver extends \PDO
         }
         
         // Load the class
-        $class = ucfirst($name);
         $class = $prefix ."\\Database\\Extensions\\".$class;
         $this->$name = new $class($this);
         return $this->$name;
