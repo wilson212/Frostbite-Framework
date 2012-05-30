@@ -36,7 +36,7 @@
             // Failed to load class all together.
             show_error('autoload_failed', array( addslashes($className) ), E_ERROR);
         }
-        require $file;
+        require_once $file;
     }
     
 /*
@@ -109,7 +109,7 @@
         }
 
         // Include our file. If it doesnt exists, class is un-obtainable.
-        require($file);
+        require $file;
 
         //  Initiate the new class into a variable
         try{
@@ -165,14 +165,20 @@
     function shutdown()
     {
         // Get las error, and confg option
-        $error = error_get_last();
         $catch = load_class('Config')->get('catch_fetal_errors', 'Core');
+        $error = error_get_last();
+        
+        // Write debug / system logs
+        $Debug = load_class('Debug');
+        $Debug->write_logs();
+        
+        // If we have an error, only track if its fetal
         if(is_array($error) && $catch == 1)
         {
             if($error['type'] == E_ERROR || $error['type'] == E_PARSE)
             {
                 // Trigger
-                load_class('Debug')->trigger_error($error['type'], $error['message'], $error['file'], $error['line']);
+                $Debug->trigger_error($error['type'], $error['message'], $error['file'], $error['line']);
             }
             // Otherwise ignore
         }
@@ -199,7 +205,8 @@
         
         // Load language
         $lang = load_class('Language');
-        $lang->set_language( config('core_language', 'Core') );
+        $language = load_class('Config')->get('core_language', 'Core');
+        $lang->set_language( $language );
         $lang->load('core_errors');
         $message = $lang->get($err_message);
         

@@ -19,15 +19,20 @@ $config['environment'] = 2;
 
 /*
 | ---------------------------------------------------------------
-| Log_errors
+| Log_level
 | ---------------------------------------------------------------
 |
-| Set to 1 to log errors in the error log. Set to 0 to disable
-| error logging.
+| Logging Level. Error and Info messages are stored in the 
+| "/system/logs/system_logs.log" file, and Debug messages are
+| stored in the "/system/logs/debug.log" file.
+|   0 = Disabled
+|   1 = Errors only
+|   2 = Debug, and Errors only
+|   3 = All including Debug, Errors, and Info logs
 |
 */
 
-$config['log_errors'] = 1;
+$config['log_level'] = 2;
 
 
 /*
